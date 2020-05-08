@@ -1,0 +1,38 @@
+.navbar {
+    box-shadow: 0px 3px 5px #ccc;
+}
+.navbar a.active, .navbar a:hover, .navbar a.navbar-brand {
+    color: #5eb1bf;
+}
+.navbar a.active {
+    cursor: default;
+}
+.navbar a.dropdown_item {
+    text-decoration: none;
+}
+
+
+.black-text {
+    color: black;
+}
+.highlight-text {
+    color: #5eb1bf;
+}
+.grey-text {
+    color: #333;
+}
+.white-text {
+    color: white;
+}
+.black-background {
+    background-color: black;
+}
+.highlight-background {
+    background-color: #4950ba
+}
+.white-background {
+    background-color: white;
+}
+.test-background {
+   background-color: #5EB1BF;
+}
