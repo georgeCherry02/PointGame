@@ -4,7 +4,7 @@
 <div class="navbar navbar-expand-lg">
     <div class="container">
         <?php $home_active = $page_title === "Home"; ?>
-        <a class="navbar-brand highlight-text <?php if ($home_active) { echo "active"; } ?>" <?php if (!$home_active) { echo "href=\"default.php\""; } ?>>Point Game</a>
+        <a class="navbar-brand highlight-text <?php if ($home_active) { echo "active"; } ?>" <?php if (!$home_active) { echo "href=\"default.php\""; } ?>>What's The Point?</a>
         <button class="navbar-toggler grey-text" type="button" data-toggle="collapse" data-target="#navbar_content" aria-expanded="false" aria-label="Toggle Navigation">
             <i class="fas fa-bars"></i>
         </button>

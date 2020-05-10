@@ -28,11 +28,14 @@
     background-color: black;
 }
 .highlight-background {
-    background-color: #4950ba
+    background-color: #5eb1bf;
+}
+.transparent-highlight-background {
+    background-color: rgba(94, 177, 191, 0.35);
 }
 .white-background {
     background-color: white;
 }
 .test-background {
-   background-color: #5EB1BF;
+   background-color: #4950ba
 }
