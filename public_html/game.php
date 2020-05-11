@@ -13,6 +13,23 @@
     <h5 class="grey-text">Hi, this game is optimised for use on a desktop computer!</h5>
     <p class="grey-text">Please switch over to desktop to play the game and help our research!</p>
 </div>
+<div class="desktop_container" class="container d-none d-lg-block">
+    <div id="start_message" class="container multi_collapse collapse show">
+        <h3 class="grey-text">Hi and welcome to our game!</h3>
+        <p class="grey-text">The basics premise of the game is you draw a named shape from placing a number of points</p>
+        <p class="grey-text">Each round may have different limitations and these will be specified at the beginning of the round</p>
+        <p class="grey-text">Following submission of the point distribution, you will be asked to determine the shapes others have submitted</p>
+        <p class="grey-text">And then you can go through all over again!</p>
+        <div class="container text-center">
+            <button class="btn btn-primary highlight-background highlight-border" type="button" data-toggle="collapse" data-target=".multi_collapse" aria-controls="start_message game_container">Get Playing!</button>
+        </div>
+    </div>
+    <div id="game_container" class="container collapse multi_collapse">
+        <div class="canvas-container">
+            <canvas id="myCanvas" height="1024" width="1024" data-paper-scope="1" style="-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); width: 100%;"></canvas>
+        </div>
+    </div>
+</div>
 <?php
     include_once "../inc/components/footer.php";
 ?>

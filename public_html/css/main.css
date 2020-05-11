@@ -6,11 +6,21 @@
 }
 .navbar a.active {
     cursor: default;
+    pointer-events: none;
 }
 .navbar a.dropdown_item {
     text-decoration: none;
 }
 
+button.btn:hover {
+    transform: translate(0.5px, 0.5px);
+}
+button.highlight-background:hover {
+    background-color: #71c3d2;
+}
+button.highlight-border:hover {
+    border-color: #71c3d2;
+}
 
 .black-text {
     color: black;
@@ -35,6 +45,9 @@
 }
 .white-background {
     background-color: white;
+}
+.highlight-border {
+    border-color: #5eb1bf;
 }
 .test-background {
    background-color: #4950ba
