@@ -13,7 +13,9 @@
         <!-- Include Custom CSS -->
         <link rel="stylesheet" href="./css/main.css" type="text/css"/>
         <!-- Include Page's CSS -->
-        <link rel="stylesheet" href="./css/<?php echo $page_title; ?>.css" type="text/css">
+        <link rel="stylesheet" href="./css/<?php echo $page_title; ?>.css" type="text/css"/>
+        <!-- Include Logger script -->
+        <script src="./scripts/logging.js" type="application/javascript"></script>
 <?php
     if ($page_title === "Game") {
 ?>
