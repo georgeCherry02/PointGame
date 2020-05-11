@@ -1,0 +1,11 @@
+.canvas-container {
+    margin: 2em;
+}
+#myCanvas {
+    border: 1px solid black;
+}
+
+#desktop_optimisation_message {
+    /* Height of navbar is 3.5rem */
+    height: calc(100vh - 3.5rem);
+}
