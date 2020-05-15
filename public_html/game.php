@@ -31,6 +31,7 @@
             <canvas id="game_canvas" height="1024" width="1024" data-paper-scope="1" style="-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); width: 100%;"></canvas>
         </div>
     </div>
+    <script src="./scripts/game.js" type="application/javascript"></script>
 </div>
 <?php
     include_once "../inc/components/footer.php";
