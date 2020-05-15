@@ -10,7 +10,7 @@
             $this->_properties = $properties;
         }
 
-        private static function _fromProperty($property, $value) {
+        protected static function _fromProperty($property, $value) {
             // Attain a list of all Enums from that class
             $enum_type = get_called_class();
             $methods = self::_fetchReflectionMethods($enum_type);
