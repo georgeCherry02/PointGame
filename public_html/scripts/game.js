@@ -4,6 +4,8 @@ var origin = new paper.Point(0, 0);
 var canvas_size = new paper.Size(1024, 1024);
 
 // Define colours used
+const accept_colour = new paper.Color(0.9, 1, 0.9, 1);
+const reject_colour = new paper.Color(1, 0.9, 0.9, 1);
 const point_colour = new paper.Color(0.9, 0.9, 1, 1);
 
 // Define list of points
@@ -19,6 +21,7 @@ window.onload = function() {
         setup(game_canvas[0]);
 
         // Define layers
+        var mouse_track_layer = new paper.Layer();
         var points_layer = new paper.Layer();
         var base_layer = new paper.Layer();
 
@@ -27,6 +30,18 @@ window.onload = function() {
         accept_point_region = new Path.Rectangle(origin, canvas_size);
         canvas_region = new Path.Rectangle(origin, canvas_size);
         view.draw();
+
+        // Define the mouse marker and it's surroundings
+        // These get moved around to follow the mouse
+        mouse_track_layer.activate();
+        const validation_indicator = new Path.Circle({
+            center: new Point(-15, -15),
+            radius: 15
+        });
+        const mouse_marker = new Path.Circle({
+            center: new Point(-1, -1),
+            radius: 1
+        });
 
         // Initialise the Tool that runs the game
         // This picks up on all mouse events occuring on the canvas and handles appropriately
@@ -42,8 +57,46 @@ window.onload = function() {
                 // Renders the point on screen
                 renderPoint(event.point);
             }
+            // Updates mouse appearance after point is placed (should change colour to red as it's no longer in acceptance region)
+            updateMouseAppearance(event.point);
             // Redraws the canvas
             view.draw();
+        }
+        game_tool.onMouseMove = function(event) {
+            // Updates the mouse appearance on move so that the mimic mouse follows the actual cursor
+            updateMouseAppearance(event.point);
+            // Redraws the canvas
+            view.draw();
+            // Prevents touch scrolling incase somebody uses a touch screen device for this
+            return false;
+        }
+        // Activates the game tool
+        game_tool.activate();
+
+        // Moves around the fake mouse that allows indication of whether or not you can place a point
+        function updateMouseAppearance(location) {
+            // Activates the appropriate layer
+            mouse_track_layer.activate();
+
+            // Checks if the event occured as the mouse was leaving
+            if (!canvas_region.contains(location)) {
+                // If so move mouse off canvas
+                validation_indicator.position = new Point(-15, -15);
+                mouse_marker.position = new Point(-1, -1);
+                return;
+            }
+
+            // Move mouse_marker and validation_indicator to event (cursor) position
+            validation_indicator.position = location;
+            mouse_marker.position = location;
+
+            // Pick the appropriate colour, i.e. whether a click will be accepted or not
+            validation_indicator.fillColor = accept_colour;
+            mouse_marker.fillColor = "green";
+            if (!accept_point_region.contains(location)) {
+                validation_indicator.fillColor = reject_colour;
+                mouse_marker.fillColor = "red";
+            }
         }
 
         var outer;

@@ -1,8 +1,8 @@
 .canvas-container {
     margin: 2em;
 }
-#myCanvas {
-    border: 1px solid black;
+#game_canvas {
+    cursor: none;
 }
 
 #desktop_optimisation_message {
