@@ -21,9 +21,9 @@ window.onload = function() {
         setup(game_canvas[0]);
 
         // Define layers
-        var mouse_track_layer = new paper.Layer();
-        var points_layer = new paper.Layer();
         var base_layer = new paper.Layer();
+        var points_layer = new paper.Layer();
+        var mouse_track_layer = new paper.Layer();
 
         // Define acceptance region and the canvas in a shape
         base_layer.activate();
@@ -52,10 +52,22 @@ window.onload = function() {
                 points_layer.activate();
                 // Removes point from clickable region
                 updateAcceptPointRegion(event.point);
-                // Adds the location to the list of points
-                points_list.push(event.point);
                 // Renders the point on screen
                 renderPoint(event.point);
+            } else {
+                // If the point is not contained in the accept points region loop through paths and remove appropriate
+                for (var i = 0; i < points_list.length; i++) {
+                    // If the point contains the location of the event
+                    if (points_list[i].contains(event.point)) {
+                        // Add back to acceptance region
+                        updateAcceptPointRegion(points_list[i].position);
+                        // Remove from points_layer
+                        points_layer.activate();
+                        points_list[i].remove();
+                        points_list.splice(i, 1);
+                        break;
+                    }
+                }
             }
             // Updates mouse appearance after point is placed (should change colour to red as it's no longer in acceptance region)
             updateMouseAppearance(event.point);
@@ -109,8 +121,13 @@ window.onload = function() {
                 center: location,
                 radius: 10
             });
+            // Adds the path to the points list
             // Removes the region from the acceptance region
-            accept_point_region = accept_point_region.subtract(outer);
+            if (accept_point_region.contains(location)) {
+                accept_point_region = accept_point_region.subtract(outer);
+            } else {
+                accept_point_region = accept_point_region.unite(outer);
+            }
         }
 
         var colour_point;
@@ -121,10 +138,12 @@ window.onload = function() {
             // Defines the area to colour in
             colour_point = new Path.Circle({
                 center: location,
-                radius: 10
+                radius: 1 
             });
             // Assigns correct colour to points
-            colour_point.fillColor = point_colour;
+            colour_point.fillColor = "black";
+            // Pushes path to list
+            points_list.push(colour_point);
         }
     }
 }
