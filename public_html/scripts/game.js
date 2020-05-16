@@ -9,7 +9,8 @@ const reject_colour = new paper.Color(1, 0.9, 0.9, 1);
 const point_colour = new paper.Color(0.9, 0.9, 1, 1);
 
 // Define list of points
-var points_list = [];
+var point_images_list = [];
+var point_areas_list = [];
 
 // Define global paths
 var accept_point_region;
@@ -21,9 +22,10 @@ window.onload = function() {
         setup(game_canvas[0]);
 
         // Define layers
-        var base_layer = new paper.Layer();
-        var points_layer = new paper.Layer();
-        var mouse_track_layer = new paper.Layer();
+        var base_layer = new Layer();
+        var points_layer = new Layer();
+        var mouse_track_layer = new Layer();
+        mouse_track_layer.opacity = 0.5;
 
         // Define acceptance region and the canvas in a shape
         base_layer.activate();
@@ -40,34 +42,47 @@ window.onload = function() {
         });
         const mouse_marker = new Path.Circle({
             center: new Point(-1, -1),
-            radius: 1
+            radius: 2
         });
 
         // Initialise the Tool that runs the game
         // This picks up on all mouse events occuring on the canvas and handles appropriately
         var game_tool = new Tool();
         game_tool.onMouseDown = function(event) {
-            if (accept_point_region.contains(event.point)) {
+            var location = event.point;
+            if (accept_point_region.contains(location)) {
                 // Activates points_layer
                 points_layer.activate();
                 // Removes point from clickable region
-                updateAcceptPointRegion(event.point);
+                updateAcceptPointRegion(location);
                 // Renders the point on screen
-                renderPoint(event.point);
+                renderPoint(location);
             } else {
                 // If the point is not contained in the accept points region loop through paths and remove appropriate
-                for (var i = 0; i < points_list.length; i++) {
+                var effected_point_indices = [];
+                for (var i = 0; i < point_areas_list.length; i++) {
                     // If the point contains the location of the event
-                    if (points_list[i].contains(event.point)) {
-                        // Add back to acceptance region
-                        updateAcceptPointRegion(points_list[i].position);
-                        // Remove from points_layer
-                        points_layer.activate();
-                        points_list[i].remove();
-                        points_list.splice(i, 1);
-                        break;
+                    if (point_areas_list[i].contains(location)) {
+                        // Push to effected points
+                        effected_point_indices.push(i);
                     }
                 }
+                // Determine the closest point to the event
+                var closest_point_index = effected_point_indices[0];
+                var old_point = point_areas_list[effected_point_indices[0]];
+                var distance_from_old_to_event = old_point.position.getDistance(location);
+                var new_point, distance_from_new_to_event;
+                for (var i = 1; i < effected_point_indices.length; i++) {
+                    new_point = point_areas_list[effected_point_indices[i]];
+                    distance_from_new_to_event = new_point.position.getDistance(location);
+                    if (distance_from_new_to_event < distance_from_old_to_event) {
+                        distance_from_old_to_event = distance_from_new_to_event;
+                        closest_point_index = effected_point_indices[i];
+                    }
+                }
+
+                // Deal with the removal of a point
+                removePoint(effected_point_indices, closest_point_index);
             }
             // Updates mouse appearance after point is placed (should change colour to red as it's no longer in acceptance region)
             updateMouseAppearance(event.point);
@@ -113,7 +128,7 @@ window.onload = function() {
 
         var outer;
         // Removes points appropriately from acceptance region
-        function updateAcceptPointRegion(location) {
+        function updateAcceptPointRegion(location, remove = true) {
             // Activates the appropriate layer
             base_layer.activate();
             // Defines the area to remove from region
@@ -123,27 +138,58 @@ window.onload = function() {
             });
             // Adds the path to the points list
             // Removes the region from the acceptance region
-            if (accept_point_region.contains(location)) {
+            if (remove) {
                 accept_point_region = accept_point_region.subtract(outer);
             } else {
                 accept_point_region = accept_point_region.unite(outer);
             }
         }
 
-        var colour_point;
+        var colour_point, point_area;
         // Renders a new point at given location
         function renderPoint(location) {
             // Activates the appropriate layer
             points_layer.activate();
             // Defines the area to colour in
+            point_area = new Path.Circle({
+                center: location,
+                radius: 10
+            });
+            point_area.fillColor = point_colour;
             colour_point = new Path.Circle({
                 center: location,
-                radius: 1 
+                radius: 2 
             });
-            // Assigns correct colour to points
-            colour_point.fillColor = "black";
+            colour_point.fillColor = "blue";
             // Pushes path to list
-            points_list.push(colour_point);
+            point_images_list.push(colour_point);
+            point_areas_list.push(point_area);
+        }
+
+        function removePoint(effected_point_indices, removed_point_index) {
+            // Remove the point from APR
+            updateAcceptPointRegion(point_areas_list[removed_point_index].position, false);
+            points_layer.activate();
+            // Remove point dot
+            point_images_list[removed_point_index].remove();
+            point_images_list.splice(removed_point_index, 1);
+            // Remove point surrounding
+            point_areas_list[removed_point_index].remove();
+            point_areas_list.splice(removed_point_index, 1);
+
+            // Re introduce APR for all the other points
+            var current_point_index;
+            for (var i = 0; i < effected_point_indices.length; i++) {
+                current_point_index = effected_point_indices[i];
+                if (current_point_index !== removed_point_index) {
+                    // Account for array shift from splice
+                    if (current_point_index > removed_point_index) {
+                        current_point_index--;
+                    }
+                    // Make sure that each effected point keeps it's APR
+                    updateAcceptPointRegion(point_areas_list[current_point_index].position);
+                }
+            }
         }
     }
 }
