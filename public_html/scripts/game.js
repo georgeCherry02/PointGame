@@ -23,6 +23,7 @@ window.onload = function() {
 
         // Define layers
         var base_layer = new Layer();
+        var point_areas_layer = new Layer();
         var points_layer = new Layer();
         var mouse_track_layer = new Layer();
         mouse_track_layer.opacity = 0.5;
@@ -51,8 +52,6 @@ window.onload = function() {
         game_tool.onMouseDown = function(event) {
             var location = event.point;
             if (accept_point_region.contains(location)) {
-                // Activates points_layer
-                points_layer.activate();
                 // Removes point from clickable region
                 updateAcceptPointRegion(location);
                 // Renders the point on screen
@@ -149,13 +148,14 @@ window.onload = function() {
         // Renders a new point at given location
         function renderPoint(location) {
             // Activates the appropriate layer
-            points_layer.activate();
+            point_areas_layer.activate();
             // Defines the area to colour in
             point_area = new Path.Circle({
                 center: location,
                 radius: 10
             });
             point_area.fillColor = point_colour;
+            points_layer.activate();
             colour_point = new Path.Circle({
                 center: location,
                 radius: 2 
