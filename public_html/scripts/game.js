@@ -16,6 +16,9 @@ var point_areas_list = [];
 var accept_point_region;
 var canvas_region;
 
+const min_radius = 10;
+const max_radius = 20;
+
 window.onload = function() {
     with(paper) {
         Logger.log(LoggingType.STATUS, "Initialising canvas");
@@ -52,13 +55,43 @@ window.onload = function() {
         game_tool.onMouseDown = function(event) {
             var location = event.point;
             if (accept_point_region.contains(location)) {
+                if (max_radius > min_radius) {
+                    // Appropriately sets APR if no points have been placed down
+                    if (point_images_list.length === 0) {
+                        // Activate appropriate layer
+                        base_layer.activate();
+                        // Remove all APR
+                        accept_point_region = new Path.Circle({
+                            center: new Point(-1, -1),
+                            radius: 1
+                        });
+                        accept_point_region.strokeColor = "lightgrey";
+                    }
+                    // Check if any previous points have been effected
+                    var effected_point_indices = [];
+                    for (var i = 0; i < point_images_list.length; i++) {
+                        if (point_images_list[i].position.getDistance(location) < 20) {
+                            effected_point_indices.push(i);
+                        }
+                    }
+                    // Add the max_radius circle
+                    updateAcceptPointRegion(location, false, max_radius);
+                    // Re-remove all the old points
+                    var c_path;
+                    for (var i = 0; i < effected_point_indices.length; i++) {
+                        // Get the point
+                        c_path = point_images_list[effected_point_indices[i]];
+                        // Remove the area from the apr
+                        updateAcceptPointRegion(c_path.position);
+                    }
+                }
                 // Removes point from clickable region
                 updateAcceptPointRegion(location);
                 // Renders the point on screen
                 renderPoint(location);
             } else {
                 // If the point is not contained in the accept points region loop through paths and remove appropriate
-                var effected_point_indices = [];
+                effected_point_indices = [];
                 for (var i = 0; i < point_areas_list.length; i++) {
                     // If the point contains the location of the event
                     if (point_areas_list[i].contains(location)) {
@@ -127,13 +160,13 @@ window.onload = function() {
 
         var outer;
         // Removes points appropriately from acceptance region
-        function updateAcceptPointRegion(location, remove = true) {
+        function updateAcceptPointRegion(location, remove = true, radius = min_radius) {
             // Activates the appropriate layer
             base_layer.activate();
             // Defines the area to remove from region
             outer = new Path.Circle({
                 center: location,
-                radius: 10
+                radius: radius 
             });
             // Adds the path to the points list
             // Removes the region from the acceptance region
@@ -152,7 +185,7 @@ window.onload = function() {
             // Defines the area to colour in
             point_area = new Path.Circle({
                 center: location,
-                radius: 10
+                radius: min_radius
             });
             point_area.fillColor = point_colour;
             points_layer.activate();
