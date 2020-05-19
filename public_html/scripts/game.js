@@ -69,7 +69,10 @@ with (paper) {
                 // Fetch closest point
                 var nearest_point_id = game.fetchNearestPoint(event.point);
                 var nearest_point = game.point_areas_list[nearest_point_id];
-                // Remove this point from tracked lists...
+                // Check whether max_r > min_r and if so if this is just not valid placement
+                if (game.chaining && typeof nearest_point === "undefined") {
+                    return;
+                }
                 // Determine the section we're dealing with
                 var section_id = game.determineSectionID(nearest_point.position);
                 // Remove point_area path from section
