@@ -1,6 +1,6 @@
 // Define external constants
 const MIN_RADIUS = 10;
-const MAX_RADIUS = 10;
+const MAX_RADIUS = 20;
 const accept_colour = new paper.Color(0.9, 1, 0.9, 1);
 const reject_colour = new paper.Color(1, 0.9, 0.9, 1);
 const point_colour = new paper.Color(0.9, 0.9, 1, 1);
@@ -16,6 +16,7 @@ with (paper) {
     
     // Define list of points
     game.point_images_list = {};
+    game.point_area_display_list = {};
     game.point_areas_list = {};
 
     // Divide canvas into quadrants
@@ -40,6 +41,7 @@ with (paper) {
 
         this.base_layer = new Layer();
         this.point_areas_layer = new Layer();
+        this.point_area_display_layer = new Layer();
         this.points_layer = new Layer();
         this.mouse_track_layer = new Layer();
     
@@ -74,13 +76,18 @@ with (paper) {
                 var list_of_ids = game.canvas_sections[section_id];
                 list_of_ids.splice(list_of_ids.indexOf(nearest_point_id), 1);
                 game.canvas_sections[section_id] = list_of_ids;
-                // Remove point_area from tracking list and rendering
+                // Remove point_area from tracking list
                 game.point_areas_layer.activate();
                 nearest_point.remove();
                 delete game.point_areas_list[nearest_point_id];
+                // Remove point_area_display from tracking list and rendering
+                game.point_area_display_layer.activate();
+                var nearest_point_area_display = game.point_area_display_list[nearest_point_id];
+                nearest_point_area_display.remove();
+                delete game.point_area_display_list[nearest_point_id];
                 // Remove point_image from tracking list and rendering
-                var nearest_point_image = game.point_images_list[nearest_point_id];
                 game.points_layer.activate();
+                var nearest_point_image = game.point_images_list[nearest_point_id];
                 nearest_point_image.remove();
                 delete game.point_images_list[nearest_point_id];
                 // Remove both point_area and point_image from rendering
@@ -102,6 +109,9 @@ with (paper) {
     }
 
     game.checkValidity = function(location) {
+        if (this.chaining && Object.keys(game.point_areas_list).length === 0) {
+            return true;
+        }
         // Activate appropriate layer
         this.point_areas_layer.activate();
 
@@ -111,9 +121,19 @@ with (paper) {
         // Loop through all points in the section and it's surroundings (for edge cases) looking for collision
         for (var i = 0; i < section_to_examine.length; i++) {
             var index = section_to_examine[i];
-            if (this.point_areas_list[index].contains(location)) {
+            if (this.point_area_display_list[index].contains(location)) {
                 return false;
             }
+        }
+        // If chaining check it's valid placement after checking it's not inside any points
+        if (this.chaining) {
+            for (var i = 0; i < section_to_examine.length; i++) {
+                index = section_to_examine[i];
+                if (this.point_areas_list[index].contains(location)) {
+                    return true;
+                }
+            }
+            return false;
         }
         return true;
     }
@@ -160,6 +180,9 @@ with (paper) {
         var closest_point_id, current_point, shortest_distance;
         for (var i = 0; i < area_to_examine.length; i++) {
             current_point = this.point_areas_list[area_to_examine[i]];
+            if (this.chaining) {
+                current_point = this.point_area_display_list[area_to_examine[i]];
+            }
             if (current_point.contains(location)) {
                 // Determine if a closest point has been set or if the current point is nearer
                 if (typeof closest_point_id === "undefined" || location.getDistance(current_point.position) < shortest_distance) {
@@ -176,11 +199,22 @@ with (paper) {
         // Define the point's area appearance
         var point_area = new Path.Circle({
             center: location,
-            radius: MIN_RADIUS
+            radius: MAX_RADIUS
         });
-        point_area.fillColor = point_colour;
+        if (this.chaining) {
+            point_area = point_area.subtract(new Path.Circle({center: location, radius: MIN_RADIUS}));
+        }
         // Push to own list to keep track of each point
         this.point_areas_list[this.total_point_number] = point_area;
+        // Do same again for point rendering
+        this.point_area_display_layer.activate();
+        var point_area_display = new Path.Circle({
+            center: location,
+            radius: MIN_RADIUS
+        });
+        point_area_display.fillColor = point_colour;
+        // Push to own list to keep track of
+        this.point_area_display_list[this.total_point_number] = point_area_display;
         // Do same again for actual point
         this.points_layer.activate();
         var point_image = new Path.Circle({
