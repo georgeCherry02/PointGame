@@ -261,6 +261,37 @@ with (paper) {
             this.mouse_validity_indicator.fillColor = accept_colour;
         }
     }
+    game.submitPoints = function() {
+        var process = "submitPoints";
+        var data = {};
+        data.expected_shape = EXPECTED_SHAPE_ID;
+        data.point_pattern = this.formatPointData();
+        data.limitations = {};
+        data.limitations.max_radius = MAX_RADIUS;
+        data.limitations.min_radius = MIN_RADIUS;
+        $.ajax({
+            type: "POST",
+            url: "api.php",
+            data: {
+                "ajax_token":   AJAX_TOKEN,
+                "process":      process,
+                "data":         JSON.stringify(data)
+            },
+            success: function(data) {
+                var response = JSON.parse(data);
+                if (response.status === "success") {
+                    Logger.log(LoggingType.STATUS, "Successfully submitted point pattern");
+                    // Move user on to next screen and rate different point patterns
+                } else {
+                    Logger.log(LoggingType.ERROR, ["Error Code: "+response.error_code, "Message: "+respone.error_message]);
+                    // Explain to user what was wrong with their submission
+                }
+            },
+            error: function() {
+                Logger.log(LoggingType.ERROR, ["Server error occurred!"]);
+            }
+        });
+    }
 }
 
 window.onload = function() {
