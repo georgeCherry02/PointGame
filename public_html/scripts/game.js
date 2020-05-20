@@ -12,7 +12,8 @@ with (paper) {
     game.canvas = $("#game_canvas");
     game.origin = new Point(0, 0);
     game.canvas_size = new Size(1024, 1024);
-    game.total_point_number = 0;
+    // Note this just increments when points are placed and doesn't decrement when points are removed
+    game.total_points_placed_number = 0;
     
     // Define list of points
     game.point_images_list = {};
@@ -208,7 +209,7 @@ with (paper) {
             point_area = point_area.subtract(new Path.Circle({center: location, radius: MIN_RADIUS}));
         }
         // Push to own list to keep track of each point
-        this.point_areas_list[this.total_point_number] = point_area;
+        this.point_areas_list[this.total_points_placed_number] = point_area;
         // Do same again for point rendering
         this.point_area_display_layer.activate();
         var point_area_display = new Path.Circle({
@@ -217,7 +218,7 @@ with (paper) {
         });
         point_area_display.fillColor = point_colour;
         // Push to own list to keep track of
-        this.point_area_display_list[this.total_point_number] = point_area_display;
+        this.point_area_display_list[this.total_points_placed_number] = point_area_display;
         // Do same again for actual point
         this.points_layer.activate();
         var point_image = new Path.Circle({
@@ -225,11 +226,11 @@ with (paper) {
             radius: 1
         });
         point_image.fillColor = "blue";
-        this.point_images_list[this.total_point_number] = point_image;
+        this.point_images_list[this.total_points_placed_number] = point_image;
 
         // Push to index tracking quadrants
-        this.determineSection(location).push(this.total_point_number);
-        this.total_point_number++;
+        this.determineSection(location).push(this.total_points_placed_number);
+        this.total_points_placed_number++;
     }
     game.updateMouseAppearance = function(location) {
         this.mouse_track_layer.activate();
