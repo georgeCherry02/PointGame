@@ -197,6 +197,18 @@ with (paper) {
         }
         return closest_point_id;
     }
+    game.formatPointData = function() {
+        var result = [];
+        var c_point, c_object;
+        for (var id in this.point_images_list) {
+            c_point = this.point_images_list[id];
+            c_object = {};
+            c_object.x = c_point.position.x;
+            c_object.y = c_point.position.y;
+            result.push(c_object);
+        }
+        return result;
+    }
     game.renderPoint = function(location) {
         // Activate appropriate layer
         this.point_areas_layer.activate();
