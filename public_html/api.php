@@ -108,9 +108,11 @@
             Description:
                 This method should be used for inserting a new point pattern into the database
             Error Codes:
+                0 - Server error occured when interacting with database
                 1 - Data wasn't in valid JSON format    
                 2 - The shape tag received didn't match the expected tag
                 3 - There were too few points submitted
                 4 - There were too many points submitted
+                5 - There was a mismatch in the number of points submitted
 */
 ?>
