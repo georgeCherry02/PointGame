@@ -47,14 +47,19 @@
                 break;
             }
             // Check their are the correct number of points
-            if (sizeof($request_data["point_pattern"]) < $_SESSION["min_points_number"]) {
+            if (sizeof($request_data["point_pattern"]["x"]) < $_SESSION["min_points_number"]) {
                 $response["error_message"] = "Too few points";
                 $response["error_code"] = 3;
                 break;
             }
-            if (sizeof($request_data["point_pattern"]) > $_SESSION["max_points_number"]) {
+            if (sizeof($request_data["point_pattern"]["x"]) > $_SESSION["max_points_number"]) {
                 $response["error_message"] = "Too many points";
                 $response["error_code"] = 4;
+                break;
+            }
+            if (sizeof($request_data["point_pattern"]["x"]) !== sizeof($request_data["point_patter"]["y"])) {
+                $response["error_message"] = "Difference in number of points for each coordinate axis";
+                $response["error_code"] = 5;
                 break;
             }
             // Insert into database

@@ -1,6 +1,6 @@
 // Define external constants
 const MIN_RADIUS = 10;
-const MAX_RADIUS = 20;
+const MAX_RADIUS = 10;
 const accept_colour = new paper.Color(0.9, 1, 0.9, 1);
 const reject_colour = new paper.Color(1, 0.9, 0.9, 1);
 const point_colour = new paper.Color(0.9, 0.9, 1, 1);
@@ -198,14 +198,12 @@ with (paper) {
         return closest_point_id;
     }
     game.formatPointData = function() {
-        var result = [];
+        var result = {"x": [], "y": []};
         var c_point, c_object;
         for (var id in this.point_images_list) {
             c_point = this.point_images_list[id];
-            c_object = {};
-            c_object.x = c_point.position.x;
-            c_object.y = c_point.position.y;
-            result.push(c_object);
+            result.x.push(c_point.position.x);
+            result.y.push(c_point.position.y);
         }
         return result;
     }
