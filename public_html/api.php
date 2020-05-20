@@ -1,6 +1,7 @@
 <?php
     // Include base
     include_once "../inc/base.php";
+    include_once "../inc/classes/Database.php";
     include_once "../inc/Enum.php";
     // Begin by declaring server response
     $response = array();
@@ -56,10 +57,33 @@
                 $response["error_code"] = 4;
                 break;
             }
-            // ##########################################################################################
-            // # Insert into database
-            // ##########################################################################################
+            // Insert into database
+            // Form limitations insert
+            $limitations_sql = "INSERT INTO `Limitations` (`Minimum_radius`, `Maximum_radius`, `Minimum_number`, `Maximum_number`) VALUES (:min_rad, :max_rad, :min_num, :max_num)";
+            $limitations_sql_param = array(":min_rad" => $request_data["limitations"]["min_radius"], ":max_rad" => $request_data["limitations"]["max_radius"], ":min_num" => $_SESSION["min_points_number"], ":max_num" => $_SESSION["max_points_number"]);
+            try {
+                $limitation_id = DB::query($limitations_sql, $limitations_sql_param);
+            } catch (PDOException $e) {
+                $response["error_message"] = "Server Error";
+                $response["error_code"] = 0;
+                break;
+            }
+            if ($limitation_id) {
+                $point_pattern_sql = "INSERT INTO `point_patterns` (`Shape_ID`, `Limitations_ID`, `Point_Pattern`) VALUES (:shape_id, :lim_id, :pp)";
+                $point_pattern_sql_param = array(":shape_id" => $request_data["expected_shape"], ":lim_id" => $limitation_id, ":pp" => json_encode($request_data["point_pattern"]));
+                try {
+                    $insert_id = DB::query($point_pattern_sql, $point_pattern_sql_param);
+                } catch (PDOException $e) {
+                    $response["error_message"] = "Server Error";
+                    $response["error_code"] = 0;
+                }
+            } else {
+                $response["error_message"] = "Server Error";
+                $response["error_code"] = 0;
+                break;
+            }
             $response["status"] = "success";
+            $response["insert_id"] = $insert_id;
             break;
         default:
             $response["error_message"] = "Failed to provide valid process";
