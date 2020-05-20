@@ -8,6 +8,9 @@
     include_once "../inc/components/header.php";
     include_once "../inc/components/navbar.php";
 
+    include_once "../inc/components/ajax.php";
+
+    // Define game parameters
     $chosen_shape = Shapes::fromID(rand(1, 3));
 ?>
 <div id="desktop_optimisation_message" class="container text-center d-flex flex-column justify-content-center d-lg-none">
