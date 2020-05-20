@@ -7,11 +7,21 @@
         }
         
         public static function query($query, $params=array()) {
-            $statement = self::connect()->prepare($query);
-            $statement->execute($params);
-            if (explode(" ", $query)[0] === "SELECT") {
-                $data = $statement->fetchAll(PDO::FETCH_ASSOC);
+            // Form connection
+            $conn = self::connect();
+            // Execute request
+            $stmt = $conn->prepare($query);
+            $stmt->execute($params);
+            // Return data depending on request type
+            $request_type = explode(" ", $query)[0];
+            if ($request_type === "SELECT") {
+                // If select return selected data
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 return $data;
+            } else if ($request_type === "INSERT") {
+                // If insert return the insert id
+                $id = $conn->lastInsertId();
+                return $id;
             }
         }
     }
