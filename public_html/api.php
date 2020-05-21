@@ -57,7 +57,7 @@
                 $response["error_code"] = 4;
                 break;
             }
-            if (sizeof($request_data["point_pattern"]["x"]) !== sizeof($request_data["point_patter"]["y"])) {
+            if (sizeof($request_data["point_pattern"]["x"]) !== sizeof($request_data["point_pattern"]["y"])) {
                 $response["error_message"] = "Difference in number of points for each coordinate axis";
                 $response["error_code"] = 5;
                 break;
