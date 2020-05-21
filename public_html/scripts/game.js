@@ -74,27 +74,8 @@ with (paper) {
                 if (game.chaining && typeof nearest_point === "undefined") {
                     return;
                 }
-                // Determine the section we're dealing with
-                var section_id = game.determineSectionID(nearest_point.position);
-                // Remove point_area path from section
-                var list_of_ids = game.canvas_sections[section_id];
-                list_of_ids.splice(list_of_ids.indexOf(nearest_point_id), 1);
-                game.canvas_sections[section_id] = list_of_ids;
-                // Remove point_area from tracking list
-                game.point_areas_layer.activate();
-                nearest_point.remove();
-                delete game.point_areas_list[nearest_point_id];
-                // Remove point_area_display from tracking list and rendering
-                game.point_area_display_layer.activate();
-                var nearest_point_area_display = game.point_area_display_list[nearest_point_id];
-                nearest_point_area_display.remove();
-                delete game.point_area_display_list[nearest_point_id];
-                // Remove point_image from tracking list and rendering
-                game.points_layer.activate();
-                var nearest_point_image = game.point_images_list[nearest_point_id];
-                nearest_point_image.remove();
-                delete game.point_images_list[nearest_point_id];
-                // Remove both point_area and point_image from rendering
+                // Otherwise call remove point on the point
+                game.removePoint(nearest_point_id);
             }
             // After effect of click will always require update
             game.last_used_section_requires_update = true;
@@ -206,6 +187,30 @@ with (paper) {
             result.y.push(c_point.position.y);
         }
         return result;
+    }
+    game.removePoint = function(point_id) {
+        // Get path of point from total list
+        var point_path = this.point_areas_list[point_id];
+        // Determine the section we're dealing with
+        var section_id = this.determineSectionID(point_path.position);
+        // Remove point_area path from section
+        var list_of_ids = this.canvas_sections[section_id];
+        list_of_ids.splice(list_of_ids.indexOf(point_id), 1);
+        this.canvas_sections[section_id] = list_of_ids;
+        // Remove point_area from tracking list
+        this.point_areas_layer.activate();
+        point_path.remove();
+        delete this.point_areas_list[point_id];
+        // Remove point_area_display from tracking list and rendering
+        this.point_area_display_layer.activate();
+        var point_area_display = this.point_area_display_list[point_id];
+        point_area_display.remove();
+        delete this.point_area_display_list[point_id];
+        // Remove point_image from tracking list and rendering
+        game.points_layer.activate();
+        var point_image = this.point_images_list[point_id];
+        point_image.remove();
+        delete this.point_images_list[point_id];
     }
     game.renderPoint = function(location) {
         // Activate appropriate layer
