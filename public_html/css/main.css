@@ -24,6 +24,9 @@
 .white-text {
     color: white;
 }
+.highlight-text-hover:hover {
+    color: #5eb1bf;
+}
 .black-background {
     background-color: black;
 }

@@ -20,3 +20,13 @@
 #start_message button {
     margin-top: 1rem;
 }
+
+#game_container {
+    position: relative;
+}
+
+.clear_icon {
+    position: absolute;
+    top: 0.3rem;
+    right: 0;
+}

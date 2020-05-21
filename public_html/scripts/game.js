@@ -124,6 +124,14 @@ with (paper) {
         }
         return true;
     }
+    game.clear = function() {
+        // Remove every single point from all tracking lists and render
+        for (var point_id in this.point_areas_list) {
+            this.removePoint(point_id);
+        }
+        // Reset total point count
+        this.total_points_placed_number = 0;
+    }
     game.determineSection = function(location) {
         // Divided into 64 sections
         var section_number = this.determineSectionID(location);
@@ -301,10 +309,4 @@ with (paper) {
 
 window.onload = function() {
     game.init();
-    // for (var i = 0; i < 512; i++) {
-    //     var x_loc = 1024 * Math.random();
-    //     var y_loc = 1024 * Math.random();
-    //     var location = new paper.Point(x_loc, y_loc);
-    //     game.renderPoint(location);
-    // }
 }

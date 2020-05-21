@@ -36,6 +36,7 @@
     </div>
     <div id="game_container" class="container collapse multi_collapse">
         <p class="grey-text text-center">Please draw a <span class="highlight-text"><?php echo $chosen_shape->getRenderedName(); ?></span> with at least <span class="highlight-text"><?php echo $_SESSION["min_points_number"]; ?></span> and no more than <span class="highlight-text"><?php echo $_SESSION["max_points_number"]; ?></span> points.</p>
+        <i class="fas fa-trash grey-text highlight-text-hover clear_icon" onclick="game.clear()"><span class="sr-only">Clear Canvas</span></i>
         <div class="canvas-container">
             <canvas id="game_canvas" height="1024" width="1024" data-paper-scope="1" style="-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); width: 100%;"></canvas>
         </div>
