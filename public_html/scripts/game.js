@@ -83,6 +83,7 @@ with (paper) {
             game.updateMouseAppearance(event.point);
             // Render the game
             view.draw();
+            event.stopPropagation();
         }
 
         this.point_tool.onMouseMove = function(event) {
@@ -90,6 +91,7 @@ with (paper) {
             game.updateMouseAppearance(event.point);
             // Render the game
             view.draw();
+            event.stopPropagation();
         }
     }
 
