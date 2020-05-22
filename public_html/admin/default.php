@@ -1,4 +1,6 @@
 <?php
+    $admin = TRUE;
+    include_once "../../inc/base.php";
     include_once "../../inc/admin_constants.php";
     include_once "../../inc/classes/Admin.php";
 
@@ -12,6 +14,10 @@
     }
     if (Admin::isLoggedIn()) {
         // Include admin page
+        include_once "../../inc/classes/Database.php";
+        include_once "../../inc/classes/Restrictions.php";
+        include_once "../../inc/Enum.php";
+        include_once "../../inc/enums/RestrictionTypes.php";
 ?>
 <div id="admin_action_accordion">
     <div class="card mb-3">
@@ -25,6 +31,40 @@
         <div id="restrictions_content" class="collapse" aria-labelledby="restrictions_heading" data-parent="#admin_action_accordion">
             <div class="card-body">
                 <p class="mb-1 grey-text">Current Restrictions:</p>
+                <div id="restrictions_accordion">
+                <?php
+                    $restrictions = Restrictions::fetchAll();
+                    if (gettype($restrictions) === "array") {
+                        if (sizeof($restrictions) === 0) {
+                            echo "<p class=\"grey-text\">Looks like you don't have any restrictions yet!</p>";
+                        }
+                        foreach ($restrictions as $restriction) {
+                            $id = $restriction["ID"];
+                            $html = "<div class=\"card mb-3\">"
+                                  .     "<div class=\"card-header\" id=\"restriction_".$id."_heading\">"
+                                  .         "<h5 class=\"mb-0\">"
+                                  .             "<button class=\"btn btn-link highlight-text\" data-toggle=\"collapse\" data-target=\"#restriction_".$id."_content\" aria-expanded=\"false\" aria-controls=\"restriction_".$id."_content\">"
+                                  .                 $restriction["Name"]
+                                  .             "</button>"
+                                  .         "</h5>"
+                                  .     "</div>"
+                                  .     "<div id=\"restriction_".$id."_content\" class=\"collapse\" aria-labelledby=\"restriction_".$id."_heading\" data-parent=\"#restrictions_accordion\">"
+                                  .         "<div class=\"card-body\">"
+                                  .             "<p>TEST</p>"
+                                  .             "<p>".$restriction["Minimum_Radius_Distributions"]."</p>"
+                                  .             "<p>".$restriction["Maximum_Radius_Distributions"]."</p>"
+                                  .             "<p>".$restriction["Minimum_Number_Distributions"]."</p>"
+                                  .             "<p>".$restriction["Maximum_Number_Distributions"]."</p>"
+                                  .         "</div>"
+                                  .     "</div>"
+                                  . "</div>";
+                            echo $html;
+                        }
+                    } else {
+                        echo "Server Error!";
+                    }
+                ?>
+                </div>
             </div>
         </div>
     </div>
