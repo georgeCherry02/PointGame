@@ -78,8 +78,26 @@
 
         // Having organised the restrictions to a nicer format insert into database
         $outcome_id = Restrictions::createNew($restrictions_outline, $name);
+        // Check insert processed
+        if ($outcome_id) {
+            // Check if new one needs to be made active
+            if ($set_active) {
+                $set_active_outcome = Restrictions::setActive($outcome_id);
+            }
+        } else {
+            // Redirect to admin home page
+            header("Location: ./default.php?err=0");
+            exit;
+        }
         $new_location = "./default.php?res=";
         $result = 0;
+        // Determine if program functioned as intended
+        // i.e. if when told to set active it did so
+        if ($set_active && $set_active_outcome) {
+            $result = 1;
+        } else if ($set_active) {
+            $result = 2;
+        }
         header("Location: ".$new_location.$result);
         exit;
     } else {

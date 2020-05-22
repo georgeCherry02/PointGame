@@ -41,5 +41,23 @@
             }
             return $res;
         }
+        public static function setActive($id) {
+            // Set active=0 for all entries
+            $reset_active_sql = "UPDATE `Restriction_Settings` SET `Active`=0;";
+            try {
+                DB::query($reset_active_sql);
+            } catch (PDOException $e) {
+                return false;
+            }
+            $set_active_sql = "UPDATE `Restriction_Settings` SET `Active`=1 WHERE `ID`=:id;";
+            $set_active_sql_variables = array(":id" => $id);
+            try {
+                DB::query($set_active_sql, $set_active_sql_variables); 
+            } catch (PDOException $e) {
+                return false;
+            }
+            self::$_active_restriction_set_id = $id;
+            return true;
+        }
     }
 ?>
