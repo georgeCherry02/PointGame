@@ -77,6 +77,9 @@
         }
 
         // Having organised the restrictions to a nicer format insert into database
+        $outcome_id = Restrictions::createNew($restrictions_outline, $name);
+        $new_location = "./default.php?res=";
+        $result = 0;
         header("Location: ".$new_location.$result);
         exit;
     } else {
