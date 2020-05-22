@@ -5,7 +5,7 @@
     $page_title = "Admin";
     include_once "../../inc/components/header.php";
 ?>
-<div class="container">
+<div class="container mt-5">
 <?php
     if (isset($_POST["user"]) && isset($_POST["pass"])) {
         Admin::logUserIn($_POST["user"], $_POST{"pass"});
@@ -13,6 +13,36 @@
     if (Admin::isLoggedIn()) {
         // Include admin page
 ?>
+<div id="accordion">
+    <div class="card mb-3">
+        <div class="card-header" id="restrictions_heading">
+            <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#restrictions_content" aria-expanded="false" aria-controls="restrictions_content">
+                    Restrictions
+                </button>
+            </h5>
+        </div>
+        <div id="restrictions_content" class="collapse" aria-labelledby="restrictions_heading" data-parent="#accordion">
+            <div class="card-body">
+                <h6 class="mb-0">Here you can change your restrictions</h6>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header" id="data_heading">
+            <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#data_content" aria-expanded="false" aria-controls="data_content">
+                    Data Management
+                </button>
+            </h5>
+        </div>
+        <div id="data_content" class="collapse" aria-labelledby="data_heading" data-parent="#accordion">
+            <div class="card-body">
+                <h6 class="mb-0">Here you can manage the data collected</h6>
+            </div>
+        </div>
+    </div>
+</div>
 <?php
     } else {
         // Include login form
