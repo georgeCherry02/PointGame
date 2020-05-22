@@ -90,6 +90,7 @@
                         <div class="col-1"></div>
                     </div>
                 </form>
+                <script src="../scripts/restrictions.js"></script>
             </div>
         </div>
     </div>
