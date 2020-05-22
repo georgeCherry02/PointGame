@@ -13,16 +13,16 @@
     if (Admin::isLoggedIn()) {
         // Include admin page
 ?>
-<div id="accordion">
+<div id="admin_action_accordion">
     <div class="card mb-3">
         <div class="card-header" id="restrictions_heading">
             <h5 class="mb-0">
-                <button class="btn btn-link" data-toggle="collapse" data-target="#restrictions_content" aria-expanded="false" aria-controls="restrictions_content">
+                <button class="btn btn-link highlight-text" data-toggle="collapse" data-target="#restrictions_content" aria-expanded="false" aria-controls="restrictions_content">
                     Restrictions
                 </button>
             </h5>
         </div>
-        <div id="restrictions_content" class="collapse" aria-labelledby="restrictions_heading" data-parent="#accordion">
+        <div id="restrictions_content" class="collapse" aria-labelledby="restrictions_heading" data-parent="#admin_action_accordion">
             <div class="card-body">
                 <h6 class="mb-0">Here you can change your restrictions</h6>
             </div>
@@ -31,12 +31,12 @@
     <div class="card">
         <div class="card-header" id="data_heading">
             <h5 class="mb-0">
-                <button class="btn btn-link" data-toggle="collapse" data-target="#data_content" aria-expanded="false" aria-controls="data_content">
+                <button class="btn btn-link highlight-text" data-toggle="collapse" data-target="#data_content" aria-expanded="false" aria-controls="data_content">
                     Data Management
                 </button>
             </h5>
         </div>
-        <div id="data_content" class="collapse" aria-labelledby="data_heading" data-parent="#accordion">
+        <div id="data_content" class="collapse" aria-labelledby="data_heading" data-parent="#admin_action_accordion">
             <div class="card-body">
                 <h6 class="mb-0">Here you can manage the data collected</h6>
             </div>
