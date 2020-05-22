@@ -24,7 +24,7 @@
         </div>
         <div id="restrictions_content" class="collapse" aria-labelledby="restrictions_heading" data-parent="#admin_action_accordion">
             <div class="card-body">
-                <h6 class="mb-0">Here you can change your restrictions</h6>
+                <p class="mb-1 grey-text">Current Restrictions:</p>
             </div>
         </div>
     </div>
