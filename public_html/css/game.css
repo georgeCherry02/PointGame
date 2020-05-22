@@ -1,8 +1,8 @@
 .canvas-container {
     margin: 2em;
 }
-#myCanvas {
-    border: 1px solid black;
+#game_canvas {
+    cursor: none;
 }
 
 #desktop_optimisation_message {
@@ -19,4 +19,14 @@
 }
 #start_message button {
     margin-top: 1rem;
+}
+
+#game_container {
+    position: relative;
+}
+
+.clear_icon {
+    position: absolute;
+    top: 0.3rem;
+    right: 0;
 }

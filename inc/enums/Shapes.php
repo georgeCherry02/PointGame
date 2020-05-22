@@ -8,6 +8,9 @@
         public function getRenderedName() {
             return $this->_getProperty("pretty_render");
         }
+        public function getID() {
+            return $this->_getProperty("id");
+        }
 
         public static function fromID($id) {
             return self::_fromProperty("id", $id);
