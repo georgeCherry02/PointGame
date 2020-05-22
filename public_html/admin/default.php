@@ -65,6 +65,31 @@
                     }
                 ?>
                 </div>
+                <button class="btn btn-primary highlight-background highlight-border" data-toggle="collapse" data-target="#restriction_addition_form" aria-expanded="false" aria-controls="restriction_addition_form">Add new restriction</button>
+            </div>
+            <div id="restriction_addition_form" class="card-body collapse">
+                <form action="./createRestrictionSet.php" method="POST">
+                    <div class="form-group">
+                        <label for="restriction_set_name">Name</label>
+                        <input type="text" class="form-control" id="restriction_set_name" name="name" placeholder="Restriction Set Name"/>
+                    </div>
+                    <?php
+                        foreach (RestrictionTypes::ALL() as $restriction_type) {
+                            echo $restriction_type->getFormGroupRender();
+                        }
+                    ?>
+                    <div class="form-row">
+                        <div class="col-1"></div>
+                        <div class="col-4">
+                            <button type="submit" class="btn btn-primary form-control highlight-background highlight-border" name="create">Create</button>
+                        </div>
+                        <div class="col-2"></div>
+                        <div class="col-4">
+                            <button type="submit" class="btn btn-primary form-control highlight-background highlight-border" name="create_and_active">Create and set active</button>
+                        </div>
+                        <div class="col-1"></div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
