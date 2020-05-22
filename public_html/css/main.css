@@ -43,6 +43,9 @@
     border-color: #5eb1bf;
 }
 
+button.btn.highlight-text:hover {
+    color: #4ea1af;
+}
 button.btn:hover {
     transform: translate(0.5px, 0.5px);
 }
