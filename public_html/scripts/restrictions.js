@@ -44,6 +44,22 @@ function remove_restriction_set(id) {
             "data":         JSON.stringify(data)
         },
         success: function(data) {
+            var response = JSON.parse(data);
+            if (response.status === "success") {
+                location.reload();
+            } else {
+                // Check if it's because it's the last one and explain
+                if (response.error_code === 4) {
+                    // If it's the last error code explain
+                } else {
+                    var error_messages = [];
+                    if (response.process === process) {
+                        error_messages.push("Error Code: "+response.error_code);
+                    }
+                    error_messages.push("Error Message: "+response.error_message);
+                    Logger.log(LoggingType.ERROR, error_messages);
+                }
+            }
         },
         error: function() {
             Logger.log(LoggingType.ERROR, ["Server error occured!"]);
