@@ -41,6 +41,50 @@
             }
             return $res;
         }
+        /* Error Codes:
+         * 0 - Successful operation
+         * 1 - Server Error
+         * 2 - Only one restriction set left
+         */
+        public static function removeSet($id) {
+            // Check this isn't the only set
+            $count_check_sql = "SELECT COUNT(`ID`) AS `Total_Count` FROM `Restriction_Settings`";
+            try {
+                $total_count = DB::query($count_check_sql)[0]["Total_Count"];
+            } catch (PDOException $e) {
+                return 1;
+            }
+            if ($total_count == 1) {
+                return 2;
+            }
+            // Check if the set being removed is the currently active restriction set
+            $need_to_set_new_active_set = self::getCurrentRestrictions() == $id;
+            // Remove the set
+            $remove_set_sql = "DELETE FROM `Restriction_Settings` WHERE `ID`=:id";
+            $remove_set_sql_variables = array(":id" => $id);
+            try {
+                DB::query($remove_set_sql, $remove_set_sql_variables);
+            } catch (PDOException $e) {
+                return 1;
+            }
+            // Check if the removed set was the active set
+            if ($need_to_set_new_active_set) {
+                // If so set first restriction active
+                // Fetch first restriction
+                $new_active_id_sql = "SELECT `ID` FROM `Restriction_Settings` LIMIT 1;";
+                try {
+                    $new_active_id = DB::query($new_active_id_sql)[0]["ID"];
+                } catch (PDOException $e) {
+                    return 1;
+                }
+                // Set this restriction set to be active
+                $outcome = self::setActive($new_active_id);
+                if (!$outcome) {
+                    return 1;
+                }
+            }
+            return 0;
+        }
         public static function setActive($id) {
             // Set active=0 for all entries
             $reset_active_sql = "UPDATE `Restriction_Settings` SET `Active`=0;";

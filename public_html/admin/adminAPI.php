@@ -34,6 +34,42 @@
 
     // Determine process and act on it
     switch ($_POST["process"]) {
+        case "removeRestrictionSet":
+            $response["process"] = "removeRestrictionSet";
+            include_once "../../inc/db_constants.php";
+            include_once "../../inc/classes/Database.php";
+            include_once "../../inc/classes/Restrictions.php";
+            // Decode incoming data
+            $request_data = json_decode($_POST["data"], $assoc=TRUE);
+            // Check the data decoded correctly
+            if (sizeof($request_data) === 0) {
+                $response["error_message"] = "Malformed data";
+                $response["error_code"] = 1;
+                break;
+            }
+            // Check that an integer was actually passed
+            if (filter_var($request_data["remove_id"], FILTER_VALIDATE_INT)) {
+                $outcome = Restrictions::removeSet($request_data["remove_id"]);
+            } else {
+                $response["error_message"] = "Invalid ID supplied";
+                $response["error_code"] = 2;
+                break;
+            }
+            // Determine the outcome of removal
+            switch ($outcome) {
+                case 0:
+                    $response["status"] = "success";
+                    break;
+                case 2:
+                    $response["error_message"] = "You can't delete the last restriction set you have!";
+                    $response["error_code"] = 4;
+                    break;
+                case 1:
+                default:
+                    $response["error_message"] = "Server error";
+                    $response["error_code"] = 3;
+            }
+            break;
         default:
             // No further code so no need to exit
             $response["error_message"] = "Failed ot provide valid process";
