@@ -32,6 +32,24 @@ function remove_restriction_form_element(type) {
     $("#"+type+"_"+init_amount).remove();
     $("#"+type+"_number").val(new_amount);
 }
+function remove_restriction_set(id) {
+    var process = "removeRestrictionSet";
+    var data = {"remove_id": id};
+    $.ajax({
+        type: "POST",
+        url: "adminAPI.php",
+        data: {
+            "ajax_token":   AJAX_TOKEN,
+            "process":      process,
+            "data":         JSON.stringify(data)
+        },
+        success: function(data) {
+        },
+        error: function() {
+            Logger.log(LoggingType.ERROR, ["Server error occured!"]);
+        }
+    });
+}
 function get_pretty_name(functional_name) {
     var first_part = functional_name.slice(0, functional_name.indexOf("_"));
     var second_part = functional_name.slice(functional_name.indexOf("_") + 1, functional_name.length);

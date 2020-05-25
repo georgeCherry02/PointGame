@@ -18,6 +18,7 @@
         include_once "../../inc/classes/Restrictions.php";
         include_once "../../inc/Enum.php";
         include_once "../../inc/enums/RestrictionTypes.php";
+        include_once "../../inc/components/ajax.php";
 ?>
 <div id="admin_action_accordion">
     <div class="card mb-3">
