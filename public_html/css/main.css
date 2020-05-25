@@ -25,7 +25,7 @@
     color: white;
 }
 .highlight-text-hover:hover {
-    color: #5eb1bf;
+    color: #5eb1bf !important;
 }
 .black-background {
     background-color: black;
