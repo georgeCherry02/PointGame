@@ -33,28 +33,45 @@
                 <p class="mb-1 grey-text">Current Restrictions:</p>
                 <div id="restrictions_accordion">
                 <?php
-                    $restrictions = Restrictions::fetchAll();
-                    if (gettype($restrictions) === "array") {
-                        if (sizeof($restrictions) === 0) {
+                    $restriction_sets = Restrictions::fetchAll();
+                    if (gettype($restriction_sets) === "array") {
+                        if (sizeof($restriction_sets) === 0) {
                             echo "<p class=\"grey-text\">Looks like you don't have any restrictions yet!</p>";
                         }
-                        foreach ($restrictions as $restriction) {
-                            $id = $restriction["ID"];
+                        foreach ($restriction_sets as $restriction_set) {
+                            $id = $restriction_set["ID"];
                             $html = "<div class=\"card mb-3\">"
                                   .     "<div class=\"card-header\" id=\"restriction_".$id."_heading\">"
-                                  .         "<h5 class=\"mb-0\">"
-                                  .             "<button class=\"btn btn-link highlight-text\" data-toggle=\"collapse\" data-target=\"#restriction_".$id."_content\" aria-expanded=\"false\" aria-controls=\"restriction_".$id."_content\">"
-                                  .                 $restriction["Name"]
-                                  .             "</button>"
-                                  .         "</h5>"
+                                  .         "<div class=\"row\">"
+                                  .             "<div class=\"col-1 text-center\">"
+                                  .                 "<input class=\"active_restriction_check\" type=\"radio\" name=\"activeRestrictionRadio\" id=\"exampleRadio".$id."\" value=\"".$id."\"";
+                            if ($restriction_set["Active"] == 1) {
+                                $html .= " checked";
+                            }
+                            $html.=                 ">"
+                                  .             "</div>"
+                                  .             "<div class=\"col-9\">"
+                                  .                 "<h5 class=\"mb-0\">"
+                                  .                     "<button class=\"btn btn-link highlight-text\" data-toggle=\"collapse\" data-target=\"#restriction_".$id."_content\" aria-expanded=\"false\" aria-controls=\"restriction_".$id."_content\">"
+                                  .                         $restriction_set["Name"]
+                                  .                     "</button>"
+                                  .                 "</h5>"
+                                  .             "</div>"
+                                  .             "<div class=\"col-1\">"
+                                  .                 "<i class=\"fas fa-pencil-alt restrictions_set_button text-muted highlight-text-hover\"></i>"
+                                  .             "</div>"
+                                  .             "<div class=\"col-1\">"
+                                  .                 "<i class=\"fas fa-trash restrictions_set_button text-muted highlight-text-hover\" onclick=\"remove_restriction_set(".$id.")\"></i>"
+                                  .             "</div>"
+                                  .         "</div>"
                                   .     "</div>"
                                   .     "<div id=\"restriction_".$id."_content\" class=\"collapse\" aria-labelledby=\"restriction_".$id."_heading\" data-parent=\"#restrictions_accordion\">"
                                   .         "<div class=\"card-body\">"
                                   .             "<p>TEST</p>"
-                                  .             "<p>".$restriction["Minimum_Radius_Distributions"]."</p>"
-                                  .             "<p>".$restriction["Maximum_Radius_Distributions"]."</p>"
-                                  .             "<p>".$restriction["Minimum_Number_Distributions"]."</p>"
-                                  .             "<p>".$restriction["Maximum_Number_Distributions"]."</p>"
+                                  .             "<p>".$restriction_set["Minimum_Radius_Distributions"]."</p>"
+                                  .             "<p>".$restriction_set["Maximum_Radius_Distributions"]."</p>"
+                                  .             "<p>".$restriction_set["Minimum_Number_Distributions"]."</p>"
+                                  .             "<p>".$restriction_set["Maximum_Number_Distributions"]."</p>"
                                   .         "</div>"
                                   .     "</div>"
                                   . "</div>";
