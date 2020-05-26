@@ -45,7 +45,7 @@
                                   .     "<div class=\"card-header\" id=\"restriction_".$id."_heading\">"
                                   .         "<div class=\"row\">"
                                   .             "<div class=\"col-1 text-center\">"
-                                  .                 "<input class=\"active_restriction_check\" type=\"radio\" name=\"activeRestrictionRadio\" id=\"exampleRadio".$id."\" value=\"".$id."\"";
+                                  .                 "<input class=\"active_restriction_check\" type=\"radio\" name=\"activeRestrictionRadio\" id=\"exampleRadio".$id."\" value=\"".$id."\" onclick=\"restriction.set_active(".$id.")\"";
                             if ($restriction_set["Active"] == 1) {
                                 $html .= " checked";
                             }

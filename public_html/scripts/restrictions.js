@@ -67,6 +67,31 @@ restriction.remove_set = function(id) {
         }
     });
 }
+restriction.set_active = function(id) {
+    var process = "setRestrictionSetActive";
+    var data = {"active_id": id};
+    $.ajax({
+        type: "POST",
+        url: "adminAPI.php",
+        data: {
+            "ajax_token":   AJAX_TOKEN,
+            "process":      process,
+            "data":         JSON.stringify(data)
+        },
+        success: function(raw_response) {
+            var response = JSON.parse(raw_response);
+            if (response.status === "success") {
+                Logger.log(LoggingType.STATUS, "Set restriction set " + response.id + " active");
+            } else {
+                Logger.log(LoggingType.ERROR, [response.error_message]);
+                location.reload();
+            }
+        },
+        error: function() {
+            Logger.log(LoggingType.ERROR, ["Server error occured!"]);
+        }
+    })
+}
 
 function get_pretty_name(functional_name) {
     var first_part = functional_name.slice(0, functional_name.indexOf("_"));

@@ -72,6 +72,22 @@
                     $response["error_code"] = 2;
             }
             break;
+        case "setRestrictionSetActive":
+            if (filter_var($request_data["active_id"], FILTER_VALIDATE_INT)) {
+                $outcome = Restrictions::setActive($request_data["active_id"]);
+            } else {
+                $response["error_message"] = "Invalid ID supplied";
+                $response["error_code"] = 1;
+            }
+            if ($outcome) {
+                $response["status"] = "success";
+                $response["id"] = $request_data["active_id"];
+                break;
+            } else {
+                $response["error_message"] = "Server error";
+                $response["error_code"] = 2;
+            }
+            break;
         default:
             // No further code so no need to exit
             $response["error_message"] = "Failed to provide valid process";
