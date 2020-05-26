@@ -1,4 +1,5 @@
-function add_restriction_form_element(type) {
+var restriction = {};
+restriction.add_form_element = function(type) {
     // Reveal the remove button if not currently revealed
     $("#"+type+"_remove_button").show();
     // Determine initial and new amount of inputs
@@ -21,7 +22,7 @@ function add_restriction_form_element(type) {
     // Update the hidden input to have the correct amount
     $("#"+type+"_number").val(new_amount);
 }
-function remove_restriction_form_element(type) {
+restriction.remove_form_element = function(type) {
     var init_amount = parseInt($("#"+type+"_number").val());
     if (init_amount === 1) {
         return;
@@ -32,7 +33,7 @@ function remove_restriction_form_element(type) {
     $("#"+type+"_"+init_amount).remove();
     $("#"+type+"_number").val(new_amount);
 }
-function remove_restriction_set(id) {
+restriction.remove_set = function(id) {
     var process = "removeRestrictionSet";
     var data = {"remove_id": id};
     $.ajax({
@@ -66,6 +67,7 @@ function remove_restriction_set(id) {
         }
     });
 }
+
 function get_pretty_name(functional_name) {
     var first_part = functional_name.slice(0, functional_name.indexOf("_"));
     var second_part = functional_name.slice(functional_name.indexOf("_") + 1, functional_name.length);
@@ -78,38 +80,38 @@ function capitalise_first_char(text) {
 $(document).ready(function() {
     $("#minimum_radius_add_button").click(function(event) { 
         event.preventDefault();
-        add_restriction_form_element("minimum_radius");
+        restriction.add_form_element("minimum_radius");
     });
     $("#minimum_radius_remove_button").click(function(event) { 
         event.preventDefault();
-        remove_restriction_form_element("minimum_radius");
+        restriction.remove_form_element("minimum_radius");
     });
     $("#minimum_radius_remove_button").hide();
     $("#maximum_radius_add_button").click(function(event) { 
         event.preventDefault();
-        add_restriction_form_element("maximum_radius");
+        restriction.add_form_element("maximum_radius");
     });
     $("#maximum_radius_remove_button").click(function(event) { 
         event.preventDefault();
-        remove_restriction_form_element("maximum_radius");
+        restriction.remove_form_element("maximum_radius");
     });
     $("#maximum_radius_remove_button").hide();
     $("#minimum_number_add_button").click(function(event) { 
         event.preventDefault();
-        add_restriction_form_element("minimum_number");
+        restriction.add_form_element("minimum_number");
     });
     $("#minimum_number_remove_button").click(function(event) { 
         event.preventDefault();
-        remove_restriction_form_element("minimum_number");
+        restriction.remove_form_element("minimum_number");
     });
     $("#minimum_number_remove_button").hide();
     $("#maximum_number_add_button").click(function(event) { 
         event.preventDefault();
-        add_restriction_form_element("maximum_number");
+        restriction.add_form_element("maximum_number");
     });
     $("#maximum_number_remove_button").click(function(event) { 
         event.preventDefault();
-        remove_restriction_form_element("maximum_number");
+        restriction.remove_form_element("maximum_number");
     });
     $("#maximum_number_remove_button").hide();
 });

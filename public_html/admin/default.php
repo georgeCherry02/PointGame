@@ -62,7 +62,7 @@
                                   .                 "<i class=\"fas fa-pencil-alt restrictions_set_button text-muted highlight-text-hover\"></i>"
                                   .             "</div>"
                                   .             "<div class=\"col-1\">"
-                                  .                 "<i class=\"fas fa-trash restrictions_set_button text-muted highlight-text-hover\" onclick=\"remove_restriction_set(".$id.")\"></i>"
+                                  .                 "<i class=\"fas fa-trash restrictions_set_button text-muted highlight-text-hover\" onclick=\"restriction.remove_set(".$id.")\"></i>"
                                   .             "</div>"
                                   .         "</div>"
                                   .     "</div>"
