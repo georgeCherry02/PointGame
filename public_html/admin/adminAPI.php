@@ -72,6 +72,27 @@
                     $response["error_code"] = 2;
             }
             break;
+        case "requestEditSet":
+            // Include appropriate files for function
+            include_once $inc_root."Enum.php";
+            include_once $inc_root."enums/RestrictionTypes.php";
+            // Check if the ID supplied is a numebr
+            if (filter_var($request_data["edit_id"], FILTER_VALIDATE_INT)) {
+                $set_info = Restrictions::getRestrictionSet($request_data["edit_id"]);
+            } else {
+                $response["error_message"] = "Invalid ID supplied";
+                $response["error_code"] = 1;
+                break;
+            }
+            // Check that information about restriciton set was successful fetched
+            if ($set_info) {
+                $response["status"] = "success";
+                $response["set_info"] = $set_info;
+            } else {
+                $response["error_message"] = "Server error";
+                $response["error_code"] = 2;
+            }
+            break;
         case "setRestrictionSetActive":
             if (filter_var($request_data["active_id"], FILTER_VALIDATE_INT)) {
                 $outcome = Restrictions::setActive($request_data["active_id"]);

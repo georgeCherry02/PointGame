@@ -33,6 +33,30 @@ restriction.remove_form_element = function(type) {
     $("#"+type+"_"+init_amount).remove();
     $("#"+type+"_number").val(new_amount);
 }
+restriction.request_edit_set = function(id) {
+    var process = "requestEditSet";
+    var data = {"edit_id": id};
+    $.ajax({
+        type: "POST",
+        url: "adminAPI.php",
+        data: {
+            "ajax_token":   AJAX_TOKEN,
+            "process":      process,
+            "data":         JSON.stringify(data)
+        },
+        success: function(raw_response) {
+            var response = JSON.parse(raw_response);
+            if (response.status === "success") {
+                // Edit form to represent current status of this restriction set
+            } else {
+                Logger.log(LoggingType.ERROR, ["Server error occured!", "Failed to fetch set data"]);
+            }
+        },
+        error: function() {
+            Logger.log(LoggingType.ERROR, ["Server error occured!"]);
+        }
+    })
+}
 restriction.remove_set = function(id) {
     var process = "removeRestrictionSet";
     var data = {"remove_id": id};
