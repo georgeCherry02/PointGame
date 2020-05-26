@@ -23,6 +23,25 @@
             }
             return $result;
         }
+        public static function getRestrictionSet($id) {
+            $fetch_set_sql_start = "SELECT `Name`";
+            $fetch_set_sql_end = "FROM `Restriction_Settings` WHERE `ID`=:id";
+            $fetch_set_Sql_variables = array(":id" => $id);
+            foreach (RestrictionTypes::ALL() as $restriction) {
+                $fetch_set_sql_start .= ", `".$restriction->getCapitalisedFunctionalName()."_Distributions` AS `".$restriction->getFunctionalName()."`";
+            }
+            $fetch_set_sql = $fetch_set_sql_start.$fetch_set_sql_end;
+            try {
+                $set_info = DB::query($fetch_set_sql, $fetch_set_Sql_variables)[0];
+            } catch (PDOException $e) {
+                return false;
+            }
+            // Santise set info
+            foreach (RestrictionTypes::ALL() as $restriction) {
+                $set_info[$restriction->getFunctionalName()] = json_decode($set_info[$restriction->getFunctionalName()]);
+            }
+            return $set_info;
+        }
         public static function createNew($restrictions, $name) {
             $insert_restriction_set_sql_start = "INSERT INTO `Restriction_Settings` (`Name`";
             $insert_restriction_set_sql_middle = ") VALUES (:name";
