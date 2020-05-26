@@ -44,13 +44,13 @@ restriction.remove_set = function(id) {
             "process":      process,
             "data":         JSON.stringify(data)
         },
-        success: function(data) {
-            var response = JSON.parse(data);
+        success: function(raw_response) {
+            var response = JSON.parse(raw_response);
             if (response.status === "success") {
                 location.reload();
             } else {
                 // Check if it's because it's the last one and explain
-                if (response.error_code === 4) {
+                if (response.error_code === 3) {
                     // If it's the last error code explain
                 } else {
                     var error_messages = [];
