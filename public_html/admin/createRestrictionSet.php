@@ -12,6 +12,7 @@
      * 3 - One of the probabilities or magnitudes failed to be set
      * 4 - One of the probability sets doesn't add up to 100
      * 5 - Invalid name supplied
+     * 6 - Server was told the intention was to update a restriction set yet no ID was provided to update
      */
     if (Admin::isLoggedIn()) {
         // Include any additional files
@@ -28,6 +29,15 @@
             // Redirect to admin home page
             header("Location: ./default.php?err=1");
             exit;
+        }
+        // Then determine whether it's updating an existing set
+        $updating = isset($_POST["update_id"]);
+        if ($updating) {
+            $update_id = filter_input(INPUT_POST, "update_id", FILTER_VALIDATE_INT);
+        }
+        if ($updating && !$update_id) {
+            // Redirect to admin home page
+            header("Location: ./default.php?err=6");
         }
         // Then fetch the restrictions themselves
         $restrictions_outline = array();
@@ -77,12 +87,21 @@
         }
 
         // Having organised the restrictions to a nicer format insert into database
-        $outcome_id = Restrictions::createNew($restrictions_outline, $name);
+        if (!$updating) {
+            $outcome_id = Restrictions::createNew($restrictions_outline, $name);
+        } else {
+            $outcome_id = Restrictions::updateSet($restrictions_outline, $name, $update_id);
+        }
         // Check insert processed
         if ($outcome_id) {
             // Check if new one needs to be made active
             if ($set_active) {
-                $set_active_outcome = Restrictions::setActive($outcome_id);
+                // Check if the set restriction set needs to be set active
+                if ($updating) {
+                    $set_active_outcome = Restrictions::setActive($update_id);
+                } else {
+                    $set_active_outcome = Restrictions::setActive($outcome_id);
+                }
             }
         } else {
             // Redirect to admin home page

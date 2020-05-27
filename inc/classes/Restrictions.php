@@ -124,5 +124,22 @@
             self::$_active_restriction_set_id = $id;
             return true;
         }
+
+        public function updateSet($restrictions_outline, $name, $update_id) {
+            $update_sql = "UPDATE `Restriction_Settings` SET `Name`=:name";
+            $update_sql_variables = array(":name" => $name);
+            foreach (RestrictionTypes::ALL() as $restriction) {
+                $update_sql .= ", `".$restriction->getCapitalisedFunctionalName()."_Distributions`=:".$restriction->getFunctionalName();
+                $update_sql_variables[":".$restriction->getFunctionalName()] = json_encode($restrictions_outline[$restriction->getFunctionalName()]);
+            }
+            $update_sql .= " WHERE `ID`=:id";
+            $update_sql_variables[":id"] = $update_id;
+            try {
+                DB::query($update_sql, $update_sql_variables);
+            } catch (PDOException $e) {
+                return false;
+            }
+            return true;
+        }
     }
 ?>
