@@ -11,13 +11,18 @@
     include_once "../inc/components/ajax.php";
 
     // Define game parameters
-    $chosen_shape = Shapes::fromID(rand(1, 3));
-    $_SESSION["Expected_Shape_ID"] = $chosen_shape->getID();
+    $shape_id = rand(1, 3);
+    try {
+        $chosen_shape = Shapes::fromID(rand($shape_id));
+    } catch (OutOfRangeException $e) {
+        $chosen_shape = Shapes::Circle();
+    }
+    $_SESSION["Expected_Shape_ID"] = $shape_id;
     $_SESSION["min_points_number"] = 5;
     $_SESSION["max_points_number"] = 10;
 ?>
 <script>
-    const EXPECTED_SHAPE_ID = <?php echo $chosen_shape->getID(); ?>;
+    const EXPECTED_SHAPE_ID = <?php echo $shape_id; ?>;
 </script>
 <div id="desktop_optimisation_message" class="container text-center d-flex flex-column justify-content-center d-lg-none">
     <h5 class="grey-text">Hi, this game is optimised for use on a desktop computer!</h5>
