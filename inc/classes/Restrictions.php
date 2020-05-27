@@ -125,7 +125,7 @@
             return true;
         }
 
-        public function updateSet($restrictions_outline, $name, $update_id) {
+        public static function updateSet($restrictions_outline, $name, $update_id) {
             $update_sql = "UPDATE `Restriction_Settings` SET `Name`=:name";
             $update_sql_variables = array(":name" => $name);
             foreach (RestrictionTypes::ALL() as $restriction) {
