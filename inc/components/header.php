@@ -10,12 +10,18 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <!-- Include link to FontAwesome -->
         <script src="https://kit.fontawesome.com/fd361f6e33.js"></script>
+<?php
+    $root_dir = "./";
+    if ($page_title === "Admin") {
+        $root_dir = "../";
+    }
+?>
         <!-- Include Custom CSS -->
-        <link rel="stylesheet" href="./css/main.css" type="text/css"/>
+        <link rel="stylesheet" href="<?php echo $root_dir; ?>css/main.css" type="text/css"/>
         <!-- Include Page's CSS -->
-        <link rel="stylesheet" href="./css/<?php echo $page_title; ?>.css" type="text/css"/>
+        <link rel="stylesheet" href="<?php echo $root_dir; ?>css/<?php echo $page_title; ?>.css" type="text/css"/>
         <!-- Include Logger script -->
-        <script src="./scripts/logging.js" type="application/javascript"></script>
+        <script src="<?php echo $root_dir; ?>scripts/logging.js" type="application/javascript"></script>
 <?php
     if ($page_title === "Game") {
 ?>
