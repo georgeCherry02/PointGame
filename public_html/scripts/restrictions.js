@@ -11,10 +11,10 @@ restriction.add_form_element = function(type) {
     var new_row =   "<div id=\""+type+"_"+new_amount+"\" class=\"form-row\">"
                 +       "<div class=\"col-8\">"
                 +           "<small id=\""+type+"_"+new_amount+"_desc\" class=\"form-text text-muted ml-1\">"+pretty_name+" "+new_amount+"</small>"
-                +           "<input type=\"number\" name=\""+type+"_"+new_amount+"\" class=\"form-control\" placeholder=\""+pretty_name+" (px)\" aria-describedby=\""+type+"_"+new_amount+"_desc\"/>"
+                +           "<input type=\"number\" id=\""+type+"_input_"+new_amount+"\" name=\""+type+"_"+new_amount+"\" class=\"form-control\" placeholder=\""+pretty_name+" (px)\" aria-describedby=\""+type+"_"+new_amount+"_desc\"/>"
                 +       "</div>"
                 +       "<div class=\"col-4\">"
-                +           "<input type=\"number\" name=\""+type+"_chance_"+new_amount+"\" min=\"1\" max=\"100\" class=\"form-control percentage_input\" placeholder=\"Likelihood\"/>"
+                +           "<input type=\"number\" id=\""+type+"_chance_input_"+new_amount+"\" name=\""+type+"_chance_"+new_amount+"\" min=\"1\" max=\"100\" class=\"form-control percentage_input\" placeholder=\"Likelihood\"/>"
                 +       "</div>"
                 +   "</div>";
     // Append the new form group
