@@ -40,6 +40,8 @@
             foreach (RestrictionTypes::ALL() as $restriction) {
                 $set_info[$restriction->getFunctionalName()] = json_decode($set_info[$restriction->getFunctionalName()]);
             }
+            // Pass the ID back
+            $set_info["ID"] = $id;
             return $set_info;
         }
         public static function createNew($restrictions, $name) {

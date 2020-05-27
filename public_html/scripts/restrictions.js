@@ -48,6 +48,7 @@ restriction.request_edit_set = function(id) {
             var response = JSON.parse(raw_response);
             if (response.status === "success") {
                 // Edit form to represent current status of this restriction set
+                restriction.update_form(response.set_info);
             } else {
                 Logger.log(LoggingType.ERROR, ["Server error occured!", "Failed to fetch set data"]);
             }
@@ -115,6 +116,46 @@ restriction.set_active = function(id) {
             Logger.log(LoggingType.ERROR, ["Server error occured!"]);
         }
     })
+}
+restriction.update_form = function(set_data) {
+    // Add hidden ID field for update
+    $("#create_restriction_set_form").append("<input type=\"hidden\" name=\"update_id\" value=\""+set_data["ID"]+"\"/>");
+    // Set name to correct value in form
+    $("#restriction_set_name").val(set_data["Name"]);
+    // Set up the rest of the form
+    var initial_input_amount, final_input_amount, increase_form_inputs, form_shift_start, form_shift_end;
+    var restriction_magnitudes, restriction_probabilities;
+    for (var restriction_type in set_data) {
+        // Skip if the key is Name
+        if (restriction_type === "Name" || restriction_type === "ID") {
+            continue;
+        }
+        // Gather data about restriction set
+        restriction_magnitudes = set_data[restriction_type].magnitudes;
+        restriction_probabilities = set_data[restriction_type].probabilities;
+        // Find difference between initial and final form
+        initial_input_amount = parseInt($("#"+restriction_type+"_number").val());
+        final_input_amount = restriction_magnitudes.length;
+        increase_form_inputs = final_input_amount - initial_input_amount > 0;
+        // Begin to modify number of form inputs
+        if (increase_form_inputs) {
+            for (var i = initial_input_amount; i < final_input_amount; i++) {
+                this.add_form_element(restriction_type);
+            }
+        } else {
+            for (var i = initial_input_amount; i > final_input_amount; i--) {
+                this.remove_form_element(restriction_type);
+            }
+        }
+        // Modify actual input values
+        for (var i = 1; i <= final_input_amount; i++) {
+            $("#"+restriction_type+"_input_"+i).val(restriction_magnitudes[i-1]);
+            $("#"+restriction_type+"_chance_input_"+i).val(restriction_probabilities[i-1]);
+        }
+    }
+    // Change text on submit buttons
+    $("#create_restriction_set_submit").html("Update");
+    $("#create_active_restriction_set_submit").html("Update and set active");
 }
 
 function get_pretty_name(functional_name) {
