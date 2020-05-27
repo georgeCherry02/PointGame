@@ -18,6 +18,7 @@
             foreach ($methods as $method) {
                 if ($method-> class === $enum_type) {
                     $enum_item = $method->invoke(NULL);
+                    // Despite this showing an error in some IDEs, the second conditional will not fire unless the first does, in which case it definitely has the _getProperty method
                     if ($enum_item instanceof $enum_type && $enum_item->_getProperty($property) === $value) {
                         return $enum_item;
                     }
@@ -35,6 +36,7 @@
             foreach ($methods as $method) {
                 if ($method-> class === $enum_type) {
                     $enum_item = $method->invoke(NULL);
+                    // Despite this showing an error in some IDEs, the second conditional will not fire unless the first does, in which case it definitely has the _getProperty method
                     if ($enum_item instanceof $enum_type && $enum_item->getName() === $name) {
                         return $enum_item;
                     }
