@@ -279,12 +279,16 @@ with (paper) {
         data.point_pattern = this.formatPointData();
         // Validate the number of points client side too
         if (data.point_pattern.x.length < MIN_NUMBER) {
-            // Explain there are too few points
+            // ##########################################################################################
+            // # Explain there are too few points
+            // ##########################################################################################
             Logger.log(LoggingType.NOTICE, "Too few points to be submitted");
             return;
         } 
         if (data.point_pattern.x.length > MAX_NUMBER) {
-            // Explain there are too many points
+            // ##########################################################################################
+            // # Explain there are too many points
+            // ##########################################################################################
             Logger.log(LoggingType.NOTICE, "Too many points to be submitted");
             return;
         }
@@ -310,10 +314,14 @@ with (paper) {
                 var response = JSON.parse(data);
                 if (response.status === "success") {
                     Logger.log(LoggingType.STATUS, "Successfully submitted point pattern");
-                    // Move user on to next screen and rate different point patterns
+                    // ##########################################################################################
+                    // # Move user on to next screen and rate different point patterns
+                    // ##########################################################################################
                 } else {
                     Logger.log(LoggingType.ERROR, ["Error Code: "+response.error_code, "Message: "+respone.error_message]);
-                    // Explain to user what was wrong with their submission
+                    // ##########################################################################################
+                    // # Explain to user what was wrong with their submission
+                    // ##########################################################################################
                 }
             },
             error: function() {
