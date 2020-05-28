@@ -49,6 +49,7 @@ restriction.request_edit_set = function(id) {
             if (response.status === "success") {
                 // Edit form to represent current status of this restriction set
                 restriction.update_form(response.set_info);
+                $("#restriction_addition_form").removeClass("collapse");
             } else {
                 Logger.log(LoggingType.ERROR, ["Server error occured!", "Failed to fetch set data"]);
             }
