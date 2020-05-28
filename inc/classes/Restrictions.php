@@ -11,7 +11,7 @@
             }
             return $result;
         }
-        public static function getCurrentRestrictions() {
+        public static function getCurrentRestrictionsID() {
             if (isset(self::$_active_restriction_set_id)) {
                 return self::$_active_restriction_set_id;
             }
@@ -79,7 +79,7 @@
                 return 2;
             }
             // Check if the set being removed is the currently active restriction set
-            $need_to_set_new_active_set = self::getCurrentRestrictions() == $id;
+            $need_to_set_new_active_set = self::getCurrentRestrictionsID() == $id;
             // Remove the set
             $remove_set_sql = "DELETE FROM `Restriction_Settings` WHERE `ID`=:id";
             $remove_set_sql_variables = array(":id" => $id);
