@@ -1,6 +1,4 @@
 // Define external constants
-const MIN_RADIUS = 10;
-const MAX_RADIUS = 10;
 const accept_colour = new paper.Color(0.9, 1, 0.9, 1);
 const reject_colour = new paper.Color(1, 0.9, 0.9, 1);
 const point_colour = new paper.Color(0.9, 0.9, 1, 1);
@@ -279,9 +277,31 @@ with (paper) {
         var data = {};
         data.expected_shape = EXPECTED_SHAPE_ID;
         data.point_pattern = this.formatPointData();
+        // Validate the number of points client side too
+        if (data.point_pattern.x.length < MIN_NUMBER) {
+            // ##########################################################################################
+            // # Explain there are too few points
+            // ##########################################################################################
+            Logger.log(LoggingType.NOTICE, "Too few points to be submitted");
+            return;
+        } 
+        if (data.point_pattern.x.length > MAX_NUMBER) {
+            // ##########################################################################################
+            // # Explain there are too many points
+            // ##########################################################################################
+            Logger.log(LoggingType.NOTICE, "Too many points to be submitted");
+            return;
+        }
+        if (data.point_pattern.x.length !== data.point_pattern.y.length) {
+            Logger.log(LoggingType.ERROR, ["Point formatting process failed", "Substantial error with page", "Reloading"]);
+            location.reload();
+            return;
+        }
         data.limitations = {};
-        data.limitations.max_radius = MAX_RADIUS;
-        data.limitations.min_radius = MIN_RADIUS;
+        data.limitations.maximum_radius = MAX_RADIUS;
+        data.limitations.minimum_radius = MIN_RADIUS;
+        data.limitations.maximum_number = MAX_NUMBER;
+        data.limitations.minimum_number = MIN_NUMBER;
         $.ajax({
             type: "POST",
             url: "api.php",
@@ -294,10 +314,14 @@ with (paper) {
                 var response = JSON.parse(data);
                 if (response.status === "success") {
                     Logger.log(LoggingType.STATUS, "Successfully submitted point pattern");
-                    // Move user on to next screen and rate different point patterns
+                    // ##########################################################################################
+                    // # Move user on to next screen and rate different point patterns
+                    // ##########################################################################################
                 } else {
                     Logger.log(LoggingType.ERROR, ["Error Code: "+response.error_code, "Message: "+respone.error_message]);
-                    // Explain to user what was wrong with their submission
+                    // ##########################################################################################
+                    // # Explain to user what was wrong with their submission
+                    // ##########################################################################################
                 }
             },
             error: function() {

@@ -49,6 +49,8 @@ restriction.request_edit_set = function(id) {
             if (response.status === "success") {
                 // Edit form to represent current status of this restriction set
                 restriction.update_form(response.set_info);
+                // Reveal form
+                $("#restriction_addition_form").removeClass("collapse");
             } else {
                 Logger.log(LoggingType.ERROR, ["Server error occured!", "Failed to fetch set data"]);
             }
@@ -76,7 +78,9 @@ restriction.remove_set = function(id) {
             } else {
                 // Check if it's because it's the last one and explain
                 if (response.error_code === 3) {
-                    // If it's the last error code explain
+                    // ##########################################################################################
+                    // # If it's the last error code explain
+                    // ##########################################################################################
                 } else {
                     var error_messages = [];
                     if (response.process === process) {
@@ -106,8 +110,10 @@ restriction.set_active = function(id) {
         success: function(raw_response) {
             var response = JSON.parse(raw_response);
             if (response.status === "success") {
+                // UI response shows highlighted button so no need to modify anything here
                 Logger.log(LoggingType.STATUS, "Set restriction set " + response.id + " active");
             } else {
+                // Fatal error, reload page
                 Logger.log(LoggingType.ERROR, [response.error_message]);
                 location.reload();
             }

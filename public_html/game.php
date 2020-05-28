@@ -1,8 +1,11 @@
 <?php
     include_once "../inc/base.php";
+    include_once "../inc/db_constants.php";
+    include_once "../inc/classes/Database.php";
 
     include_once "../inc/Enum.php";
     include_once "../inc/enums/Shapes.php";
+    include_once "../inc/enums/RestrictionTypes.php";
 
     $page_title = "Game";
     include_once "../inc/components/header.php";
@@ -11,14 +14,9 @@
     include_once "../inc/components/ajax.php";
 
     // Define game parameters
-    $chosen_shape = Shapes::fromID(rand(1, 3));
-    $_SESSION["Expected_Shape_ID"] = $chosen_shape->getID();
-    $_SESSION["min_points_number"] = 5;
-    $_SESSION["max_points_number"] = 10;
+    include_once "../inc/classes/Restrictions.php";
+    include_once "../inc/components/game_restrictions.php";
 ?>
-<script>
-    const EXPECTED_SHAPE_ID = <?php echo $chosen_shape->getID(); ?>;
-</script>
 <div id="desktop_optimisation_message" class="container text-center d-flex flex-column justify-content-center d-lg-none">
     <h5 class="grey-text">Hi, this game is optimised for use on a desktop computer!</h5>
     <p class="grey-text">Please switch over to desktop to play the game and help our research!</p>
@@ -35,7 +33,7 @@
         </div>
     </div>
     <div id="game_container" class="container collapse multi_collapse">
-        <p class="grey-text text-center">Please draw a <span class="highlight-text"><?php echo $chosen_shape->getRenderedName(); ?></span> with at least <span class="highlight-text"><?php echo $_SESSION["min_points_number"]; ?></span> and no more than <span class="highlight-text"><?php echo $_SESSION["max_points_number"]; ?></span> points.</p>
+        <p class="grey-text text-center">Please draw a <span class="highlight-text"><?php echo $chosen_shape->getRenderedName(); ?></span> with at least <span class="highlight-text"><?php echo $_SESSION["minimum_number"]; ?></span> and no more than <span class="highlight-text"><?php echo $_SESSION["maximum_number"]; ?></span> points.</p>
         <i class="fas fa-trash grey-text highlight-text-hover clear_icon" onclick="game.clear()"><span class="sr-only">Clear Canvas</span></i>
         <div class="canvas-container">
             <canvas id="game_canvas" height="1024" width="1024" data-paper-scope="1" style="-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); width: 100%;"></canvas>
