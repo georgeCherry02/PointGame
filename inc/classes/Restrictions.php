@@ -11,6 +11,27 @@
             }
             return $result;
         }
+        public static function generateGameSet() {
+            $restriction_set = self::getRestrictionSet(self::getCurrentRestrictionsID());
+            $game_restriction_set = array();
+            foreach (RestrictionTypes::ALL() as $restriction) {
+                $current_restriction_info = $restriction_set[$restriction->getFunctionalName()];
+                if (sizeof($current_restriction_info->magnitudes) === 1) {
+                    $game_restriction_set[$restriction->getFunctionalName()] = $current_restriction_info->magnitudes[0];
+                } else {
+                    $percentage = rand(1, 100);
+                    $running_total = 0;
+                    for ($i = 0; $i < sizeof($current_restriction_info->probabilities); $i++) {
+                        $running_total = $running_total + $current_restriction_info->probabilities[$i];
+                        if ($running_total >= $percentage) {
+                            $game_restriction_set[$restriction->getFunctionalName()] = $current_restriction_info->magnitudes[$i];
+                            break;
+                        }
+                    }
+                }
+            }
+            return $game_restriction_set;
+        }
         public static function getCurrentRestrictionsID() {
             if (isset(self::$_active_restriction_set_id)) {
                 return self::$_active_restriction_set_id;
