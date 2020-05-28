@@ -294,8 +294,10 @@ with (paper) {
             return;
         }
         data.limitations = {};
-        data.limitations.max_radius = MAX_RADIUS;
-        data.limitations.min_radius = MIN_RADIUS;
+        data.limitations.maximum_radius = MAX_RADIUS;
+        data.limitations.minimum_radius = MIN_RADIUS;
+        data.limitations.maximum_number = MAX_NUMBER;
+        data.limitations.minimum_number = MIN_NUMBER;
         $.ajax({
             type: "POST",
             url: "api.php",

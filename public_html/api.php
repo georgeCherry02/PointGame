@@ -31,7 +31,9 @@
     switch($_POST["process"]) {
         case "submitPoints":
             $response["process"] = "submitPoints";
+            // Include relevant files
             include_once "../inc/enums/Shapes.php";
+            include_once "../inc/enums/RestrictionTypes.php";
             // Decode the data
             $request_data = json_decode($_POST["data"], $assoc=TRUE);
             // Check the data decoded correctly
@@ -47,12 +49,12 @@
                 break;
             }
             // Check their are the correct number of points
-            if (sizeof($request_data["point_pattern"]["x"]) < $_SESSION["min_points_number"]) {
+            if (sizeof($request_data["point_pattern"]["x"]) < $_SESSION["minimum_number"]) {
                 $response["error_message"] = "Too few points";
                 $response["error_code"] = 3;
                 break;
             }
-            if (sizeof($request_data["point_pattern"]["x"]) > $_SESSION["max_points_number"]) {
+            if (sizeof($request_data["point_pattern"]["x"]) > $_SESSION["maximum_number"]) {
                 $response["error_message"] = "Too many points";
                 $response["error_code"] = 4;
                 break;
@@ -62,10 +64,19 @@
                 $response["error_code"] = 5;
                 break;
             }
+            // Validate all restrictions
+            foreach (RestrictionTypes::ALL() as $restriction) {
+                if ($request_data["limitations"][$restriction->getFunctionalName()] !== $_SESSION[$restriction->getFunctionalName()]) {
+                    $response["error_message"] = "Mismatch in restrictions expected and those provided by user";
+                    $response["error_code"] = 6;
+                    echo json_encode($response);
+                    exit;
+                }
+            }
             // Insert into database
             // Form limitations insert
             $limitations_sql = "INSERT INTO `Limitations` (`Minimum_radius`, `Maximum_radius`, `Minimum_number`, `Maximum_number`) VALUES (:min_rad, :max_rad, :min_num, :max_num)";
-            $limitations_sql_param = array(":min_rad" => $request_data["limitations"]["min_radius"], ":max_rad" => $request_data["limitations"]["max_radius"], ":min_num" => $_SESSION["min_points_number"], ":max_num" => $_SESSION["max_points_number"]);
+            $limitations_sql_param = array(":min_rad" => $request_data["limitations"]["minimum_radius"], ":max_rad" => $request_data["limitations"]["maximum_radius"], ":min_num" => $request_data["limitations"]["minimum_number"], ":max_num" => $request_data["limitations"]["maximum_number"]);
             try {
                 $limitation_id = DB::query($limitations_sql, $limitations_sql_param);
             } catch (PDOException $e) {
@@ -114,5 +125,6 @@
                 3 - There were too few points submitted
                 4 - There were too many points submitted
                 5 - There was a mismatch in the number of points submitted
+                6 - There was a mismatch in the restrictions provided from the user and those expected by the server
 */
 ?>
