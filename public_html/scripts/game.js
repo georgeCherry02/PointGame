@@ -277,6 +277,22 @@ with (paper) {
         var data = {};
         data.expected_shape = EXPECTED_SHAPE_ID;
         data.point_pattern = this.formatPointData();
+        // Validate the number of points client side too
+        if (data.point_pattern.x.length < MIN_NUMBER) {
+            // Explain there are too few points
+            Logger.log(LoggingType.NOTICE, "Too few points to be submitted");
+            return;
+        } 
+        if (data.point_pattern.x.length > MAX_NUMBER) {
+            // Explain there are too many points
+            Logger.log(LoggingType.NOTICE, "Too many points to be submitted");
+            return;
+        }
+        if (data.point_pattern.x.length !== data.point_pattern.y.length) {
+            Logger.log(LoggingType.ERROR, ["Point formatting process failed", "Substantial error with page", "Reloading"]);
+            location.reload();
+            return;
+        }
         data.limitations = {};
         data.limitations.max_radius = MAX_RADIUS;
         data.limitations.min_radius = MIN_RADIUS;
