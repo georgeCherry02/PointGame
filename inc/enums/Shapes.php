@@ -15,5 +15,9 @@
         public static function fromID($id) {
             return self::_fromProperty("id", $id);
         }
+        public static function getRandom() {
+            $new_id = rand(1, 3);
+            return self::fromID($new_id);
+        }
     }
 ?>
