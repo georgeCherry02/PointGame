@@ -1,6 +1,4 @@
 // Define external constants
-const MIN_RADIUS = 10;
-const MAX_RADIUS = 10;
 const accept_colour = new paper.Color(0.9, 1, 0.9, 1);
 const reject_colour = new paper.Color(1, 0.9, 0.9, 1);
 const point_colour = new paper.Color(0.9, 0.9, 1, 1);
