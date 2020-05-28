@@ -151,7 +151,7 @@
             $update_sql_variables = array(":name" => $name);
             foreach (RestrictionTypes::ALL() as $restriction) {
                 $update_sql .= ", `".$restriction->getCapitalisedFunctionalName()."_Distributions`=:".$restriction->getFunctionalName();
-                $update_sql_variables[":".$restriction->getFunctionalName()] = json_encode($restrictions_outline[$restriction->getFunctionalName()]);
+                $update_sql_variables[":".$restriction->getFunctionalName()] = json_encode($restrictions_outline[$restriction->getName()]);
             }
             $update_sql .= " WHERE `ID`=:id";
             $update_sql_variables[":id"] = $update_id;
