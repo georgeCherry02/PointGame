@@ -5,7 +5,6 @@ const point_colour = new paper.Color(0.9, 0.9, 1, 1);
 
 with (paper) {
     var game = {};
-
     // Define basic properties
     game.canvas = $("#game_canvas");
     game.origin = new Point(0, 0);
@@ -38,11 +37,11 @@ with (paper) {
         Logger.log(LoggingType.STATUS, "Initialising Canvas");
         setup(this.canvas[0]);
 
-        this.base_layer = new Layer();
-        this.point_areas_layer = new Layer();
+        this.base_layer               = new Layer();
+        this.point_areas_layer        = new Layer();
         this.point_area_display_layer = new Layer();
-        this.points_layer = new Layer();
-        this.mouse_track_layer = new Layer();
+        this.points_layer             = new Layer();
+        this.mouse_track_layer        = new Layer();
     
         // Initialise custom mouse
         this.mouse_track_layer.opacity = 0.5;
@@ -281,6 +280,7 @@ with (paper) {
         if (data.point_pattern.x.length < MIN_NUMBER) {
             // ##########################################################################################
             // # Explain there are too few points
+            // # An idea for doing so could be highlighting the point it's said in red and making submit button vibrate
             // ##########################################################################################
             Logger.log(LoggingType.NOTICE, "Too few points to be submitted");
             return;
@@ -303,8 +303,8 @@ with (paper) {
         data.limitations.maximum_number = MAX_NUMBER;
         data.limitations.minimum_number = MIN_NUMBER;
         $.ajax({
-            type: "POST",
-            url: "api.php",
+            type:   "POST",
+            url:    "api.php",
             data: {
                 "ajax_token":   AJAX_TOKEN,
                 "process":      process,
@@ -314,6 +314,8 @@ with (paper) {
                 var response = JSON.parse(data);
                 if (response.status === "success") {
                     Logger.log(LoggingType.STATUS, "Successfully submitted point pattern");
+                    // Update the current pattern id
+                    game.current_pattern_id = response.insert_id;
                     // Bring up submission confirmation screen
                     $("#confirmation_modal").modal("show");
                 } else {
