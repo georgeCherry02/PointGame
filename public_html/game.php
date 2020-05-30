@@ -42,6 +42,19 @@
     </div>
     <script src="./scripts/game.js" type="application/javascript"></script>
 </div>
+<div class="modal fade" id="confirmation_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Submission?</h5>
+            </div>
+            <div class="modal-body">
+                <button class="btn btn-primary highlight-background highlight-border" type="button" onclick="game.confirmPointPattern()">Yes</a>
+                <button class="btn btn-primary highlight-background highlight-border ml-2" type="button" data-dismiss="modal" aria-label="Close">No</button>
+            </div>
+        </div>
+    </div>
+</div>
 <?php
     include_once "../inc/components/footer.php";
 ?>

@@ -314,9 +314,8 @@ with (paper) {
                 var response = JSON.parse(data);
                 if (response.status === "success") {
                     Logger.log(LoggingType.STATUS, "Successfully submitted point pattern");
-                    // ##########################################################################################
-                    // # Move user on to next screen and rate different point patterns
-                    // ##########################################################################################
+                    // Bring up submission confirmation screen
+                    $("#confirmation_modal").modal("show");
                 } else {
                     Logger.log(LoggingType.ERROR, ["Error Code: "+response.error_code, "Message: "+respone.error_message]);
                     // ##########################################################################################
