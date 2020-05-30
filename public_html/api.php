@@ -30,7 +30,6 @@
     // Error codes documented at bottom of API
     switch($_POST["process"]) {
         case "submitPoints":
-            $response["process"] = "submitPoints";
             // Include relevant files
             include_once "../inc/enums/Shapes.php";
             include_once "../inc/enums/RestrictionTypes.php";
@@ -109,6 +108,7 @@
         default:
             $response["error_message"] = "Failed to provide valid process";
     }
+    $response["process"] = $_POST["process"];
     echo json_encode($response);
 /*  Documentation
     Processes:
