@@ -78,9 +78,11 @@ restriction.remove_set = function(id) {
             } else {
                 // Check if it's because it's the last one and explain
                 if (response.error_code === 3) {
-                    // ##########################################################################################
-                    // # If it's the last error code explain
-                    // ##########################################################################################
+                    var alert_html = "<div class=\"alert alert-error grey-text\">"
+                                   +    "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>"
+                                   +    "<strong>Error!</strong> You can't delete your last restriction set!"
+                                   + "</div>";
+                    $("#admin_content_container").prepend(alert_html);
                 } else {
                     var error_messages = [];
                     if (response.process === process) {
