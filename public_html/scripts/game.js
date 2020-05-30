@@ -190,8 +190,8 @@ with (paper) {
         var c_point, c_object;
         for (var id in this.point_images_list) {
             c_point = this.point_images_list[id];
-            result.x.push(c_point.position.x);
-            result.y.push(c_point.position.y);
+            result.x.push(Math.floor(c_point.position.x));
+            result.y.push(Math.floor(c_point.position.y));
         }
         return result;
     }
