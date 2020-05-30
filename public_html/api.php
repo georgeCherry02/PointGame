@@ -98,6 +98,11 @@
                 $response["error_code"] = 0;
                 break;
             }
+            if (!isset($_SESSION["pattern_ids"])) {
+                $_SESSION["pattern_ids"] = array($insert_id);
+            } else {
+                array_push($_SESSION["pattern_ids"], $insert_id);
+            }
             $response["status"] = "success";
             $response["insert_id"] = $insert_id;
             break;
