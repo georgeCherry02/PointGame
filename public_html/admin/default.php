@@ -7,10 +7,10 @@
     $page_title = "Admin";
     include_once "../../inc/components/header.php";
 ?>
-<div class="container mt-5">
+<div class="container mt-5" id="admin_content_container">
 <?php
     if (isset($_POST["user"]) && isset($_POST["pass"])) {
-        Admin::logUserIn($_POST["user"], $_POST{"pass"});
+        Admin::logUserIn($_POST["user"], $_POST["pass"]);
     }
     if (Admin::isLoggedIn()) {
         // Include admin page
