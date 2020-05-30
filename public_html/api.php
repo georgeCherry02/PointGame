@@ -29,6 +29,51 @@
     // Validate provided process
     // Error codes documented at bottom of API
     switch($_POST["process"]) {
+        case "confirmSubmission":
+            // Include relevant files
+            // Decode the data
+            $request_data = json_decode($_POST["data"], $assoc=TRUE);
+            // Check the data decoded correctly
+            if (sizeof($request_data) === 0) {
+                $response["error_message"] = "Malformed Data";
+                $response["error_code"] = 1;
+                break;
+            }
+            // Check that the ID provided was created by the SESSION
+            if (!in_array($request_data["confirm_id"], $_SESSION["pattern_ids"])) {
+                $response["error_message"] = "Pattern ID not created by user";
+                $response["error_code"] = 2;
+                break;
+            }
+            // Confirm the provided point pattern
+            $confirmation_sql = "UPDATE `point_patterns` SET `Confirmed`=1 WHERE `ID`=:id";
+            $confirmation_sql_variables = array(":id" => $request_data["confirm_id"]);
+            try {
+                DB::query($confirmation_sql, $confirmation_sql_variables);
+            } catch (PDOException $e) {
+                $response["error_message"] = "Server error";
+                $response["error_code"] = 0;
+                break;
+            }
+            // Delete other point patterns
+            $cleanup_sql = "DELETE FROM `point_patterns` WHERE (`Confirmed`=0) AND (`ID`=:id0";
+            $cleanup_sql_variables = array(":id0" => $_SESSION["pattern_ids"][0]);
+            for ($i = 1; $i < sizeof($_SESSION["pattern_ids"]); $i++) {
+                $cleanup_sql .= " OR `ID`=:id".$i;
+                $cleanup_sql_variables[":id".$i] = $_SESSION["pattern_ids"][$i];
+            }
+            $cleanup_sql .= ")";
+            try {
+                DB::query($cleanup_sql, $cleanup_sql_variables);
+            } catch (PDOException $e) {
+                $response["error_message"] = "Server error";
+                $response["error_code"] = 0;
+                break;
+            }
+            // Reset tracked point patterns
+            $_SESSION["pattern_ids"] = array();
+            $response["status"] = "success";
+            break;
         case "submitPoints":
             // Include relevant files
             include_once "../inc/enums/Shapes.php";

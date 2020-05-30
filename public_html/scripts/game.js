@@ -330,6 +330,31 @@ with (paper) {
             }
         });
     }
+    game.confirmPointPattern = function() {
+        var process = "confirmSubmission";
+        var data = {"confirm_id": game.current_pattern_id};
+        $.ajax({
+            type:   "POST",
+            url:    "api.php",
+            data: {
+                "ajax_token":   AJAX_TOKEN,
+                "process":      process,
+                "data":         JSON.stringify(data)
+            },
+            success: function(data) {
+                var response = JSON.parse(data);
+                if (response.status === "success") {
+                    Logger.log(LoggingType.STATUS, "Confirmed Point Pattern");
+                    // Redirect to review page
+                } else {
+                    Logger.log(LoggingType.ERROR, ["Error Code: "+response.error_code, "Message: "+response.error_message]);
+                }
+            },
+            error: function() {
+                Logger.log(LoggingType.ERROR, ["Server error occured!"]);
+            }
+        });
+    }
 }
 
 window.onload = function() {
