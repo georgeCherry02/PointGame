@@ -346,6 +346,7 @@ with (paper) {
                 if (response.status === "success") {
                     Logger.log(LoggingType.STATUS, "Confirmed Point Pattern");
                     // Redirect to review page
+                    window.location.href = "review.php";
                 } else {
                     Logger.log(LoggingType.ERROR, ["Error Code: "+response.error_code, "Message: "+response.error_message]);
                 }

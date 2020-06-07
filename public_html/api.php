@@ -71,6 +71,9 @@
             }
             // Reset tracked point patterns
             $_SESSION["pattern_ids"] = array();
+            $_SESSION["review_mode"] = TRUE;
+            $response["status"] = "success";
+            break;
         case "fetchReviewPatterns":
             // No data required
             include_once "../inc/classes/Review.php";
