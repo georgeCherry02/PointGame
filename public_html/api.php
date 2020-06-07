@@ -220,6 +220,50 @@
             $response["status"] = "success";
             $response["insert_id"] = $insert_id;
             break;
+        case "submitReviews":
+            // Include relevant files
+            include_once "../inc/classes/Review.php";
+            // Decode the data
+            $request_data = json_decode($_POST["data"], $assoc=TRUE);
+            // Assert that the data decoded correctly
+            if (sizeof($request_data) === 0) {
+                $response["error_message"] = "Malformed Data";
+                $response["error_code"] = 1;
+                break;
+            }
+            // Verify the review IDs and scores submitted are valid and expected
+            $invalid_review_id = FALSE;
+            $invalid_review_score = FALSE;
+            foreach ($request_data["reviews"] as $review_id => $review_score) {
+                if (!in_array($review_id, $_SESSION["reviewed_pattern_ids"])) {
+                    $invalid_review_id = TRUE;
+                    break;
+                }
+                if ($review_score < 0 || $review_score > 100) {
+                    $invalid_review_score = TRUE;
+                    break;
+                }
+            }
+            if ($invalid_review_id) {
+                $response["error_message"] = "Invalid Review IDs";
+                $response["error_code"] = 2;
+                break;
+            }
+            if ($invalid_review_score) {
+                $response["error_message"] = "Invalid Review Score submitted";
+                $response["error_code"] = 3;
+                break;
+            }
+            // Update the current review scores
+            $outcome = Review::updatePatternReviews($request_data["reviews"]);
+            if (!$outcome) {
+                $response["error_message"] = "Server Error";
+                $response["error_code"] = 0;
+                break;
+            }
+            $_SESSION["reviewed_pattern_ids"] = array();
+            $response["status"] = "success";
+            break;
         default:
             $response["error_message"] = "Failed to provide valid process";
     }
