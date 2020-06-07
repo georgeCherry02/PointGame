@@ -23,7 +23,7 @@
         <!-- Include Logger script -->
         <script src="<?php echo $root_dir; ?>scripts/logging.js" type="application/javascript"></script>
 <?php
-    if ($page_title === "Game") {
+    if ($page_title === "Game" || $page_title === "Review") {
 ?>
         <script src="https://unpkg.com/paper@0.11.5/dist/paper-full.min.js"></script>
 <?php
