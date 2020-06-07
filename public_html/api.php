@@ -129,6 +129,19 @@
                 }
                 $response[$rspns_key]["Minimum_Radius"] = $min_radius;
             }
+            // Catch if an invalid shape has been thrown
+            if ($invalid_shape_provided) {
+                // Should reload page if receiving this exception back
+                // Perhaps should cleanse ID from database
+                $response["error_message"] = "Invalid Shape ID Stored";
+                $response["error_code"] = 1;
+                break;
+            }
+            if ($server_error) {
+                $response["error_message"] = "Server Error";
+                $response["error_code"] = 0;
+                break;
+            }
             $response["status"] = "success";
             break;
         case "submitPoints":
