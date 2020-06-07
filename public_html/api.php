@@ -30,7 +30,6 @@
     // Error codes documented at bottom of API
     switch($_POST["process"]) {
         case "confirmSubmission":
-            // Include relevant files
             // Decode the data
             $request_data = json_decode($_POST["data"], $assoc=TRUE);
             // Check the data decoded correctly
@@ -51,7 +50,7 @@
             try {
                 DB::query($confirmation_sql, $confirmation_sql_variables);
             } catch (PDOException $e) {
-                $response["error_message"] = "Server error";
+                $response["error_message"] = "Server Error";
                 $response["error_code"] = 0;
                 break;
             }
@@ -66,7 +65,7 @@
             try {
                 DB::query($cleanup_sql, $cleanup_sql_variables);
             } catch (PDOException $e) {
-                $response["error_message"] = "Server error";
+                $response["error_message"] = "Server Error";
                 $response["error_code"] = 0;
                 break;
             }
