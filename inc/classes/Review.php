@@ -29,5 +29,41 @@
             // Return said array
             return $patterns_to_be_reviewed;
         }
+        public static function updatePatternReviews($reviews) {
+            // Fetch initial reviews scores and number of reviews for patterns being reviewed
+            $fetch_initial_review_sql = "SELECT `ID`, `Review_Score`, `Review_Amount` FROM `Point_Patterns` WHERE `ID`=:id_1 OR `ID`=:id_2 OR `ID`=:id_3";
+            $fetch_initial_review_sql_variables = array();
+            $i = 1;
+            foreach ($reviews as $review_id => $review_score) {
+                $fetch_initial_review_sql_variables[":id_".$i] = $review_id;
+                $i++;
+            }
+            try {
+                $initial_review_info = DB::query($fetch_initial_review_sql, $fetch_initial_review_sql_variables);
+            } catch (PDOException $e) {
+                return FALSE;
+            }
+            // Calculate new scores and amounts for each review and then update database
+            for ($i = 0; $i < sizeof($initial_review_info); $i++) {
+                // Fetch current point pattern
+                $cpp = $initial_review_info[$i];
+                // Initialise final summary object for cpp
+                // Fetch initial information
+                $init_score = $cpp["Review_Score"];
+                $init_amount = $cpp["Review_Amount"];
+                // Determine final properties
+                $final_amount = $init_amount + 1;
+                $final_score = floor((($init_score * $init_amount) + $reviews[$cpp["ID"]]) / ($final_amount));
+                // Update the database with this information
+                $update_review_sql = "UPDATE `Point_Patterns` SET `Review_Score`=:rev_score, `Review_Amount`=:rev_amount WHERE `ID`=:id";
+                $update_review_variables = array(":rev_score" => $final_score, ":rev_amount" => $final_amount, ":id" => $cpp["ID"]);
+                try {
+                    DB::query($update_review_sql, $update_review_variables);
+                } catch (PDOException $e) {
+                    return FALSE;
+                }
+            }
+            return TRUE;
+        }
     }
 ?>
