@@ -55,6 +55,39 @@ review.init = function() {
         }
     })
 }
+review.submitReviews = function() {
+    Logger.log(LoggingType.STATUS, "Submitting reviews");
+    // Gather each review
+    var data = {
+        reviews: {} 
+    };
+    for (var i = 1; i <= this.review_amount; i++) {
+        // Declare object
+        data.reviews[$("#review_pattern_id_"+i).val()] = $("#review_score_"+i).val();
+    }
+    // Make AJAX request
+    $.ajax({
+        type:   "POST",
+        url:    "api.php",
+        data: {
+            "ajax_token":   AJAX_TOKEN,
+            "process":      "submitReviews",
+            "data":         JSON.stringify(data)
+        },
+        success: function(data) {
+            console.log(data);
+            var response = JSON.parse(data);
+            if (response.status === "success") {
+                window.location.reload();
+            } else {
+                Logger.log(LoggingType.ERROR, ["Error Code: "+response.error_code, "Error Message: "+response.error_message]);
+            }
+        },
+        error: function() {
+            Logger.log(LoggingType.ERROR, ["Server error occured!"]);
+        }
+    });
+}
 review.updateCanvases = function() {
     Logger.log(LoggingType.STATUS, "Setting up canvases");
     for (var i = 1; i <= this.review_amount; i++) {
