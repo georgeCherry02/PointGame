@@ -60,6 +60,7 @@
         </a>
     </div>
 </div>
+<script src="./scripts/review.js" type="application/javascript"></script>
 <?php
     } else {
 ?>
