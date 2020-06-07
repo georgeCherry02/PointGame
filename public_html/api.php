@@ -71,6 +71,64 @@
             }
             // Reset tracked point patterns
             $_SESSION["pattern_ids"] = array();
+        case "fetchReviewPatterns":
+            // No data required
+            include_once "../inc/classes/Review.php";
+            include_once "../inc/enums/Shapes.php";
+            // Fetch the patterns for review
+            $review_patterns = Review::fetchReviewablePatterns();
+            if (!$review_patterns) {
+                $response["error_message"] = "Server Error";
+                $response["error_code"] = 0;
+                break;
+            }
+            // Check enough patterns were submitted
+            if (sizeof($review_patterns) < 3) {
+                $response["less_than_expected"] = 1;
+                $response["amount_received"] = sizeof($review_patterns);
+            } else {
+                $response["less_than_expected"] = 0;
+            }
+            $_SESSION["Patterns_Being_Reviewed"] = array();
+            $invalid_shape_provided = FALSE;
+            $server_error = FALSE;
+            for ($i = 1; $i <= sizeof($review_patterns); $i++) {
+                $current_pattern = $review_patterns[$i-1];
+                $current_pattern_data = json_decode($current_pattern["Point_Pattern"], $assoc=TRUE);
+                $rspns_key = "point_pattern_".$i;
+                $response[$rspns_key] = array();
+                // Fetch basic pattern data
+                $response[$rspns_key]["x"] = $current_pattern_data["x"];
+                $response[$rspns_key]["y"] = $current_pattern_data["y"];
+                // Fetch pattern ID
+                $response[$rspns_key]["ID"] = $current_pattern["ID"];
+                // Track pattern IDs being reviewed
+                array_push($_SESSION["reviewed_pattern_ids"], $current_pattern["ID"]);
+                // Fetch pattern shape
+                try {
+                    $shape_id = intval($current_pattern["Shape_ID"]);
+                    $point_pattern_shape = Shapes::fromID($shape_id);
+                    $response[$rspns_key]["Shape_Name"] = $point_pattern_shape->getRenderedName();
+                } catch (OutOfRangeException $e) {
+                    $invalid_shape_provided = TRUE;
+                    break;
+                }
+                // Fetch pattern min_radius
+                $limitations_id = $current_pattern["Limitations_ID"];
+                $fetch_min_radius_sql = "SELECT `Minimum_Radius` FROM `Limitations` WHERE `ID`=:lim_id";
+                $fetch_min_radius_sql_variables = array(":lim_id" => $limitations_id);
+                try {
+                    $min_radius = DB::query($fetch_min_radius_sql, $fetch_min_radius_sql_variables)[0]["Minimum_Radius"];
+                } catch (PDOException $e) {
+                    $server_error = TRUE;
+                    break;
+                }
+                if (!$min_radius) {
+                    $server_error = TRUE;
+                    break;
+                }
+                $response[$rspns_key]["Minimum_Radius"] = $min_radius;
+            }
             $response["status"] = "success";
             break;
         case "submitPoints":
