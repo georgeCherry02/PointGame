@@ -101,6 +101,7 @@
             }
             $_SESSION["Patterns_Being_Reviewed"] = array();
             $invalid_shape_provided = FALSE;
+            $invalid_shape_id;
             $server_error = FALSE;
             for ($i = 1; $i <= sizeof($review_patterns); $i++) {
                 $current_pattern = $review_patterns[$i-1];
@@ -120,7 +121,9 @@
                     $point_pattern_shape = Shapes::fromID($shape_id);
                     $response[$rspns_key]["Shape_Name"] = $point_pattern_shape->getRenderedName();
                 } catch (OutOfRangeException $e) {
+                    // Logging handled inside Review::removeInvalidPattern logging
                     $invalid_shape_provided = TRUE;
+                    $invalid_shape_id = $current_pattern["ID"];
                     break;
                 }
                 // Fetch pattern min_radius
@@ -141,8 +144,9 @@
             }
             // Catch if an invalid shape has been thrown
             if ($invalid_shape_provided) {
-                // Should reload page if receiving this exception back
-                // Perhaps should cleanse ID from database
+                // Remove invalid shape
+                Review::removeInvalidPattern($invalid_shape_id);
+                // Send response that signifies the page should be reloaded
                 $response["error_message"] = "Invalid Shape ID Stored";
                 $response["error_code"] = 1;
                 break;

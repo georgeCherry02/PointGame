@@ -30,6 +30,54 @@
             // Return said array
             return $patterns_to_be_reviewed;
         }
+        public static function removeInvalidPattern($pattern_id) {
+            Logger::log(LoggingType::ERROR(), array("Attempting to delete an invalid shape", "ID: ".$pattern_id));
+            // Double check it's invalid
+            $invalidity_check_sql = "SELECT `Shape_ID`, `Limitations_ID`, `Confirmed` FROM `Point_Patterns` WHERE `ID`=:id";
+            $invalidity_check_variables = array(":id" => $pattern_id);
+            try {
+                $invalid_pattern_info = DB::query($invalidity_check_sql, $invalidity_check_variables)[0];
+            } catch (PDOException $e) {
+                Logger::log(LoggingType::ERROR(), array("PDOException", "Failed to fetch the invalid point pattern's data"));
+                return false;
+            }
+            // Declare variables representing whether the pattern should be deleted
+            $invalid = false;
+            // If unconfirmed delete as it's unimportant anyways
+            if ($invalid_pattern_info["Confirmed"] !== 1) {
+                $invalid = true;
+            }
+            // Check shape pattern
+            try {
+                $shape = Shapes::fromID($invalid_pattern_info)["Shape_ID"];
+            } catch (OutOfRangeException $e) {
+                $invalid = true;
+            }
+            // Remove the 
+            if ($invalid) {
+                $delete_limitations_sql = "DELETE FROM `Limitations` WHERE `ID`=:id";
+                $delete_limitations_variables = array(":id" => $invalid_pattern_info["Limitations_ID"]);
+                try {
+                    DB::query($delete_limitations_sql, $delete_limitations_variables);
+                } catch (PDOException $e) {
+                    Logger::log(LoggingType::ERROR(), array("PDOException", "Failed to delete invalid point pattern's limitation profile", "Limitations ID: ".$invalid_pattern_info["Limitations_ID"], "Pattern ID: ".$pattern_id));
+                    // ##########################################################################################
+                    // # Not sure whether to keep this in... will decide once hosting's sorted
+                    // ##########################################################################################
+                    error_log("Failed to delete an invalid point pattern, PDOException when trying to delete limitation profile, Pattern ID: ".$pattern_id, 1, "georgeb.cherry@gmail.com");
+                    return false;
+                }
+                $delete_pattern_sql = "DELETE FROM `Point_Patterns` WHERE `ID`=:id";
+                $delete_pattern_variables = array(":id" => $pattern_id);
+                try {
+                    DB::query($delete_pattern_sql, $delete_pattern_variables);
+                } catch (PDOException $e) {
+                    Logger::log(LoggingType::ERROR(), array("PDOException", "Failed to delete invalid point pattern", "ID: ".$pattern_id));
+                    return false;
+                }
+            }
+            Logger::log(LoggingType::STATUS(), array("Removed invalid point pattern", "ID: ".$pattern_id));
+        }
         public static function updatePatternReviews($reviews) {
             // Fetch initial reviews scores and number of reviews for patterns being reviewed
             $fetch_initial_review_sql = "SELECT `ID`, `Review_Score`, `Review_Amount` FROM `Point_Patterns` WHERE `ID`=:id_1 OR `ID`=:id_2 OR `ID`=:id_3";
