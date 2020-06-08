@@ -3,9 +3,11 @@
     error_reporting(E_ALL);
 
     // Include database constants
+    $relative_home_root = "../";
     if (isset($admin) && $admin) {
-        include_once "../../inc/db_constants.php";
-    } else {
-        include_once "../inc/db_constants.php";
+        $relative_home_root = "../../";
     }
+    include_once $relative_home_root."inc/db_constants.php";
+    include_once $relative_home_root."inc/Enum.php";
+    include_once $relative_home_root."inc/classes/Logger.php";
 ?>

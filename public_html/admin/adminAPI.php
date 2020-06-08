@@ -33,7 +33,6 @@
 
     // Include classes common to each process
     $inc_root = "../../inc/";
-    include_once $inc_root."db_constants.php";
     include_once $inc_root."classes/Database.php";
     include_once $inc_root."classes/Restrictions.php";
 
@@ -74,7 +73,6 @@
             break;
         case "requestEditSet":
             // Include appropriate files for function
-            include_once $inc_root."Enum.php";
             include_once $inc_root."enums/RestrictionTypes.php";
             // Check if the ID supplied is a numebr
             if (filter_var($request_data["edit_id"], FILTER_VALIDATE_INT)) {

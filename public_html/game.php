@@ -1,9 +1,7 @@
 <?php
     include_once "../inc/base.php";
-    include_once "../inc/db_constants.php";
     include_once "../inc/classes/Database.php";
 
-    include_once "../inc/Enum.php";
     include_once "../inc/enums/Shapes.php";
     include_once "../inc/enums/RestrictionTypes.php";
 

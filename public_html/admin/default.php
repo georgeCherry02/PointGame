@@ -16,7 +16,6 @@
         // Include admin page
         include_once "../../inc/classes/Database.php";
         include_once "../../inc/classes/Restrictions.php";
-        include_once "../../inc/Enum.php";
         include_once "../../inc/enums/RestrictionTypes.php";
         include_once "../../inc/components/ajax.php";
 ?>

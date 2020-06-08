@@ -16,7 +16,6 @@
      */
     if (Admin::isLoggedIn()) {
         // Include any additional files
-        include_once "../../inc/Enum.php";
         include_once "../../inc/enums/RestrictionTypes.php";
         include_once "../../inc/classes/Restrictions.php";
         include_once "../../inc/classes/Database.php";
