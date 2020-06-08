@@ -50,6 +50,7 @@
             try {
                 DB::query($confirmation_sql, $confirmation_sql_variables);
             } catch (PDOException $e) {
+                Logger::log(LoggingType::WARNING(), array("PDOException", "Failed to confirm point pattern", "ID: ".$request_data["confirm_id"]));
                 $response["error_message"] = "Server Error";
                 $response["error_code"] = 0;
                 break;
@@ -65,6 +66,11 @@
             try {
                 DB::query($cleanup_sql, $cleanup_sql_variables);
             } catch (PDOException $e) {
+                Logger::log(LoggingType::ERROR(), array("PDOException", "Failed to delete unconfirmed patterns", "IDs: ".json_encode($_SESSION["pattern_ids"])));
+                // ##########################################################################################
+                // # Not sure whether to keep this in... will decide once hosting's sorted
+                // ##########################################################################################
+                error_log("Failed to delete unconfirmed patterns, needs to be resolved", 1, "georgeb.cherry@gmail.com");
                 $response["error_message"] = "Server Error";
                 $response["error_code"] = 0;
                 break;
@@ -72,6 +78,7 @@
             // Reset tracked point patterns
             $_SESSION["pattern_ids"] = array();
             $_SESSION["review_mode"] = TRUE;
+            Logger::log(LoggingType::NOTICE(), array("New point pattern submitted", "ID: ".$request_data["confirm_id"]));
             $response["status"] = "success";
             break;
         case "fetchReviewPatterns":
@@ -141,6 +148,7 @@
                 break;
             }
             if ($server_error) {
+                Logger::log(LoggingType::WARNING(), array("Failed to fetch minimum radius for pattern on review page"));
                 $response["error_message"] = "Server Error";
                 $response["error_code"] = 0;
                 break;
@@ -197,6 +205,7 @@
             try {
                 $limitation_id = DB::query($limitations_sql, $limitations_sql_param);
             } catch (PDOException $e) {
+                Logger::log(LoggingType::WARNING(), array("PDOException", "Failed to insert restriction information when attempting to insert new point pattern"));
                 $response["error_message"] = "Server Error";
                 $response["error_code"] = 0;
                 break;

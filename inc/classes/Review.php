@@ -10,6 +10,7 @@
             try {
                 $reviewable_patterns = DB::query($fetch_sql, $fetch_sql_variables);
             } catch (PDOException $e) {
+                Logger::log(LoggingType::WARNING(), array("PDOException", "Failed to fetch patterns for review"));
                 return false;
             }
             // Determine pattern ids being reviewed
@@ -41,6 +42,7 @@
             try {
                 $initial_review_info = DB::query($fetch_initial_review_sql, $fetch_initial_review_sql_variables);
             } catch (PDOException $e) {
+                Logger::log(LoggingType::WARNING(), array("PDOException", "Failed to fetch initial review info when updating it", "ID: ".$review_id));
                 return FALSE;
             }
             // Calculate new scores and amounts for each review and then update database
@@ -60,6 +62,7 @@
                 try {
                     DB::query($update_review_sql, $update_review_variables);
                 } catch (PDOException $e) {
+                    Logger::log(LoggingType::WARNING(), array("PDOException", "Failed to update review info of point pattern", "ID: ".$review_id));
                     return FALSE;
                 }
             }

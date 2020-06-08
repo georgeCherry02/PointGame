@@ -7,6 +7,7 @@
             try {
                 $result = DB::query("SELECT * FROM `Restriction_Settings`");
             } catch (PDOException $e) {
+                Logger::log(LoggingType::WARNING(), array("PDOException", "Failed to fetch reviews for admin side"));
                 return false;
             }
             return $result;
@@ -40,6 +41,7 @@
                 $result = DB::query("SELECT * FROM `Restriction_Settings` WHERE `Active`=1")[0]["ID"];
                 self::$_active_restriction_set_id = $result;
             } catch (PDOException $e) {
+                Logger::log(LoggingType::WARNING(), array("PDOException", "Failed to fetch the current restrictions set"));
                 return false;
             }
             return $result;
@@ -47,14 +49,15 @@
         public static function getRestrictionSet($id) {
             $fetch_set_sql_start = "SELECT `Name`";
             $fetch_set_sql_end = "FROM `Restriction_Settings` WHERE `ID`=:id";
-            $fetch_set_Sql_variables = array(":id" => $id);
+            $fetch_set_sql_variables = array(":id" => $id);
             foreach (RestrictionTypes::ALL() as $restriction) {
                 $fetch_set_sql_start .= ", `".$restriction->getCapitalisedFunctionalName()."_Distributions` AS `".$restriction->getFunctionalName()."`";
             }
             $fetch_set_sql = $fetch_set_sql_start.$fetch_set_sql_end;
             try {
-                $set_info = DB::query($fetch_set_sql, $fetch_set_Sql_variables)[0];
+                $set_info = DB::query($fetch_set_sql, $fetch_set_sql_variables)[0];
             } catch (PDOException $e) {
+                Logger::log(LoggingType::WARNING(), array("PDOException", "Failed to fetch specific restrictions set"));
                 return false;
             }
             // Santise set info
@@ -79,8 +82,10 @@
             try {
                 $res = DB::query($insert_restriction_set_sql, $insert_restriction_set_sql_variables);
             } catch (PDOException $e) {
+                Logger::log(LoggingType::WARNING(), array("PDOException", "Failed to insert new restriction set into database"));
                 return false;
             }
+            Logger::log(LoggingType::STATUS(), array("Created new restrictions set", "ID: ".$res));
             return $res;
         }
         /* Error Codes:
@@ -94,6 +99,7 @@
             try {
                 $total_count = DB::query($count_check_sql)[0]["Total_Count"];
             } catch (PDOException $e) {
+                Logger::log(LoggingType::WARNING(), array("PDOException", "Failed to fetch total count when attempting to remove a restriction set"));
                 return 1;
             }
             if ($total_count == 1) {
@@ -107,6 +113,7 @@
             try {
                 DB::query($remove_set_sql, $remove_set_sql_variables);
             } catch (PDOException $e) {
+                Logger::log(LoggingType::WARNING(), array("PDOException", "Failed to remove a restrictions set", "ID: ".$id));
                 return 1;
             }
             // Check if the removed set was the active set
@@ -117,6 +124,11 @@
                 try {
                     $new_active_id = DB::query($new_active_id_sql)[0]["ID"];
                 } catch (PDOException $e) {
+                    Logger::log(LoggingType::ERROR(), array("PDOException", "Failed to set a new restriction set active when deleting another set", "No restriction currently active"));
+                    // ##########################################################################################
+                    // # Not sure whether to keep this in... will decide once hosting's sorted
+                    // ##########################################################################################
+                    error_log("No active sets, needs to be resolved", 1, "georgeb.cherry@gmail.com");
                     return 1;
                 }
                 // Set this restriction set to be active
@@ -125,6 +137,7 @@
                     return 1;
                 }
             }
+            Logger::log(LoggingType::STATUS(), array("Removed restriction set", "ID: ".$id));
             return 0;
         }
         public static function setActive($id) {
@@ -133,6 +146,7 @@
             try {
                 DB::query($reset_active_sql);
             } catch (PDOException $e) {
+                Logger::log(LoggingType::WARNING(), array("PDOException", "Failed to set all restriction sets inactive"));
                 return false;
             }
             $set_active_sql = "UPDATE `Restriction_Settings` SET `Active`=1 WHERE `ID`=:id;";
@@ -140,9 +154,15 @@
             try {
                 DB::query($set_active_sql, $set_active_sql_variables); 
             } catch (PDOException $e) {
+                Logger::log(LoggingType::ERROR(), array("PDOException", "Failed to set new restriction set active", "This could lead to no active restriction sets"));
+                // ##########################################################################################
+                // # Not sure whether to keep this in... will decide once hosting's sorted
+                // ##########################################################################################
+                error_log("No active sets, needs to be resolved", 1, "georgeb.cherry@gmail.com");
                 return false;
             }
             self::$_active_restriction_set_id = $id;
+            Logger::log(LoggingType::STATUS(), array("Successfully updated active restriction set", "ID: ".$id));
             return true;
         }
 
@@ -158,8 +178,10 @@
             try {
                 DB::query($update_sql, $update_sql_variables);
             } catch (PDOException $e) {
+                Logger::log(LoggingType::WARNING(), array("PDOException", "Failed to update a restriction set to new settings"));
                 return false;
             }
+            Logger::log(LoggingType::STATUS(), array("Successfully updated restriction set", "ID: ".$update_id));
             return true;
         }
     }
