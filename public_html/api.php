@@ -220,6 +220,19 @@
                 try {
                     $insert_id = DB::query($point_pattern_sql, $point_pattern_sql_param);
                 } catch (PDOException $e) {
+                    // Remove restriction set if the final insert fails
+                    Logger::log(LoggingType::ERROR(), array("PDOException", "Failed to insert new point pattern", "Attempting to remove limitation information from database", "Limitation ID: ".$limitation_id));
+                    $remove_restriction_sql = "DELETE FROM `Limitations` WHERE `ID`=:id";
+                    $remove_restriction_variables = array(":id" => $limitation_id);
+                    try {
+                        DB::query($remove_restriction_sql, $remove_restriction_variables);
+                    } catch (PDOException $e) {
+                        Logger::log(LoggingType::ERROR(), array("PDOException", "Failed to remove limitations after failed point pattern insert", "Limitation ID: ".$limitation_id));
+                        // ##########################################################################################
+                        // # Not sure whether to keep this in... will decide once hosting's sorted
+                        // ##########################################################################################
+                        error_log("Failed to delete limitation of failed pattern insert, needs to be resolved, limitation id: ".$limitation_id, 1, "georgeb.cherry@gmail.com");
+                    }
                     $response["error_message"] = "Server Error";
                     $response["error_code"] = 0;
                 }
