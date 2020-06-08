@@ -128,7 +128,7 @@
                     // ##########################################################################################
                     // # Not sure whether to keep this in... will decide once hosting's sorted
                     // ##########################################################################################
-                    error_log("No active sets, needs to be resolved", 1, "georgeb.cherry@gmail.com");
+                    error_log("No active sets, needs to be resolved", 1, ADMIN_EMAIL);
                     return 1;
                 }
                 // Set this restriction set to be active
@@ -158,7 +158,7 @@
                 // ##########################################################################################
                 // # Not sure whether to keep this in... will decide once hosting's sorted
                 // ##########################################################################################
-                error_log("No active sets, needs to be resolved", 1, "georgeb.cherry@gmail.com");
+                error_log("No active sets, needs to be resolved", 1, ADMIN_EMAIL);
                 return false;
             }
             self::$_active_restriction_set_id = $id;

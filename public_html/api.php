@@ -70,7 +70,7 @@
                 // ##########################################################################################
                 // # Not sure whether to keep this in... will decide once hosting's sorted
                 // ##########################################################################################
-                error_log("Failed to delete unconfirmed patterns, needs to be resolved", 1, "georgeb.cherry@gmail.com");
+                error_log("Failed to delete unconfirmed patterns, needs to be resolved", 1, ADMIN_EMAIL);
                 $response["error_message"] = "Server Error";
                 $response["error_code"] = 0;
                 break;
@@ -231,7 +231,7 @@
                         // ##########################################################################################
                         // # Not sure whether to keep this in... will decide once hosting's sorted
                         // ##########################################################################################
-                        error_log("Failed to delete limitation of failed pattern insert, needs to be resolved, limitation id: ".$limitation_id, 1, "georgeb.cherry@gmail.com");
+                        error_log("Failed to delete limitation of failed pattern insert, needs to be resolved, limitation id: ".$limitation_id, 1, ADMIN_EMAIL);
                     }
                     $response["error_message"] = "Server Error";
                     $response["error_code"] = 0;

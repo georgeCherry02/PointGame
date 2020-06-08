@@ -7,6 +7,7 @@
     if (isset($admin) && $admin) {
         $relative_home_root = "../../";
     }
+    include_once $relative_home_root."inc/constants.php";
     include_once $relative_home_root."inc/db_constants.php";
     include_once $relative_home_root."inc/Enum.php";
     include_once $relative_home_root."inc/classes/Logger.php";

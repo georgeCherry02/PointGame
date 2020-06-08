@@ -64,7 +64,7 @@
                     // ##########################################################################################
                     // # Not sure whether to keep this in... will decide once hosting's sorted
                     // ##########################################################################################
-                    error_log("Failed to delete an invalid point pattern, PDOException when trying to delete limitation profile, Pattern ID: ".$pattern_id, 1, "georgeb.cherry@gmail.com");
+                    error_log("Failed to delete an invalid point pattern, PDOException when trying to delete limitation profile, Pattern ID: ".$pattern_id, 1, ADMIN_EMAIL);
                     return false;
                 }
                 $delete_pattern_sql = "DELETE FROM `Point_Patterns` WHERE `ID`=:id";
