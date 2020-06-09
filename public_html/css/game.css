@@ -26,6 +26,7 @@
 }
 
 .clear_icon {
+    cursor: pointer;
     position: absolute;
     top: 0.3rem;
     right: 0;
