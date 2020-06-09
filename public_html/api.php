@@ -99,7 +99,7 @@
             } else {
                 $response["less_than_expected"] = 0;
             }
-            $_SESSION["Patterns_Being_Reviewed"] = array();
+            $_SESSION["reviewed_pattern_ids"] = array();
             $invalid_shape_provided = FALSE;
             $invalid_shape_id;
             $server_error = FALSE;
@@ -114,9 +114,6 @@
                 // Fetch pattern ID
                 $response[$rspns_key]["ID"] = $current_pattern["ID"];
                 // Track pattern IDs being reviewed
-                if (!isset($_SESSION["reviewed_pattern_ids"])) {
-                    $_SESSION["reviewed_pattern_ids"] = array();
-                }
                 array_push($_SESSION["reviewed_pattern_ids"], $current_pattern["ID"]);
                 // Fetch pattern shape
                 try {
