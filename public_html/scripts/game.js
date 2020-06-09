@@ -128,6 +128,7 @@ with (paper) {
         }
         // Reset total point count
         this.total_points_placed_number = 0;
+        Logger.log(LoggingType.STATUS, "Removed all points from canvas");
     }
     game.determineSection = function(location) {
         // Divided into 64 sections
@@ -186,6 +187,7 @@ with (paper) {
         return closest_point_id;
     }
     game.formatPointData = function() {
+        Logger.log(LoggingType.STATUS, "Formatting point data");
         var result = {"x": [], "y": []};
         var c_point, c_object;
         for (var id in this.point_images_list) {
@@ -196,6 +198,7 @@ with (paper) {
         return result;
     }
     game.removePoint = function(point_id) {
+        Logger.log(LoggingType.NOTICE, "Removing point");
         // Get path of point from total list
         var point_path = this.point_areas_list[point_id];
         // Determine the section we're dealing with
@@ -220,6 +223,7 @@ with (paper) {
         delete this.point_images_list[point_id];
     }
     game.renderPoint = function(location) {
+        Logger.log(LoggingType.NOTICE, "Adding point");
         // Activate appropriate layer
         this.point_areas_layer.activate();
         // Define the point's area appearance
@@ -283,6 +287,7 @@ with (paper) {
         submit_button.effect("shake", {distance: 1});
     }
     game.submitPoints = function() {
+        Logger.log(LoggingType.NOTICE, "Submitting point pattern to server");
         var process = "submitPoints";
         var data = {};
         data.expected_shape = EXPECTED_SHAPE_ID;
@@ -337,6 +342,7 @@ with (paper) {
         });
     }
     game.confirmPointPattern = function() {
+        Logger.log(LoggingType.NOTICE, "Confirming point pattern with server");
         var process = "confirmSubmission";
         var data = {"confirm_id": game.current_pattern_id};
         $.ajax({

@@ -1,7 +1,6 @@
 window.onload = function() {
     // Load in canvases through ajax
     review.init();
-
     // Handle carousel
     // Initial setup
     review.correctCarouselControls();
@@ -25,6 +24,7 @@ review.correctCarouselControls = function() {
     }
 }
 review.init = function() {
+    Logger.log(LoggingType.STATUS, "Initialising review page");
     // Declare relevant scopes
     this.canvas_scopes = [new paper.PaperScope(), new paper.PaperScope(), new paper.PaperScope()];
     // Fetch data through AJAX request
@@ -42,8 +42,10 @@ review.init = function() {
                 if (response.less_than_expected === 0) {
                     review.point_patterns = [response.point_pattern_1, response.point_pattern_2, response.point_pattern_3];
                 } else {
-                    // Explain there aren't any patterns to review at the moment and move user onwards to draw more patterns!
-                    // They will likely end up reviewing their own...
+                    // ##############################################################################################################
+                    // # Explain there aren't any patterns to review at the moment and move user onwards to draw more patterns!
+                    // # They will likely end up reviewing their own...
+                    // ##############################################################################################################
                 }
                 review.updateCanvases();
             } else {
@@ -75,9 +77,9 @@ review.submitReviews = function() {
             "data":         JSON.stringify(data)
         },
         success: function(data) {
-            console.log(data);
             var response = JSON.parse(data);
             if (response.status === "success") {
+                Logger.log(LoggingType.STATUS, "Successfully submitted reviews");
                 window.location.reload();
             } else {
                 Logger.log(LoggingType.ERROR, ["Error Code: "+response.error_code, "Error Message: "+response.error_message]);
