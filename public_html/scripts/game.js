@@ -271,6 +271,17 @@ with (paper) {
             this.mouse_validity_indicator.fillColor = accept_colour;
         }
     }
+    game.showSubmitError = function(minimum_number) {
+        // Fetch text that condition wasn't met for
+        var highlight_text_type = minimum_number ? "min" : "max";
+        var highlight_text = $("#"+highlight_text_type+"_number_limit");
+        // Fetch submit button
+        var submit_button = $("#submit_point_pattern");
+        // Set condition to be red
+        highlight_text.addClass("limitation_error_text");
+        // Vibrate submit_button
+        submit_button.effect("shake", {distance: 1});
+    }
     game.submitPoints = function() {
         var process = "submitPoints";
         var data = {};
@@ -278,17 +289,12 @@ with (paper) {
         data.point_pattern = this.formatPointData();
         // Validate the number of points client side too
         if (data.point_pattern.x.length < MIN_NUMBER) {
-            // ##########################################################################################
-            // # Explain there are too few points
-            // # An idea for doing so could be highlighting the point it's said in red and making submit button vibrate
-            // ##########################################################################################
+            this.showSubmitError(true);
             Logger.log(LoggingType.NOTICE, "Too few points to be submitted");
             return;
         } 
         if (data.point_pattern.x.length > MAX_NUMBER) {
-            // ##########################################################################################
-            // # Explain there are too many points
-            // ##########################################################################################
+            this.showSubmitError(false);
             Logger.log(LoggingType.NOTICE, "Too many points to be submitted");
             return;
         }

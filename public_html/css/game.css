@@ -31,3 +31,8 @@
     top: 0.3rem;
     right: 0;
 }
+
+.limitation_error_text {
+    color: red;
+    text-decoration: underline;
+}
