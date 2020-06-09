@@ -34,15 +34,13 @@
                 mkdir($dirname, $mode=0777, $recursive=true);
             }
             $file = fopen($file_root, "a");
-            // Flag if error
-            $log_type_is_err = $mode === LoggingType::ERROR();
             // Log the message
-            self::open_log($file, $log_type_is_err);
+            self::open_log($file, $mode);
             for ($i = 0; $i < sizeof($messages); $i++) {
                 fwrite($file, $messages[$i]);
                 fwrite($file, "\n");
             }
-            self::close_log($file, $log_type_is_err);
+            self::close_log($file, $mode === LoggingType::ERROR());
             fclose($file);
         }
         private static function open_log($file, $mode) {
@@ -51,7 +49,7 @@
                 fwrite($file, "# ERROR:\n");
                 fwrite($file, self::$_error_marker."\n");
             } else {
-                fwrite($file, $mode->getName()."\n");
+                fwrite($file, $mode->getName().":\n");
                 fwrite($file, self::$_end_of_log_marker."\n");
             }
         }
