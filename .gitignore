@@ -1,3 +1,5 @@
 inc/db_constants.php
 notes/
 inc/admin_constants.php
+public_html/admin/tmp*
+public_html/tmp*
