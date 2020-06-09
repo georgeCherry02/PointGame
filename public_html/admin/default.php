@@ -67,6 +67,9 @@
                                   .     "</div>"
                                   .     "<div id=\"restriction_".$id."_content\" class=\"collapse\" aria-labelledby=\"restriction_".$id."_heading\" data-parent=\"#restrictions_accordion\">"
                                   .         "<div class=\"card-body\">"
+/* ##############################################################################################################
+   # Need to sort out how this is displayed
+*/ ##############################################################################################################
                                   .             "<p>TEST</p>"
                                   .             "<p>".$restriction_set["Minimum_Radius_Distributions"]."</p>"
                                   .             "<p>".$restriction_set["Maximum_Radius_Distributions"]."</p>"
@@ -111,6 +114,11 @@
             </div>
         </div>
     </div>
+<?php
+/* ##########################################################################################
+   # This just doesn't exist yet, need to talk to Josh to find out exactly what we need here
+*/ ##########################################################################################
+?>
     <div class="card">
         <div class="card-header" id="data_heading">
             <h5 class="mb-0">
