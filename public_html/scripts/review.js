@@ -41,13 +41,11 @@ review.init = function() {
             if (response.status === "success") {
                 if (response.less_than_expected === 0) {
                     review.point_patterns = [response.point_pattern_1, response.point_pattern_2, response.point_pattern_3];
+                    review.updateCanvases();
                 } else {
-                    // ##############################################################################################################
-                    // # Explain there aren't any patterns to review at the moment and move user onwards to draw more patterns!
-                    // # They will likely end up reviewing their own...
-                    // ##############################################################################################################
+                    Logger.log(LoggingType.STATUS, "Too few patterns to be reviewed")
+                    window.location.href = "review.php?tl=1";
                 }
-                review.updateCanvases();
             } else {
                 Logger.log(LoggingType.ERROR, ["Error Code: "+response.error_code, "Error Message: "+response.error_message]);
             }

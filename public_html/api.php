@@ -95,7 +95,10 @@
             // Check enough patterns were submitted
             if (sizeof($review_patterns) < 3) {
                 $response["less_than_expected"] = 1;
-                $response["amount_received"] = sizeof($review_patterns);
+                // Exit review mode for javascript refresh
+                $_SESSION["review_mode"] = FALSE;
+                $response["status"] = "success";
+                break;
             } else {
                 $response["less_than_expected"] = 0;
             }
