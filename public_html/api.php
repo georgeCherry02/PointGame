@@ -114,6 +114,9 @@
                 // Fetch pattern ID
                 $response[$rspns_key]["ID"] = $current_pattern["ID"];
                 // Track pattern IDs being reviewed
+                if (!isset($_SESSION["reviewed_pattern_ids"])) {
+                    $_SESSION["reviewed_pattern_ids"] = array();
+                }
                 array_push($_SESSION["reviewed_pattern_ids"], $current_pattern["ID"]);
                 // Fetch pattern shape
                 try {
@@ -291,6 +294,7 @@
                 break;
             }
             $_SESSION["reviewed_pattern_ids"] = array();
+            $_SESSION["review_mode"] = FALSE;
             $response["status"] = "success";
             break;
         default:
