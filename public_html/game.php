@@ -32,7 +32,9 @@
     </div>
     <div id="game_container" class="container collapse multi_collapse">
         <p class="grey-text text-center">Please draw a <span class="highlight-text"><?php echo $chosen_shape->getRenderedName(); ?></span> with at least <span class="highlight-text" id="min_number_limit"><?php echo $_SESSION["minimum_number"]; ?></span> and no more than <span class="highlight-text" id="max_number_limit"><?php echo $_SESSION["maximum_number"]; ?></span> points.</p>
-        <i class="fas fa-trash grey-text highlight-text-hover clear_icon" onclick="game.clear()"><span class="sr-only">Clear Canvas</span></i>
+                <button class="btn btn-primary highlight-background highlight-border float-right" type="button" data-toggle="modal" data-target="#clear_modal">
+                    <i class="fas fa-trash"><span class="sr-only">Clear Canvas</span></i>
+                </button>
         <div class="canvas-container">
             <canvas id="game_canvas" height="1024" width="1024" style="-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); width: 100%;"></canvas>
         </div>
@@ -48,6 +50,19 @@
             </div>
             <div class="modal-body">
                 <button class="btn btn-primary highlight-background highlight-border" type="button" onclick="game.confirmPointPattern()">Yes</button>
+                <button class="btn btn-primary highlight-background highlight-border ml-2" type="button" data-dismiss="modal" aria-label="Close">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="clear_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Are you sure you want to clear the canvas?</h5>
+            </div>
+            <div class="modal-body">
+                <button class="btn btn-primary highlight-background highlight-border" type="button" onclick="game.clear()" data-dismiss="modal">Yes</button>
                 <button class="btn btn-primary highlight-background highlight-border ml-2" type="button" data-dismiss="modal" aria-label="Close">No</button>
             </div>
         </div>
