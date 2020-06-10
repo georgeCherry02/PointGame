@@ -31,14 +31,22 @@
         </div>
     </div>
     <div id="game_container" class="container collapse multi_collapse">
-        <p class="grey-text text-center">Please draw a <span class="highlight-text"><?php echo $chosen_shape->getRenderedName(); ?></span> with at least <span class="highlight-text" id="min_number_limit"><?php echo $_SESSION["minimum_number"]; ?></span> and no more than <span class="highlight-text" id="max_number_limit"><?php echo $_SESSION["maximum_number"]; ?></span> points.</p>
+        <div class="row">
+            <div class="col-2">
+                <button class="btn btn-primary highlight-background highlight-border" id="submit_point_pattern" onclick="game.submitPoints()">Submit!</button>
+            </div>
+            <div class="col-8">
+                <p class="grey-text text-center">Please draw a <span class="highlight-text"><?php echo $chosen_shape->getRenderedName(); ?></span> with at least <span class="highlight-text" id="min_number_limit"><?php echo $_SESSION["minimum_number"]; ?></span> and no more than <span class="highlight-text" id="max_number_limit"><?php echo $_SESSION["maximum_number"]; ?></span> points.</p>
+            </div>
+            <div class="col-2">
                 <button class="btn btn-primary highlight-background highlight-border float-right" type="button" data-toggle="modal" data-target="#clear_modal">
                     <i class="fas fa-trash"><span class="sr-only">Clear Canvas</span></i>
                 </button>
+            </div>
+        </div>
         <div class="canvas-container">
             <canvas id="game_canvas" height="1024" width="1024" style="-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); width: 100%;"></canvas>
         </div>
-        <button class="btn btn-primary highlight-background highlight-border" id="submit_point_pattern" onclick="game.submitPoints()">Submit!</button>
     </div>
     <script src="./scripts/game.js" type="application/javascript"></script>
 </div>
