@@ -47,7 +47,7 @@
                 <h5 class="modal-title">Confirm Submission?</h5>
             </div>
             <div class="modal-body">
-                <button class="btn btn-primary highlight-background highlight-border" type="button" onclick="game.confirmPointPattern()">Yes</a>
+                <button class="btn btn-primary highlight-background highlight-border" type="button" onclick="game.confirmPointPattern()">Yes</button>
                 <button class="btn btn-primary highlight-background highlight-border ml-2" type="button" data-dismiss="modal" aria-label="Close">No</button>
             </div>
         </div>
