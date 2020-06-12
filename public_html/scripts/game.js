@@ -331,9 +331,10 @@ with (paper) {
                     $("#confirmation_modal").modal("show");
                 } else {
                     Logger.log(LoggingType.ERROR, ["Error Code: "+response.error_code, "Message: "+respone.error_message]);
-                    // ##########################################################################################
+                    // ###################################################################################################################
                     // # Explain to user what was wrong with their submission
-                    // ##########################################################################################
+                    // # Note this should be quite difficult to get to without malicious activity, so maybe just redirect is solution
+                    // ###################################################################################################################
                 }
             },
             error: function() {
