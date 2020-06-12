@@ -1,0 +1,13 @@
+.percentage_input {
+    position: absolute;
+    bottom: 0;
+}
+.active_restriction_check {
+    position: relative;
+
+    width: 1rem;
+    height: 1rem;
+}
+.restrictions_set_button:hover {
+    transform: translate(0.5px, 0.5px)
+}

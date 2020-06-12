@@ -1,0 +1,44 @@
+.carousel-item {
+    text-align: center;
+}
+[class^="carousel-control-"] {
+    font-size: 32px;
+}
+.carousel-item.submit-page {
+    height: calc(3.5rem + 512px + 5px);
+}
+.carousel-item.submit-page button {
+    margin-top: calc(256px + 0.5rem);
+}
+.carousel-indicators {
+    bottom: -3rem;
+}
+.review_input_container {
+    width: 70%;
+    margin-left: 15%;
+    height: 1.5rem;
+}
+.review_input_container p {
+    float: left;
+    width: 5%;
+    margin: 0;
+}
+.review_input_container p.max_indicator {
+    text-align: left;
+}
+.review_input_container p.min_indicator {
+    text-align: right;
+}
+.review_input_container input {
+    float: left;
+    width: 80%;
+    height: 1.5rem;
+    margin: 0 5%;
+}
+
+.game_finished_container {
+    margin-top: 20%;
+}
+.options_container a.btn {
+    width: 80%;
+}

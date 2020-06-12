@@ -1,0 +1,81 @@
+.navbar {
+    box-shadow: 0px 3px 5px #ccc;
+}
+.navbar a.active, .navbar a:hover, .navbar a.navbar-brand {
+    color: #5eb1bf;
+}
+.navbar a.active {
+    cursor: default;
+    pointer-events: none;
+}
+.navbar a.dropdown_item {
+    text-decoration: none;
+}
+.navbar div.dropdown-menu {
+    min-width: 6rem;
+    padding-left: 0.25rem;
+}
+.black-text {
+    color: black;
+}
+.highlight-text {
+    color: #5eb1bf;
+}
+.grey-text {
+    color: #444;
+}
+.white-text {
+    color: white;
+}
+.highlight-text-hover:hover {
+    color: #5eb1bf !important;
+}
+.black-background {
+    background-color: black;
+}
+.highlight-background {
+    background-color: #5eb1bf;
+}
+.transparent-highlight-background {
+    background-color: rgba(94, 177, 191, 0.35);
+}
+.white-background {
+    background-color: white;
+}
+.highlight-border {
+    border-color: #5eb1bf;
+}
+
+.btn.highlight-text:hover {
+    color: #4ea1af;
+}
+.btn:hover {
+    transform: translate(0.5px, 0.5px);
+}
+.btn.highlight-background:hover {
+    background-color: #81d3e2
+}
+.btn.highlight-border:hover {
+    border-color: #81d3e2
+}
+.btn.highlight-background:active {
+    background-color: #71c3d2;
+}
+.btn.highlight-border:active {
+    border-color: #71c3d2;
+}
+.btn.highlight-background:focus {
+    background-color: #71c3d2;
+}
+.btn.highlight-border:focus {
+    border-color: #71c3d2;
+}
+.btn-primary:not(:disabled):not(.disabled):active {
+    background-color: #71c3d2;
+}
+.btn-primary:not(:disabled):not(.disabled):active {
+    border-color: #71c3d2;
+}
+.carousel-indicators li.highlight-background {
+    background-color: #5eb1bf;
+}
