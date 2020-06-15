@@ -3,6 +3,9 @@ const accept_colour = new paper.Color(0.9, 1, 0.9, 1);
 const reject_colour = new paper.Color(1, 0.9, 0.9, 1);
 const point_colour = new paper.Color(0.9, 0.9, 1, 1);
 
+const GIVEN_SHAPE = FALSE;
+const NUMBER_WITHIN = 3;
+
 with (paper) {
     var game = {};
     // Define basic properties
@@ -10,7 +13,8 @@ with (paper) {
     game.origin = new Point(0, 0);
     game.canvas_size = new Size(1024, 1024);
     // Note this just increments when points are placed and doesn't decrement when points are removed
-    game.total_points_placed_number = 0;
+    game.number_of_points_placed = 0;
+    game.total_number_of_points_placed = 0;
     
     // Define list of points
     game.point_images_list = {};
@@ -91,35 +95,9 @@ with (paper) {
             event.stopPropagation();
         }
     }
-
     game.checkValidity = function(location) {
-        if (this.chaining && Object.keys(game.point_areas_list).length === 0) {
-            return true;
-        }
-        // Activate appropriate layer
-        this.point_areas_layer.activate();
-
-        // Check which quadrant the mouse is in
-        var section_to_examine = this.determineSectionAndSurroundings(location);
-
-        // Loop through all points in the section and it's surroundings (for edge cases) looking for collision
-        for (var i = 0; i < section_to_examine.length; i++) {
-            var index = section_to_examine[i];
-            if (this.point_area_display_list[index].contains(location)) {
-                return false;
-            }
-        }
-        // If chaining check it's valid placement after checking it's not inside any points
-        if (this.chaining) {
-            for (var i = 0; i < section_to_examine.length; i++) {
-                index = section_to_examine[i];
-                if (this.point_areas_list[index].contains(location)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        return true;
+        var distance_validity = game.restrictions.checkDistance(location)
+        return distance_validity;
     }
     game.clear = function() {
         // Remove every single point from all tracking lists and render
@@ -127,7 +105,8 @@ with (paper) {
             this.removePoint(point_id);
         }
         // Reset total point count
-        this.total_points_placed_number = 0;
+        this.total_number_of_points_placed = 0;
+        this.number_of_points_placed = 0;
         Logger.log(LoggingType.STATUS, "Removed all points from canvas");
     }
     game.determineSection = function(location) {
@@ -221,6 +200,7 @@ with (paper) {
         var point_image = this.point_images_list[point_id];
         point_image.remove();
         delete this.point_images_list[point_id];
+        this.number_of_points_placed--;
     }
     game.renderPoint = function(location) {
         Logger.log(LoggingType.NOTICE, "Adding point");
@@ -235,7 +215,7 @@ with (paper) {
             point_area = point_area.subtract(new Path.Circle({center: location, radius: MIN_RADIUS}));
         }
         // Push to own list to keep track of each point
-        this.point_areas_list[this.total_points_placed_number] = point_area;
+        this.point_areas_list[this.total_number_of_points_placed] = point_area;
         // Do same again for point rendering
         this.point_area_display_layer.activate();
         var point_area_display = new Path.Circle({
@@ -244,7 +224,7 @@ with (paper) {
         });
         point_area_display.fillColor = point_colour;
         // Push to own list to keep track of
-        this.point_area_display_list[this.total_points_placed_number] = point_area_display;
+        this.point_area_display_list[this.total_number_of_points_placed] = point_area_display;
         // Do same again for actual point
         this.points_layer.activate();
         var point_image = new Path.Circle({
@@ -252,11 +232,12 @@ with (paper) {
             radius: 1
         });
         point_image.fillColor = "blue";
-        this.point_images_list[this.total_points_placed_number] = point_image;
+        this.point_images_list[this.total_number_of_points_placed] = point_image;
 
         // Push to index tracking quadrants
-        this.determineSection(location).push(this.total_points_placed_number);
-        this.total_points_placed_number++;
+        this.determineSection(location).push(this.total_number_of_points_placed);
+        this.total_number_of_points_placed++;
+        this.number_of_points_placed++;
     }
     game.updateMouseAppearance = function(location) {
         this.mouse_track_layer.activate();
@@ -368,6 +349,71 @@ with (paper) {
                 Logger.log(LoggingType.ERROR, ["Server error occured!"]);
             }
         });
+    }
+    
+    // Restrictions functionality
+    game.restrictions = {}
+    // ##########################################################################################
+    // # This will become problematic once max_distance > 128
+    // # Is this going to be a problem?
+    // ##########################################################################################
+    game.restrictions.checkDistanceN = function(location, n) {
+        // Check with quadrant the mouse is in
+        var section_to_examine = this.determineSectionAndSurroundings(location);
+    }
+    game.restrictions.checkDistance = function(location, max_distance_n = 1) {
+        // Check if there are any points already existing, otherwise this questions irrelevant
+        if (Object.keys(game.point_areas_list).length === 0) {
+            return true;
+        }
+
+        // Check which quadrant the mouse is in
+        var points_of_interest = game.determineSectionAndSurroundings(location);
+
+        // Loop through all points in the section and it's surroundings (for edge cases) looking for collision within min distance
+        var min_distance = this.checkMinimumDistance(location, points_of_interest);
+        // Break function early if point is inside another to avoid second loop
+        if (!min_distance) {
+            return false;
+        }
+
+        // If chaining check it's valid placement after checking it's not inside any points
+        // I.e. check if it's within the required number of points
+        var max_distance = true;
+        if (game.chaining) {
+            max_distance = this.checkMaxDistance(location, points_of_interest, max_distance_n);
+        }
+
+        return max_distance;
+    }
+    game.restrictions.checkMinimumDistance = function(location, point_ids) {
+        for (var i = 0; i < point_ids.length; i++) {
+            if (game.point_area_display_list[point_ids[i]].contains(location)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    game.restrictions.checkMaxDistance = function(location, point_ids, n) {
+        n = 3;
+        var current_number_within_range = 0;
+        for (var i = 0; i < point_ids.length; i++) {
+            if (game.point_areas_list[point_ids[i]].contains(location)) {
+                current_number_within_range++;
+                // Check if the point's within range of enough other points to be placed
+                if (current_number_within_range >= n) {
+                    return true;
+                }
+            }
+        }
+        // Check if there are less points than required, and in which case return whether all are within range
+        if (game.number_of_points_placed < n) {
+            return current_number_within_range === game.number_of_points_placed;
+        }
+        return false;
+    }
+    game.restritions.checkGivenShape() = function(location) {
+
     }
 }
 
