@@ -76,8 +76,10 @@ with (paper) {
                 if (game.chaining && typeof nearest_point === "undefined") {
                     return;
                 }
-                // Otherwise call remove point on the point
-                game.removePoint(nearest_point_id);
+                // Otherwise remove point after validation
+                if (game.restrictions.validatePointRemoval(nearest_point_id)) {
+                    game.removePoint(nearest_point_id);
+                }
             }
             // After effect of click will always require update
             game.last_used_section_requires_update = true;
@@ -358,6 +360,60 @@ with (paper) {
     // Restrictions functionality
     game.restrictions = {}
     // ------------------------------------------------------------------------------------------
+    // Implement general restriction functions
+    // ------------------------------------------------------------------------------------------
+    game.restrictions.validatePointRemoval = function(point_id) {
+        var point_path = game.point_areas_list[point_id];
+        if (game.chaining) {
+            var points_of_interest = game.determineSectionAndSurroundings(point_path.position);
+            var affected_points = [];
+            for (var i = 0; i < points_of_interest.length; i++) {
+                var id = points_of_interest[i];
+                if (id == point_id) {
+                    continue;
+                }
+                var c_point = game.point_areas_list[id];
+                if (c_point.position.getDistance(point_path.position) < MAX_RADIUS) {
+                    affected_points.push(id);
+                }
+            }
+            // Checks if it's the last node on a chain in which case can always be deleted
+            if (affected_points.length !== 1) {
+                for (var i = 0; i < affected_points.length; i++) {
+                    var affected_id = affected_points[i];
+                    var point_position = game.point_areas_list[affected_id].position;
+                    // Need to check two restrictions for each point
+                    // (a) Is it still connected to all the other affected points
+                    // (b) Is it still connected to the minimum number of points
+                    // Checks (a)
+                    var valid_connection = true;
+                    var secondary_affected_id;
+                    for (var j = i + 1; j < affected_points.length; j++) {
+                        secondary_affected_id = affected_points[j];
+                        // Checks if i is connected to each point above it in adjacent nodes list
+                        var i_conn_j = this.graph_model.findConnection(affected_id, secondary_affected_id, point_id);
+                        if (!i_conn_j) {
+                            valid_connection = false;
+                            Logger.log(LoggingType.STATUS, "Couldn't find a connection between points "+affected_id+" and "+secondary_affected_id);
+                            Logger.log(LoggingType.STATUS, "Removed point: "+point_id);
+                            if (j == point_id) {
+                                Logger.log(LoggingType.ERROR, ["And this was because the deleted point somehow got in?"]);
+                            }
+                        }
+                    }
+                    // Checks (b)
+                    valid_number_of_connections = this.distance.checkMaxDistance(point_position, game.determineSectionAndSurroundings(point_position), true);
+                    if (!valid_connection || !valid_number_of_connections) {
+                        Logger.log(LoggingType.STATUS, "Failed to remove point as it would have broken restrictions");
+                        Logger.log(LoggingType.STATUS, "Valid Connection: "+valid_connection);
+                        Logger.log(LoggingType.STATUS, "Valid Number of Connections: "+valid_number_of_connections);
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
     // ------------------------------------------------------------------------------------------
     // Implement distance based restrictions
     // ------------------------------------------------------------------------------------------
