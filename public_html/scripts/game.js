@@ -575,6 +575,26 @@ with (paper) {
         "resolution": GRID_RESOLUTION
     }
     game.restrictions.grid.tracking = {}
+    game.restrictions.grid.drawHexagon = function(x, y) {
+        return this.drawPolygon(x, y, 6, Math.PI/2);
+    }
+    game.restrictions.grid.drawPolygon = function(x, y, n_vertices, initial_offset=0) {
+        var poly = new Path({closed: true});
+        poly.strokeColor = "black";
+        poly.strokeWidth = 1;
+
+        var angle = ((2 * Math.PI) / n_vertices);
+
+        for (var i = 0; i < n_vertices; i++) {
+            poly.add(new Point(
+                this.resolution * Math.cos(angle * i + initial_offset),
+                this.resolution * Math.sin(angle * i + initial_offset)
+            ));
+        }
+
+        poly.position = new Point(x, y);
+        return poly;
+    }
 }
 
 window.onload = function() {
