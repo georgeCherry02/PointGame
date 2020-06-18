@@ -420,6 +420,45 @@ with (paper) {
     game.restrictions.graph_model.neighbour_distance = MIN_RADIUS + 10;
     if (game.chaining) {
         game.restrictions.graph_model.neighbour_distance = MAX_RADIUS;
+    }
+    // Initialise neigbouring map
+    game.restrictions.graph_model.graph = {}
+    // Adds an item to the graph and updates it's neighbouring nodes
+    game.restrictions.graph_model.addNode = function(location, point_id) {
+        var points_of_interest = game.determineSectionAndSurroundings(location);
+        var c_id, c_point_position;
+        var adjacent_nodes = []
+        for (var i = 0; i < points_of_interest.length; i++) {
+            c_id = points_of_interest[i];
+            c_point_position = game.point_areas_list[c_id].position;
+            // Determine whether the current node is within a distance that defines it as a neighbouring node
+            if (location.getDistance(c_point_position) < this.neighbour_distance) {
+                // If so add it to the points list of adjacent nodes
+                adjacent_nodes.push(c_id);
+                // Add the new point to the adjacent points list of neighbours too
+                if (!this.graph.hasOwnProperty(c_id)) {
+                    // Initialise adjacent node array for a node incase it doens't already have one
+                    this.graph[c_id] = [];
+                }
+                this.graph[c_id].push(point_id);
+            }
+        }
+        this.graph[point_id] = adjacent_nodes;
+    }
+    // Removes an item from the graph and updates it's neighbouring nodes
+    game.restrictions.graph_model.removeNode = function(point_id) {
+        // Loop through nodes neighbours and remove the node from their adjacent nodes list
+        var c_entry, c_id;
+        for (var i = 0 ; i < this.graph[point_id].length; i++) {
+            // Get the adjacent node's list of adjacent nodes
+            c_id = this.graph[point_id][i];
+            c_entry = this.graph[c_id];
+            // Remove the point id from the entry of it's neighbour
+            c_entry.splice(c_entry.indexOf(parseInt(point_id)), 1);
+            this.graph[c_id] = c_entry;
+        }
+        // Remove the nodes own adjacent list from the graph
+        delete this.graph[point_id];
 
     }
 }
