@@ -100,6 +100,8 @@ with (paper) {
             view.draw();
             event.stopPropagation();
         }
+
+        this.restrictions.grid.initialiseGrid();
     }
     game.checkValidity = function(location) {
         var distance_validity = game.restrictions.distance.checkDistance(location)
