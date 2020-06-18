@@ -459,7 +459,49 @@ with (paper) {
         }
         // Remove the nodes own adjacent list from the graph
         delete this.graph[point_id];
+    }
+    // Determines if a connection exists between two nodes
+    // Optional variable of deleted_node that allows you to ignore a node in BFS
+    game.restrictions.graph_model.findConnection = function(source, destination, deleted_node = -1) {
+        // Determine the number of nodes in the graph
+        var number_of_nodes = Object.keys(this.graph).length;
 
+        // This keeps track of which nodes shoudl ahve their adjacent nodes checked first
+        var queue = [];
+
+        // An array to keep track of whether the ith node has been visited
+        var visited = new Array(number_of_nodes).fill(false);
+
+        // Source is obviously visted, and should be first to have it's adjacent nodes checked
+        visited[source] = true;
+        queue.push(source);
+
+        // Implement the BFS Algorithm
+        while (queue.length > 0) {
+            // Get the node of the top of queue
+            var u = queue.pop();
+            // Foreach adjacent node
+            for (var i = 0; i < this.graph[u].length; i++) {
+                // Get the adjacent node
+                var current_node = this.graph[u][i];
+                // If it's the deleted node ignore it
+                if (current_node == deleted_node) {
+                    continue;
+                }
+                // If it's been visited already ignore it
+                if (!visited[current_node]) {
+                    // Otherwise note down that it's been visited and push to the queue to check out adjacent nodes
+                    visited[current_node] = true;
+                    queue.push(current_node);
+                    // Return true if the destination's found
+                    if (current_node == destination) {
+                        return true;
+                    }
+                }
+            }
+        }
+        // If you've looped through all connected points and not found the destination they're obviously not connected
+        return false;
     }
 }
 
