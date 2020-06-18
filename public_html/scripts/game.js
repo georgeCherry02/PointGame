@@ -5,6 +5,8 @@ const point_colour = new paper.Color(0.9, 0.9, 1, 1);
 
 const GIVEN_SHAPE = FALSE;
 const NUMBER_WITHIN = 3;
+const GRID_MODE = "SQUARE";
+const GRID_RESOLUTION = 20;
 
 with (paper) {
     var game = {};
@@ -563,6 +565,15 @@ with (paper) {
         // If you've looped through all connected points and not found the destination they're obviously not connected
         return false;
     }
+
+    // ------------------------------------------------------------------------------------------
+    // Implement grid based restrictions
+    // ------------------------------------------------------------------------------------------
+    game.restrictions.grid = {
+        "mode": GRID_MODE,
+        "resolution": GRID_RESOLUTION
+    }
+    game.restrictions.grid.tracking = {}
 }
 
 window.onload = function() {
