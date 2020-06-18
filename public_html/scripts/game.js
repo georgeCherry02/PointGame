@@ -584,7 +584,6 @@ with (paper) {
     game.restrictions.grid.tracking = {}
     game.restrictions.grid.addPoint = function(location, point_id) {
         var grid_coordinates = this.determineGridCoordinates(location);
-        console.log(grid_coordinates);
         this.tracking[grid_coordinates[0]][grid_coordinates[1]].points.push(point_id);
     }
     game.restrictions.grid.removePoint = function(location, point_id) {
