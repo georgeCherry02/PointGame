@@ -189,6 +189,8 @@ with (paper) {
         var point_path = this.point_areas_list[point_id];
         // Remove the point from the graph tracking 
         this.restrictions.graph_model.removeNode(point_id);
+        // Remove the point from the grid tracking
+        this.restrictions.grid.removePoint(point_path.location, point_id);
         // Determine the section we're dealing with
         var section_id = this.determineSectionID(point_path.position);
         // Remove point_area path from section
@@ -245,6 +247,9 @@ with (paper) {
 
         // Update the neighbours map
         this.restrictions.graph_model.addNode(location, this.total_number_of_points_placed);
+        // Update the grid map
+        this.restrictions.grid.addPoint(location, this.total_number_of_points_placed);
+
         // Push to index tracking quadrants
         this.determineSection(location).push(this.total_number_of_points_placed);
         this.total_number_of_points_placed++;
@@ -577,6 +582,17 @@ with (paper) {
         "resolution": GRID_RESOLUTION
     }
     game.restrictions.grid.tracking = {}
+    game.restrictions.grid.addPoint = function(location, point_id) {
+        var grid_coordinates = this.determineGridCoordinates(location);
+        console.log(grid_coordinates);
+        this.tracking[grid_coordinates[0]][grid_coordinates[1]].points.push(point_id);
+    }
+    game.restrictions.grid.removePoint = function(location, point_id) {
+        var grid_coordinates = this.determineGridCoordinates(location);
+        var c_entry = this.tracking[grid_coordinates[0]][grid_coordinates[1]].points;
+        c_entry.splice(c_entry.indexOf(parseInt(point_id)), 1);
+        this.tracking[grid_coordinates[0]][grid_coordinates[1]].points = c_entry;
+    }
     game.restrictions.grid.drawHexagon = function(x, y) {
         return this.drawPolygon(x, y, 6, Math.PI/2);
     }
