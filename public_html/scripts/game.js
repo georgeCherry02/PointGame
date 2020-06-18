@@ -21,6 +21,9 @@ with (paper) {
     game.point_area_display_list = {};
     game.point_areas_list = {};
 
+    // Define which mode the game's in
+    game.chaining = MAX_RADIUS > MIN_RADIUS;
+
     // Divide canvas into quadrants
     // 0 1 ... 8
     // 9 ...
@@ -34,8 +37,6 @@ with (paper) {
     game.last_used_section_and_surroundings_id;
     game.last_used_section_and_surroundings = [];
 
-    // Define which mode the game's in
-    game.chaining = MAX_RADIUS > MIN_RADIUS;
 
     game.init = function() {
         Logger.log(LoggingType.STATUS, "Initialising Canvas");
