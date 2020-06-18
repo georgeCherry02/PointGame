@@ -180,6 +180,8 @@ with (paper) {
         Logger.log(LoggingType.NOTICE, "Removing point");
         // Get path of point from total list
         var point_path = this.point_areas_list[point_id];
+        // Remove the point from the graph tracking 
+        this.restrictions.graph_model.removeNode(point_id);
         // Determine the section we're dealing with
         var section_id = this.determineSectionID(point_path.position);
         // Remove point_area path from section
@@ -234,6 +236,8 @@ with (paper) {
         point_image.fillColor = "blue";
         this.point_images_list[this.total_number_of_points_placed] = point_image;
 
+        // Update the neighbours map
+        this.restrictions.graph_model.addNode(location, this.total_number_of_points_placed);
         // Push to index tracking quadrants
         this.determineSection(location).push(this.total_number_of_points_placed);
         this.total_number_of_points_placed++;
