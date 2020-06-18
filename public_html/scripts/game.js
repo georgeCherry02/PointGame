@@ -700,7 +700,6 @@ with (paper) {
                 // Make sure to fill entire area with grid by using ceil
                 var rows = Math.ceil(game.canvas_size.height / this.resolution);
                 var columns = Math.ceil(game.canvas_size.width / this.resolution);
-                console.log("Rows="+rows+" and Cols="+columns);
                 for (var i = 0; i < columns; i++) {
                     this.tracking[i] = {};
                     for (var j = 0; j < rows; j++) {
