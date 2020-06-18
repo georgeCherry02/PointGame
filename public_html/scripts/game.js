@@ -3,7 +3,7 @@ const accept_colour = new paper.Color(0.9, 1, 0.9, 1);
 const reject_colour = new paper.Color(1, 0.9, 0.9, 1);
 const point_colour = new paper.Color(0.9, 0.9, 1, 1);
 
-const GIVEN_SHAPE = FALSE;
+const GIVEN_SHAPE = false;
 const NUMBER_WITHIN = 3;
 const GRID_MODE = "SQUARE";
 const GRID_RESOLUTION = 20;
