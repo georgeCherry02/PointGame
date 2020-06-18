@@ -413,6 +413,10 @@ with (paper) {
         return false;
     }
     game.restritions.checkGivenShape() = function(location) {
+    // ------------------------------------------------------------------------------------------
+    // Implement graph based restrictions
+    // ------------------------------------------------------------------------------------------
+    game.restrictions.graph_model = {}
 
     }
 }
