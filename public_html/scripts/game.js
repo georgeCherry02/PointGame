@@ -595,6 +595,82 @@ with (paper) {
         poly.position = new Point(x, y);
         return poly;
     }
+    game.restrictions.grid.determineGridCoordinates = function(location) {
+        var x = location.x;
+        var y = location.y;
+        var x_prime, y_prime;
+        switch (this.mode) {
+            case "SQUARE":
+                x_prime = Math.floor(x / this.resolution);
+                y_prime = Math.floor(y / this.resolution);
+                break;
+            case "HEXAGON":
+                var x_normalised = 2 * x / (Math.sqrt(3)*this.resolution);
+                var y_normalised = 2 * y / this.resolution;
+                
+                var offset_region = false, top_offset_region;
+                var y_prime_shift = 0;
+                var section_of_y = Math.ceil(y_normalised) % 6;
+                var offset_region = false, top_offset_region = false;
+                switch (section_of_y) {
+                    case 1:
+                        offset_region = true;
+                        top_offset_region = true;
+                        break;
+                    case 2:
+                    case 3:
+                        y_prime_shift = 1;
+                        break;
+                    case 4:
+                        offset_region = true;
+                        break;
+                    case 5:
+                    case 0:
+                        y_prime_shift = 2;
+                }
+
+                var top_section_sloping_up = Math.ceil(x_normalised) % 2 == 1;
+
+                var x_prime_shift = 0;
+                if (offset_region) {
+                    // Determine slope of path
+                    var slope = -1/2;
+                    var constant = this.resolution / 2;
+                    if (top_section_sloping_up == top_offset_region) {
+                        slope = 1/2;
+                        constant = 0;
+                    }
+
+                    // Determine local coordinates to determine which side of slope point comes down on
+                    var local_y = this.resolution / 2 - y % (this.resolution / 2);
+                    if (y % this.hex_size / 2 == 0) {
+                        local_y = 0;
+                    }
+                    var local_x = x % (Math.sqrt(3) / 2 * this.resolution);
+
+                    var inequality = local_y >= constant + slope * local_x;
+                    if (top_offset_region) {
+                        y_prime_shift = inequality ? 0 : 1;
+                    } else {
+                        y_prime_shift = inequality ? 1 : 2;
+                    }
+                }
+
+                y_prime = Math.floor(y_normalised / 6) * 2 + y_prime_shift;
+                if (y == 0) {
+                    y_prime = 0;
+                }
+
+                // Now we have y_prime we can determine x_prime
+                if (y_prime % 2 == 1) {
+                    x_prime = Math.floor(x_normalised / 2);
+                } else {
+                    x_prime = Math.floor((x_normalised + 1) / 2);
+                }
+                break;
+        }
+        return [x_prime, y_prime];
+    }
     game.restrictions.grid.initialiseGrid = function() {
         // Activate appropriate layer
         game.grid_layer.activate();
