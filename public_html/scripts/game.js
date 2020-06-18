@@ -48,6 +48,7 @@ with (paper) {
         this.point_areas_layer        = new Layer();
         this.point_area_display_layer = new Layer();
         this.points_layer             = new Layer();
+        this.grid_layer               = new Layer();
         this.mouse_track_layer        = new Layer();
     
         // Initialise custom mouse
