@@ -412,11 +412,14 @@ with (paper) {
         }
         return false;
     }
-    game.restritions.checkGivenShape() = function(location) {
     // ------------------------------------------------------------------------------------------
     // Implement graph based restrictions
     // ------------------------------------------------------------------------------------------
     game.restrictions.graph_model = {}
+    // Initialise neighbour distance
+    game.restrictions.graph_model.neighbour_distance = MIN_RADIUS + 10;
+    if (game.chaining) {
+        game.restrictions.graph_model.neighbour_distance = MAX_RADIUS;
 
     }
 }
