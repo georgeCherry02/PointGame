@@ -4,7 +4,7 @@ const reject_colour = new paper.Color(1, 0.9, 0.9, 1);
 const point_colour = new paper.Color(0.9, 0.9, 1, 1);
 
 const GIVEN_SHAPE = false;
-const NUMBER_WITHIN = 3;
+const NUMBER_WITHIN = 1;
 const GRID_MODE = "SQUARE";
 const GRID_RESOLUTION = 20;
 
@@ -190,7 +190,7 @@ with (paper) {
         // Remove the point from the graph tracking 
         this.restrictions.graph_model.removeNode(point_id);
         // Remove the point from the grid tracking
-        this.restrictions.grid.removePoint(point_path.location, point_id);
+        this.restrictions.grid.removePoint(point_path.position, point_id);
         // Determine the section we're dealing with
         var section_id = this.determineSectionID(point_path.position);
         // Remove point_area path from section
