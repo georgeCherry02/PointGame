@@ -107,7 +107,6 @@ with (paper) {
         }
         // Reset total point count
         this.total_number_of_points_placed = 0;
-        this.number_of_points_placed = 0;
         Logger.log(LoggingType.STATUS, "Removed all points from canvas");
     }
     game.determineSection = function(location) {
