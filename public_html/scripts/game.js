@@ -97,7 +97,7 @@ with (paper) {
         }
     }
     game.checkValidity = function(location) {
-        var distance_validity = game.restrictions.checkDistance(location)
+        var distance_validity = game.restrictions.distance.checkDistance(location)
         return distance_validity;
     }
     game.clear = function() {
@@ -354,15 +354,15 @@ with (paper) {
     
     // Restrictions functionality
     game.restrictions = {}
+    // ------------------------------------------------------------------------------------------
+    // Implement distance based restrictions
+    // ------------------------------------------------------------------------------------------
+    game.restrictions.distance = {}
     // ##########################################################################################
     // # This will become problematic once max_distance > 128
     // # Is this going to be a problem?
     // ##########################################################################################
-    game.restrictions.checkDistanceN = function(location, n) {
-        // Check with quadrant the mouse is in
-        var section_to_examine = this.determineSectionAndSurroundings(location);
-    }
-    game.restrictions.checkDistance = function(location, max_distance_n = 1) {
+    game.restrictions.distance.checkDistance = function(location) {
         // Check if there are any points already existing, otherwise this questions irrelevant
         if (Object.keys(game.point_areas_list).length === 0) {
             return true;
@@ -382,12 +382,12 @@ with (paper) {
         // I.e. check if it's within the required number of points
         var max_distance = true;
         if (game.chaining) {
-            max_distance = this.checkMaxDistance(location, points_of_interest, max_distance_n);
+            max_distance = this.checkMaxDistance(location, points_of_interest);
         }
 
         return max_distance;
     }
-    game.restrictions.checkMinimumDistance = function(location, point_ids) {
+    game.restrictions.distance.checkMinimumDistance = function(location, point_ids) {
         for (var i = 0; i < point_ids.length; i++) {
             if (game.point_area_display_list[point_ids[i]].contains(location)) {
                 return false;
@@ -395,20 +395,19 @@ with (paper) {
         }
         return true;
     }
-    game.restrictions.checkMaxDistance = function(location, point_ids, n) {
-        n = 3;
-        var current_number_within_range = 0;
+    game.restrictions.distance.checkMaxDistance = function(location, point_ids, removal_shift=false) {
+        var current_number_within_range = removal_shift ? -1 : 0;
         for (var i = 0; i < point_ids.length; i++) {
             if (game.point_areas_list[point_ids[i]].contains(location)) {
                 current_number_within_range++;
                 // Check if the point's within range of enough other points to be placed
-                if (current_number_within_range >= n) {
+                if (current_number_within_range >= NUMBER_WITHIN) {
                     return true;
                 }
             }
         }
         // Check if there are less points than required, and in which case return whether all are within range
-        if (game.number_of_points_placed < n) {
+        if (game.number_of_points_placed < NUMBER_WITHIN) {
             return current_number_within_range === game.number_of_points_placed;
         }
         return false;
