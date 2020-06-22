@@ -621,35 +621,7 @@ with (paper) {
         c_entry.splice(c_entry.indexOf(parseInt(point_id)), 1);
         this.tracking[grid_coordinates.x][grid_coordinates.y].points = c_entry;
     }
-    game.restrictions.grid.drawTriangle = function(x, y, width, height) {
-        var triangle = new Path({closed: true});
-        triangle.strokeColor = "black";
-
-        triangle.add(new Point(0, 0));
-        triangle.add(new Point(width, 0));
-        triangle.add(new Point(width/2, height));
-
-        triangle.position = new Point(x, y);
-        return triangle;
-    }
-    game.restrictions.grid.drawHexagon = function(x, y) {
-        return this.drawPolygon(x, y, 6, Math.PI/2);
-    }
-    game.restrictions.grid.drawPolygon = function(x, y, n_vertices, initial_offset=0) {
-        var poly = new Path({closed: true});
-        poly.strokeColor = "black";
-
-        var angle = ((2 * Math.PI) / n_vertices);
-
-        for (var i = 0; i < n_vertices; i++) {
-            poly.add(new Point(
-                this.resolution * Math.cos(angle * i + initial_offset),
-                this.resolution * Math.sin(angle * i + initial_offset)
-            ));
         }
-
-        poly.position = new Point(x, y);
-        return poly;
     }
     game.restrictions.grid.determineGridUnitCell = function(point_location) {
         var x = point_location.x;
@@ -793,6 +765,36 @@ with (paper) {
         var grid_raster = this.render.rasterize();
         this.render.visible = false;
         view.draw();
+    }
+    game.restrictions.grid.drawTriangle = function(x, y, width, height) {
+        var triangle = new Path({closed: true});
+        triangle.strokeColor = "black";
+
+        triangle.add(new Point(0, 0));
+        triangle.add(new Point(width, 0));
+        triangle.add(new Point(width/2, height));
+
+        triangle.position = new Point(x, y);
+        return triangle;
+    }
+    game.restrictions.grid.drawHexagon = function(x, y) {
+        return this.drawPolygon(x, y, 6, Math.PI/2);
+    }
+    game.restrictions.grid.drawPolygon = function(x, y, n_vertices, initial_offset=0) {
+        var poly = new Path({closed: true});
+        poly.strokeColor = "black";
+
+        var angle = ((2 * Math.PI) / n_vertices);
+
+        for (var i = 0; i < n_vertices; i++) {
+            poly.add(new Point(
+                this.resolution * Math.cos(angle * i + initial_offset),
+                this.resolution * Math.sin(angle * i + initial_offset)
+            ));
+        }
+
+        poly.position = new Point(x, y);
+        return poly;
     }
     // ------------------------------------------------------------------------------------------
     // Implement colour based restrictions
