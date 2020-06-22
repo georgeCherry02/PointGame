@@ -601,6 +601,16 @@ with (paper) {
         var c_entry = this.tracking[grid_coordinates[0]][grid_coordinates[1]].points;
         c_entry.splice(c_entry.indexOf(parseInt(point_id)), 1);
         this.tracking[grid_coordinates[0]][grid_coordinates[1]].points = c_entry;
+    game.restrictions.grid.drawTriangle = function(x, y, width, height) {
+        var triangle = new Path({closed: true});
+        triangle.strokeColor = "black";
+
+        triangle.add(new Point(0, 0));
+        triangle.add(new Point(width, 0));
+        triangle.add(new Point(width/2, height));
+
+        triangle.position = new Point(x, y);
+        return triangle;
     }
     game.restrictions.grid.drawHexagon = function(x, y) {
         return this.drawPolygon(x, y, 6, Math.PI/2);
@@ -608,7 +618,6 @@ with (paper) {
     game.restrictions.grid.drawPolygon = function(x, y, n_vertices, initial_offset=0) {
         var poly = new Path({closed: true});
         poly.strokeColor = "black";
-        poly.strokeWidth = 1;
 
         var angle = ((2 * Math.PI) / n_vertices);
 
