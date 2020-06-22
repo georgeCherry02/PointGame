@@ -36,3 +36,17 @@
     color: red;
     text-decoration: underline;
 }
+
+.colour_palette {
+    width: 136px;
+    height: 68px;
+    margin: auto;
+}
+.colour_select {
+    float: left;
+    width: 32px;
+    height: 32px;
+    margin: 1px;
+    cursor: pointer;
+    border-radius: 5px;
+}

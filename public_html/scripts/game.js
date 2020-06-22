@@ -8,7 +8,7 @@ const RENDER_GRID = true;
 const GRID_MODE = "SQUARE";
 const GRID_RESOLUTION = 32;
 const MAX_NUMBER_PER_GRID_CELL = 2;
-const POINT_COLOURS = ["#5EB1BF", "#5E81BF", "#6C5EBF", "#9D5EBF", "#BF5EB1", "#BF5E80", "#BF6C5E", "#BF9D5E", "#B1BF5E", "#81BF5E", "#5EBF6C", "#5EBF9D"];
+const POINT_COLOURS = ["#5EB1BF", "#6C5EBF", "#9D5EBF", "#BF5EB1", "#BF5E80", "#BF6C5E", "#BF9D5E", "#81BF5E"];
 
 with (paper) {
     var game = {};
@@ -106,6 +106,7 @@ with (paper) {
         }
 
         this.restrictions.grid.initialiseGrid();
+        this.restrictions.colour.initialisePalette();
     }
     game.clear = function() {
         // Remove every single point from all tracking lists and render
@@ -815,8 +816,24 @@ with (paper) {
     game.restrictions.colour.current = "#5EB1BF";
     game.restrictions.colour.current_index = 0;
     game.restrictions.colour.tracking = {};
-    game.restrictions.colour.renderColourPallete = function() {
-        
+    game.restrictions.colour.initialisePalette = function() {
+        var selector;
+        for (var i = 0; i < 8; i++) {
+            selector = "#colour_select_"+i;
+            $(selector).css("background-color", this.list[i]);
+        }
+        $("#colour_select_0").click(() => {game.restrictions.colour.update(0)});
+        $("#colour_select_1").click(() => {game.restrictions.colour.update(1)});
+        $("#colour_select_2").click(() => {game.restrictions.colour.update(2)});
+        $("#colour_select_3").click(() => {game.restrictions.colour.update(3)});
+        $("#colour_select_4").click(() => {game.restrictions.colour.update(4)});
+        $("#colour_select_5").click(() => {game.restrictions.colour.update(5)});
+        $("#colour_select_6").click(() => {game.restrictions.colour.update(6)});
+        $("#colour_select_7").click(() => {game.restrictions.colour.update(7)});
+    }
+    game.restrictions.colour.update = function(new_index) {
+        this.current_index = new_index;
+        this.current = this.list[this.current_index];
     }
 }
 
