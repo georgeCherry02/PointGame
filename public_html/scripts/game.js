@@ -622,81 +622,68 @@ with (paper) {
         poly.position = new Point(x, y);
         return poly;
     }
-    game.restrictions.grid.determineGridCoordinates = function(location) {
-        var x = location.x;
-        var y = location.y;
+    game.restrictions.grid.determineGridUnitCell = function(point_location) {
+        var x = point_location.x;
+        var y = point_location.y;
+        // Coordinates of unit cell
         var x_prime, y_prime;
+        var contained_paths = [];
         switch (this.mode) {
             case "SQUARE":
-                x_prime = Math.floor(x / this.resolution);
-                y_prime = Math.floor(y / this.resolution);
+                x_prime = Math.floor(x/this.resolution);
+                y_prime = Math.floor(y/this.resolution);
+                contained_paths.push({"x": x_prime, "y": y_prime});
                 break;
             case "HEXAGON":
-                var x_normalised = 2 * x / (Math.sqrt(3)*this.resolution);
-                var y_normalised = 2 * y / this.resolution;
-                
-                var offset_region = false, top_offset_region;
-                var y_prime_shift = 0;
-                var section_of_y = Math.ceil(y_normalised) % 6;
-                var offset_region = false, top_offset_region = false;
-                switch (section_of_y) {
-                    case 1:
-                        offset_region = true;
-                        top_offset_region = true;
-                        break;
-                    case 2:
-                    case 3:
-                        y_prime_shift = 1;
-                        break;
-                    case 4:
-                        offset_region = true;
-                        break;
-                    case 5:
-                    case 0:
-                        y_prime_shift = 2;
+                x_prime = Math.floor(x/(Math.sqrt(3)*this.resolution));
+                y_prime = Math.floor(y/(3*this.resolution));
+                // Push the 5 relevant cells
+                // Also push x_prime, y_prime+1 first as that's the cell most likely to contain the point
+                // Check which cells are valid and which aren't
+                var x_prime_plus_one_within_bounds = x_prime + 1 < Object.keys(this.tracking).length;
+                var y_prime_plus_one_within_bounds = y_prime + 1 < Object.keys(this.tracking[x_prime]).length;
+                var y_prime_plus_two_within_bounds = y_prime + 2 < Object.keys(this.tracking[x_prime]).length;
+                // Start with this cell as it's most likely to contain the location
+                if (y_prime_plus_one_within_bounds) {
+                    contained_paths.push({"x": x_prime, "y": 2 * y_prime + 1});
                 }
-
-                var top_section_sloping_up = Math.ceil(x_normalised) % 2 == 1;
-
-                var x_prime_shift = 0;
-                if (offset_region) {
-                    // Determine slope of path
-                    var slope = -1/2;
-                    var constant = this.resolution / 2;
-                    if (top_section_sloping_up == top_offset_region) {
-                        slope = 1/2;
-                        constant = 0;
-                    }
-
-                    // Determine local coordinates to determine which side of slope point comes down on
-                    var local_y = this.resolution / 2 - y % (this.resolution / 2);
-                    if (y % this.hex_size / 2 == 0) {
-                        local_y = 0;
-                    }
-                    var local_x = x % (Math.sqrt(3) / 2 * this.resolution);
-
-                    var inequality = local_y >= constant + slope * local_x;
-                    if (top_offset_region) {
-                        y_prime_shift = inequality ? 0 : 1;
-                    } else {
-                        y_prime_shift = inequality ? 1 : 2;
+                // These cells are the next two most likely
+                if (y_prime_plus_two_within_bounds) {
+                    contained_paths.push({"x": x_prime, "y": y_prime + 2});
+                    if (x_prime_plus_one_within_bounds) {
+                        contained_paths.push({"x": x_prime + 1, "y": y_prime + 2});
                     }
                 }
-
-                y_prime = Math.floor(y_normalised / 6) * 2 + y_prime_shift;
-                if (y == 0) {
-                    y_prime = 0;
-                }
-
-                // Now we have y_prime we can determine x_prime
-                if (y_prime % 2 == 1) {
-                    x_prime = Math.floor(x_normalised / 2);
-                } else {
-                    x_prime = Math.floor((x_normalised + 1) / 2);
+                // These final two cells are least likely
+                // This cell will always be within bounds
+                contained_paths.push({"x": x_prime, "y": 2 * y_prime});
+                if (x_prime_plus_one_within_bounds) {
+                    contained_paths.push({"x": x_prime + 1, "y": 2 * y_prime});
                 }
                 break;
+            case "TRIANGLE":
+                x_prime = Math.floor(x/this.resolution);
+                y_prime = Math.floor(y/((Math.sqrt(3)/2)*this.resolution));
+                for (var i = 0; i <= 2; i++) {
+                    contained_paths.push({"x": 2 * x_prime + i, "y": y_prime});
+                }
+                break;
+            default:
+                Logger.log(LoggingType.ERROR, ["Invalid grid type received", "Grid type: "+GRID_MODE]);
+                window.location.reload();
         }
-        return [x_prime, y_prime];
+        return contained_paths;
+    }
+    game.restrictions.grid.determineGridCoordinates = function(point_location) {
+        var notable_grid_cells = this.determineGridUnitCell(point_location);
+        for (var i = 0; i < notable_grid_cells.length; i++) {
+            var c_coords = notable_grid_cells[i];
+            var c_grid_cell = this.tracking[c_coords.x][c_coords.y];
+            if (c_grid_cell.path.contains(point_location)) {
+                return c_coords;
+            }
+        }
+        return false;
     }
     // Created a raster because otherwise massive lag was suffered due to re-rendering the grid each time
     game.restrictions.grid.initialiseGrid = function() {
