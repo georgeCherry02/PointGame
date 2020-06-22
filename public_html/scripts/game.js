@@ -383,8 +383,13 @@ with (paper) {
     // Implement general restriction functions
     // ------------------------------------------------------------------------------------------
     game.restrictions.checkPlacementValidity = function(point_location) {
-        var distance_validity = game.restrictions.distance.checkDistance(point_location)
-        return distance_validity;
+        // Make sure point_location is valid
+        if (point_location.x < 0 || point_location.x > 1024 || point_location.y < 0 || point_location.y > 1024) {
+            return false;
+        }
+        var distance_validity = this.distance.checkDistance(point_location)
+        var grid_validity     = this.grid.checkGrid(point_location);
+        return grid_validity && distance_validity;
     }
     game.restrictions.validatePointRemoval = function(point_id) {
         var point_path = game.point_areas_list[point_id];
@@ -621,7 +626,13 @@ with (paper) {
         c_entry.splice(c_entry.indexOf(parseInt(point_id)), 1);
         this.tracking[grid_coordinates.x][grid_coordinates.y].points = c_entry;
     }
+    game.restrictions.grid.checkGrid = function(point_location) {
+        var grid_coords = this.determineGridCoordinates(point_location);
+        if (!grid_coords) {
+            Logger.log(LoggingType.ERROR, ["Failed to fetch grid coordinates", "Point located at: "+point_location.x+", "+point_location.y]);
+            return false;
         }
+        return this.tracking[grid_coords.x][grid_coords.y].points.length < this.max_density;
     }
     game.restrictions.grid.determineGridUnitCell = function(point_location) {
         var x = point_location.x;
