@@ -6,7 +6,8 @@ const GIVEN_SHAPE = false;
 const NUMBER_WITHIN = 1;
 const RENDER_GRID = true;
 const GRID_MODE = "SQUARE";
-const GRID_RESOLUTION = 20;
+const GRID_RESOLUTION = 32;
+const MAX_NUMBER_PER_GRID_CELL = 2;
 const POINT_COLOURS = ["#5EB1BF", "#5E81BF", "#6C5EBF", "#9D5EBF", "#BF5EB1", "#BF5E80", "#BF6C5E", "#BF9D5E", "#B1BF5E", "#81BF5E", "#5EBF6C", "#5EBF9D"];
 
 with (paper) {
@@ -599,7 +600,8 @@ with (paper) {
     // ------------------------------------------------------------------------------------------
     game.restrictions.grid = {
         "mode": GRID_MODE,
-        "resolution": GRID_RESOLUTION
+        "resolution": GRID_RESOLUTION,
+        "max_density": MAX_NUMBER_PER_GRID_CELL
     }
     game.restrictions.grid.tracking = {}
     game.restrictions.grid.addPoint = function(point_location, point_id) {
