@@ -698,67 +698,84 @@ with (paper) {
         }
         return [x_prime, y_prime];
     }
+    // Created a raster because otherwise massive lag was suffered due to re-rendering the grid each time
     game.restrictions.grid.initialiseGrid = function() {
         // Activate appropriate layer
         game.grid_layer.activate();
-        game.grid_layer.opacity = 0.2;
         // Try to do a square grid
+        this.render = new CompoundPath();
+        this.render.strokeColor = "black";
+        // Determine the ratio between resolution and, canvas height/width
+        var resolution_ratio = game.canvas_size.height / this.resolution;
         switch (this.mode) {
             case "SQUARE":
                 // Determine number of squares across width and height
                 // Make sure to fill entire area with grid by using ceil
-                var rows = Math.ceil(game.canvas_size.height / this.resolution);
-                var columns = Math.ceil(game.canvas_size.width / this.resolution);
-                for (var i = 0; i < columns; i++) {
+                var row_number = Math.ceil(resolution_ratio);
+                var col_number = Math.ceil(resolution_ratio);
+                for (var i = 0; i < col_number; i++) {
                     this.tracking[i] = {};
-                    for (var j = 0; j < rows; j++) {
-                        var grid_element = new Path.Rectangle(i*this.resolution, j*this.resolution, this.resolution, this.resolution);
-                        grid_element.strokeColor = "black";
-                        this.tracking[i][j] = {"path": grid_element, "points": []}
+                    for (var j = 0; j < row_number; j++) {
+                        if (RENDER_GRID) {
+                            var grid_element = new Path.Rectangle((i)*this.resolution, (j)*this.resolution, this.resolution, this.resolution);
+                            this.render.addChild(grid_element);
+                        }
+                        this.tracking[i][j] = {"path": grid_element, "points": []};
                     }
                 }
                 break;
             case "HEXAGON":
-                // Get an initial Hexagon path
-                var hex = this.drawHexagon(0, 0);
-                // Determine the ratio between resolution and canvas height and width
-                var height_res_ratio = game.canvas_size.height / this.resolution;
-                var width_res_ratio = game.canvas_size.width / this.resolution;
                 // There are two in every three squares
-                var row_number = Math.ceil((height_res_ratio / 3) * 2);
+                var row_number = Math.ceil((resolution_ratio / 3) * 2) + 1;
                 // There's 1 in every root(3) squares
-                var col_number = Math.ceil(height_res_ratio / Math.sqrt(3));
+                var col_number = Math.ceil(resolution_ratio / Math.sqrt(3)) + 1;
                 // y-coordinate of centres begin at -resolution/2 then proceed to be 3/2 down each time
                 // x-coordinate of centres begin at 0, then go in increments of resolution*root(3)
                 // for x-coordinate alternating rows have a shift of resolution*root(3)/2
-                for (var j = 0; j < row_number; j++) {
-                    var x_shift = 0;
-                    if (j % 2 == 1) {
-                        x_shift = 1/2;
-                    }
-                    var y = this.resolution * (j * (3/2) - 1/2);
-                    for (var i = 0; i < col_number; i++) {
-                        var x = this.resolution * Math.sqrt(3) * (i + x_shift);
-                        hex.position = new Point(x, y);
-                        hex = hex.clone();
-                    }
-                }
                 for (var i = 0; i < col_number; i++) {
                     this.tracking[i] = {};
                     for (var j = 0; j < row_number; j++) {
-                        var x_shift = 0;
-                        if (j % 2 == 1) {
-                            x_shift = 1/2;
+                        if (RENDER_GRID) {
+                            var x_shift = 0;
+                            if (j % 2 == 1) {
+                                x_shift = 1/2;
+                            }
+                            var y = this.resolution * (j * (3/2) - 1/2);
+                            var x = this.resolution * Math.sqrt(3) * (i + x_shift);
+                            var grid_element = this.drawHexagon(x, y);
+                            this.render.addChild(grid_element);
                         }
-                        var y = this.resolution * (j * (3/2) - 1/2);
-                        var x = this.resolution * Math.sqrt(3) * (i + x_shift);
-                        hex.position = new Point(x, y);
-                        this.tracking[i][j] = {"path": hex, "points": []}
-                        hex = hex.clone();
+                        this.tracking[i][j] = {"path": grid_element, "points": []};
                     }
                 }
                 break;
+            case "TRIANGLE":
+                var triangle_width = this.resolution;
+                var triangle_height = this.resolution * (Math.sqrt(3)/2);
+                var row_number = Math.ceil(resolution_ratio * 2 / Math.sqrt(3));
+                var col_number = Math.ceil(2 * resolution_ratio) + 1;
+                for (var i = 0; i < col_number; i++) {
+                    this.tracking[i] = {};
+                    for (var j = 0; j < row_number; j++) {
+                        if (RENDER_GRID) {
+                            var y = triangle_height * (j + (1/2));
+                            var x = this.resolution * (i * (1/2));
+                            var grid_element = this.drawTriangle(x, y, triangle_width, triangle_height)
+                            if (i % 2 == j % 2) {
+                                grid_element.rotate(180);
+                            }
+                            this.render.addChild(grid_element);
+                        }
+                        this.tracking[i][j] = {"path": grid_element, "points": []};
+                    }
+                }
+                break;
+            default:
+                Logger.log(LoggingType.ERROR, ["Invalid grid type received", "Grid type:"+GRID_MODE]);
+                window.location.reload();
         }
+        var grid_raster = this.render.rasterize();
+        this.render.visible = false;
         view.draw();
     }
     // ------------------------------------------------------------------------------------------
