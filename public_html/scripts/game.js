@@ -830,10 +830,18 @@ with (paper) {
         $("#colour_select_5").click(() => {game.restrictions.colour.update(5)});
         $("#colour_select_6").click(() => {game.restrictions.colour.update(6)});
         $("#colour_select_7").click(() => {game.restrictions.colour.update(7)});
+        this.updatePalette();
     }
     game.restrictions.colour.update = function(new_index) {
+        // Switch over the active colour
         this.current_index = new_index;
         this.current = this.list[this.current_index];
+        // Indicate to the user which colour's being used
+        this.updatePalette();
+    }
+    game.restrictions.colour.updatePalette = function() {
+        $(".colour_select").css("border-color", "transparent");
+        $("#colour_select_"+this.current_index).css("border-color", "#038ea1");
     }
 }
 
