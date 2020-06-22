@@ -68,7 +68,7 @@ with (paper) {
         this.point_tool = new Tool();
         this.point_tool.onMouseDown = function(event) {
             game.last_used_section_requires_update = true;
-            if (game.checkValidity(event.point)) {
+            if (game.restrictions.checkPlacementValidity(event.point)) {
                 // Activate appropriate layer
                 game.points_layer.activate();
                 // Draw point onto canvas
@@ -104,10 +104,6 @@ with (paper) {
         }
 
         this.restrictions.grid.initialiseGrid();
-    }
-    game.checkValidity = function(point_location) {
-        var distance_validity = game.restrictions.distance.checkDistance(point_location)
-        return distance_validity;
     }
     game.clear = function() {
         // Remove every single point from all tracking lists and render
@@ -276,7 +272,7 @@ with (paper) {
 
         // Correct custom mouse colour
         // Have used if and else because fill operation seems to take a long time and only want to call it once if possible
-        if (!game.checkValidity(point_location)) {
+        if (!game.restrictions.checkPlacementValidity(point_location)) {
             this.mouse_marker.fillColor = "red";
             this.mouse_validity_indicator.fillColor = reject_colour;
         } else {
@@ -384,6 +380,10 @@ with (paper) {
     // ------------------------------------------------------------------------------------------
     // Implement general restriction functions
     // ------------------------------------------------------------------------------------------
+    game.restrictions.checkPlacementValidity = function(point_location) {
+        var distance_validity = game.restrictions.distance.checkDistance(point_location)
+        return distance_validity;
+    }
     game.restrictions.validatePointRemoval = function(point_id) {
         var point_path = game.point_areas_list[point_id];
         if (game.chaining) {
