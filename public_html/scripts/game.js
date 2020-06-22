@@ -1,12 +1,12 @@
 // Define external constants
 const accept_colour = new paper.Color(0.9, 1, 0.9, 1);
 const reject_colour = new paper.Color(1, 0.9, 0.9, 1);
-const point_colour = new paper.Color(0.9, 0.9, 1, 1);
 
 const GIVEN_SHAPE = false;
 const NUMBER_WITHIN = 1;
 const GRID_MODE = "SQUARE";
 const GRID_RESOLUTION = 20;
+const POINT_COLOURS = ["#5EB1BF", "#5E81BF", "#6C5EBF", "#9D5EBF", "#BF5EB1", "#BF5E80", "#BF6C5E", "#BF9D5E", "#B1BF5E", "#81BF5E", "#5EBF6C", "#5EBF9D"];
 
 with (paper) {
     var game = {};
@@ -47,6 +47,7 @@ with (paper) {
         this.base_layer               = new Layer();
         this.point_areas_layer        = new Layer();
         this.point_area_display_layer = new Layer();
+        this.point_area_display_layer.opacity = 0.25;
         this.points_layer             = new Layer();
         this.grid_layer               = new Layer();
         this.mouse_track_layer        = new Layer();
@@ -191,6 +192,8 @@ with (paper) {
         this.restrictions.graph_model.removeNode(point_id);
         // Remove the point from the grid tracking
         this.restrictions.grid.removePoint(point_path.position, point_id);
+        // Remove from colour tracking
+        delete this.restrictions.colour.tracking[point_id];
         // Determine the section we're dealing with
         var section_id = this.determineSectionID(point_path.position);
         // Remove point_area path from section
@@ -215,6 +218,8 @@ with (paper) {
     }
     game.renderPoint = function(point_location) {
         Logger.log(LoggingType.NOTICE, "Adding point");
+        // Update the points tracking
+        this.restrictions.colour.tracking[this.total_number_of_points_placed] = this.restrictions.colour.current_index;
         // Activate appropriate layer
         this.point_areas_layer.activate();
         // Define the point's area appearance
@@ -233,7 +238,7 @@ with (paper) {
             center: point_location,
             radius: MIN_RADIUS
         });
-        point_area_display.fillColor = point_colour;
+        point_area_display.fillColor = this.restrictions.colour.current;
         // Push to own list to keep track of
         this.point_area_display_list[this.total_number_of_points_placed] = point_area_display;
         // Do same again for actual point
@@ -242,7 +247,7 @@ with (paper) {
             center: point_location,
             radius: 1
         });
-        point_image.fillColor = "blue";
+        point_image.fillColor = this.restrictions.colour.current;
         this.point_images_list[this.total_number_of_points_placed] = point_image;
 
         // Update the neighbours map
@@ -755,6 +760,17 @@ with (paper) {
                 break;
         }
         view.draw();
+    }
+    // ------------------------------------------------------------------------------------------
+    // Implement colour based restrictions
+    // ------------------------------------------------------------------------------------------
+    game.restrictions.colour = {};
+    game.restrictions.colour.list = POINT_COLOURS;
+    game.restrictions.colour.current = "#5EB1BF";
+    game.restrictions.colour.current_index = 0;
+    game.restrictions.colour.tracking = {};
+    game.restrictions.colour.renderColourPallete = function() {
+        
     }
 }
 
