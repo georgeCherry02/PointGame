@@ -50,6 +50,7 @@ with (paper) {
         this.point_area_display_layer.opacity = 0.25;
         this.points_layer             = new Layer();
         this.grid_layer               = new Layer();
+        this.grid_layer.opacity = 0.2;
         this.mouse_track_layer        = new Layer();
     
         // Initialise custom mouse
@@ -218,8 +219,21 @@ with (paper) {
     }
     game.renderPoint = function(point_location) {
         Logger.log(LoggingType.NOTICE, "Adding point");
+        // Update the neighbours map
+        this.restrictions.graph_model.addNode(point_location, this.total_number_of_points_placed);
+        // Update the grid map
+        if (!this.restrictions.grid.addPoint(point_location, this.total_number_of_points_placed)) {
+            // If the grid add failed remove graph node
+            Logger.log(LoggingType.ERROR, ["Failed to render point", "Removing node from graph tracking"]);
+            this.restrictions.graph_model.removeNode(this.total_number_of_points_placed);
+            return;
+        }
         // Update the points tracking
         this.restrictions.colour.tracking[this.total_number_of_points_placed] = this.restrictions.colour.current_index;
+        
+        // Push to index tracking quadrants
+        this.determineSection(point_location).push(this.total_number_of_points_placed);
+
         // Activate appropriate layer
         this.point_areas_layer.activate();
         // Define the point's area appearance
@@ -250,13 +264,6 @@ with (paper) {
         point_image.fillColor = this.restrictions.colour.current;
         this.point_images_list[this.total_number_of_points_placed] = point_image;
 
-        // Update the neighbours map
-        this.restrictions.graph_model.addNode(point_location, this.total_number_of_points_placed);
-        // Update the grid map
-        this.restrictions.grid.addPoint(point_location, this.total_number_of_points_placed);
-
-        // Push to index tracking quadrants
-        this.determineSection(point_location).push(this.total_number_of_points_placed);
         this.total_number_of_points_placed++;
         this.number_of_points_placed++;
     }
@@ -500,6 +507,7 @@ with (paper) {
     game.restrictions.graph_model.graph = {}
     // Adds an item to the graph and updates it's neighbouring nodes
     game.restrictions.graph_model.addNode = function(point_location, point_id) {
+        Logger.log(LoggingType.NOTICE, "Adding node to graph tracking");
         var points_of_interest = game.determineSectionAndSurroundings(point_location);
         var c_id, c_point_position, c_point_distance;
         var adjacent_nodes = {"ids": [], "distances": []};
@@ -525,6 +533,7 @@ with (paper) {
     }
     // Removes an item from the graph and updates it's neighbouring nodes
     game.restrictions.graph_model.removeNode = function(point_id) {
+        Logger.log(LoggingType.NOTICE, "Removing node from graph tracking");
         // Loop through nodes neighbours and remove the node from their adjacent nodes list
         var c_entry, c_id, c_index;
         for (var i = 0 ; i < this.graph[point_id].ids.length; i++) {
@@ -592,15 +601,23 @@ with (paper) {
         "resolution": GRID_RESOLUTION
     }
     game.restrictions.grid.tracking = {}
-    game.restrictions.grid.addPoint = function(location, point_id) {
-        var grid_coordinates = this.determineGridCoordinates(location);
-        this.tracking[grid_coordinates[0]][grid_coordinates[1]].points.push(point_id);
+    game.restrictions.grid.addPoint = function(point_location, point_id) {
+        Logger.log(LoggingType.NOTICE, "Adding point to grid tracking")
+        var grid_coordinates = this.determineGridCoordinates(point_location);
+        if (!grid_coordinates) {
+            Logger.log(LoggingType.ERROR, ["Failed to determine grid coordinates", "Point ID: "+point_id]);
+            return false;
+        }
+        this.tracking[grid_coordinates.x][grid_coordinates.y].points.push(point_id);
+        return true;
     }
-    game.restrictions.grid.removePoint = function(location, point_id) {
-        var grid_coordinates = this.determineGridCoordinates(location);
-        var c_entry = this.tracking[grid_coordinates[0]][grid_coordinates[1]].points;
+    game.restrictions.grid.removePoint = function(point_location, point_id) {
+        Logger.log(LoggingType.NOTICE, "Removing point from grid tracking");
+        var grid_coordinates = this.determineGridCoordinates(point_location);
+        var c_entry = this.tracking[grid_coordinates.x][grid_coordinates.y].points;
         c_entry.splice(c_entry.indexOf(parseInt(point_id)), 1);
-        this.tracking[grid_coordinates[0]][grid_coordinates[1]].points = c_entry;
+        this.tracking[grid_coordinates.x][grid_coordinates.y].points = c_entry;
+    }
     game.restrictions.grid.drawTriangle = function(x, y, width, height) {
         var triangle = new Path({closed: true});
         triangle.strokeColor = "black";
