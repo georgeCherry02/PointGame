@@ -174,7 +174,7 @@ with (paper) {
         return closest_point_id;
     }
     game.formatPointData = function() {
-        Logger.log(LoggingType.STATUS, "Formatting point data");
+        Logger.log(LoggingType.NOTICE, "Formatting point data");
         var result = {"x": [], "y": []};
         var c_point, c_object;
         for (var id in this.point_images_list) {
@@ -214,6 +214,11 @@ with (paper) {
         var point_image = this.point_images_list[point_id];
         point_image.remove();
         delete this.point_images_list[point_id];
+
+        // Update mean and standard dev
+        this.restrictions.statistics.update();
+
+        // Decrease point tally
         this.number_of_points_placed--;
     }
     game.renderPoint = function(point_location) {
@@ -263,6 +268,10 @@ with (paper) {
         point_image.fillColor = this.restrictions.colour.current;
         this.point_images_list[this.total_number_of_points_placed] = point_image;
 
+        // Update mean and standard dev
+        this.restrictions.statistics.update();
+
+        // Increase point tallies
         this.total_number_of_points_placed++;
         this.number_of_points_placed++;
     }
@@ -842,6 +851,39 @@ with (paper) {
     game.restrictions.colour.updatePalette = function() {
         $(".colour_select").css("border-color", "transparent");
         $("#colour_select_"+this.current_index).css("border-color", "#038ea1");
+    }
+    // ------------------------------------------------------------------------------------------
+    // Implement statistic based restrictions
+    // ------------------------------------------------------------------------------------------
+    // ##########################################################################################
+    // # One idea could be to make the mean have to fall in a certain area
+    // ##########################################################################################
+    game.restrictions.statistics = {
+        "mean": {"x": 0, "y": 0},
+        "s_dev": {"x": 0, "y": 0}
+    }
+    game.restrictions.statistics.update = function() {
+        var distribution = game.formatPointData();
+        this.findMean(distribution);
+        this.findStandardDeviation(distribution);
+    }
+    game.restrictions.statistics.findMean = function(distribution) {
+        var sum_x = 0, sum_y = 0, n = distribution.x.length;
+        for (var i = 0; i < n; i++) {
+            sum_x += distribution.x[i];
+            sum_y += distribution.y[i];
+        }
+        this.mean.x = sum_x/n;
+        this.mean.y = sum_y/n;
+    }
+    game.restrictions.statistics.findStandardDeviation = function(distribution) {
+        var sum_x = 0, sum_y = 0, n = distribution.x.length;
+        for (var i = 0; i < n; i++) {
+            sum_x += Math.pow((distribution.x[i]-this.mean.x), 2);
+            sum_y += Math.pow((distribution.y[i]-this.mean.y), 2);
+        }
+        this.s_dev.x = Math.sqrt(sum_x/n);
+        this.s_dev.y = Math.sqrt(sum_y/n);
     }
 }
 
