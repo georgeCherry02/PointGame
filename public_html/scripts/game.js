@@ -9,6 +9,10 @@ const GRID_MODE = "SQUARE";
 const GRID_RESOLUTION = 32;
 const MAX_NUMBER_PER_GRID_CELL = 2;
 const POINT_COLOURS = ["#5EB1BF", "#6C5EBF", "#9D5EBF", "#BF5EB1", "#BF5E80", "#BF6C5E", "#BF9D5E", "#81BF5E"];
+const MEAN_CHECK_ACTIVE = false;
+const MEAN_RESTRICTION_X = 32;
+const MEAN_RESTRICTION_Y = 32;
+const MEAN_PATH_SIZE = 32;
 
 with (paper) {
     var game = {};
@@ -53,6 +57,8 @@ with (paper) {
         this.points_layer             = new Layer();
         this.grid_layer               = new Layer();
         this.grid_layer.opacity = 0.2;
+        this.mean_path_layer          = new Layer();
+        this.mean_path_layer.opacity = 0.2;
         this.mouse_track_layer        = new Layer();
     
         // Initialise custom mouse
@@ -107,6 +113,7 @@ with (paper) {
 
         this.restrictions.grid.initialiseGrid();
         this.restrictions.colour.initialisePalette();
+        this.restrictions.statistics.initialiseMeanRestriction();
     }
     game.clear = function() {
         // Remove every single point from all tracking lists and render
@@ -399,7 +406,8 @@ with (paper) {
         }
         var distance_validity = this.distance.checkDistance(point_location)
         var grid_validity     = this.grid.checkGrid(point_location);
-        return grid_validity && distance_validity;
+        var stat_validity     = this.statistics.check();
+        return grid_validity && distance_validity && stat_validity;
     }
     game.restrictions.validatePointRemoval = function(point_id) {
         var point_path = game.point_areas_list[point_id];
@@ -860,7 +868,15 @@ with (paper) {
     // ##########################################################################################
     game.restrictions.statistics = {
         "mean": {"x": 0, "y": 0},
-        "s_dev": {"x": 0, "y": 0}
+        "s_dev": {"x": 0, "y": 0},
+        "mean_restriction_active": MEAN_CHECK_ACTIVE 
+    }
+    game.restrictions.statistics.check = function() {
+        if (!this.mean_restriction_active) {
+            return true;
+        }
+        var mean_point = new Point(this.mean.x, this.mean.y);
+        return this.mean_path.contains(mean_point);
     }
     game.restrictions.statistics.update = function() {
         var distribution = game.formatPointData();
@@ -884,6 +900,14 @@ with (paper) {
         }
         this.s_dev.x = Math.sqrt(sum_x/n);
         this.s_dev.y = Math.sqrt(sum_y/n);
+    }
+    game.restrictions.statistics.initialiseMeanRestriction = function() {
+        var mean_path_location = new Point(MEAN_RESTRICTION_X, MEAN_RESTRICTION_Y);
+        var mean_path_size = new Size(MEAN_PATH_SIZE, MEAN_PATH_SIZE)
+        game.mean_path_layer.activate();
+        this.mean_path = new Path.Rectangle(mean_path_location, mean_path_size);
+        this.mean_path.fillColor = "purple";
+        this.mean_path.visible = false;
     }
 }
 
