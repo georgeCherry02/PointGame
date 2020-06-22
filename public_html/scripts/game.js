@@ -103,8 +103,8 @@ with (paper) {
 
         this.restrictions.grid.initialiseGrid();
     }
-    game.checkValidity = function(location) {
-        var distance_validity = game.restrictions.distance.checkDistance(location)
+    game.checkValidity = function(point_location) {
+        var distance_validity = game.restrictions.distance.checkDistance(point_location)
         return distance_validity;
     }
     game.clear = function() {
@@ -116,18 +116,18 @@ with (paper) {
         this.total_number_of_points_placed = 0;
         Logger.log(LoggingType.STATUS, "Removed all points from canvas");
     }
-    game.determineSection = function(location) {
+    game.determineSection = function(point_location) {
         // Divided into 64 sections
-        var section_number = this.determineSectionID(location);
+        var section_number = this.determineSectionID(point_location);
         if (section_number < 0 || section_number > 63) {
             return [];
         }
         return this.canvas_sections[section_number];
     }
-    game.determineSectionAndSurroundings = function(location) {
-        var i = Math.floor((location.x / 1024) * 8);
-        var j = Math.floor((location.y / 1024) * 8);
-        var section_id = this.determineSectionID(location);
+    game.determineSectionAndSurroundings = function(point_location) {
+        var i = Math.floor((point_location.x / 1024) * 8);
+        var j = Math.floor((point_location.y / 1024) * 8);
+        var section_id = this.determineSectionID(point_location);
         // Trying to optimise a bit by checking if we've already formed this array
         if (!this.last_used_section_requires_update && section_id == this.last_used_section_and_surroundings_id) {
             return this.last_used_section_and_surroundings;
@@ -148,25 +148,25 @@ with (paper) {
         this.last_used_section_and_surroundings = resulting_array;
         return resulting_array;
     }
-    game.determineSectionID = function(location) {
-        var i = Math.floor((location.x / 1024) * 8);
-        var j = Math.floor((location.y / 1024) * 8);
+    game.determineSectionID = function(point_location) {
+        var i = Math.floor((point_location.x / 1024) * 8);
+        var j = Math.floor((point_location.y / 1024) * 8);
         return 8*j + i;
     }
-    game.fetchNearestPoint = function(location) {
+    game.fetchNearestPoint = function(point_location) {
         // Fetch appropriate sections
-        var area_to_examine = this.determineSectionAndSurroundings(location);
+        var area_to_examine = this.determineSectionAndSurroundings(point_location);
         var closest_point_id, current_point, shortest_distance;
         for (var i = 0; i < area_to_examine.length; i++) {
             current_point = this.point_areas_list[area_to_examine[i]];
             if (this.chaining) {
                 current_point = this.point_area_display_list[area_to_examine[i]];
             }
-            if (current_point.contains(location)) {
+            if (current_point.contains(point_location)) {
                 // Determine if a closest point has been set or if the current point is nearer
-                if (typeof closest_point_id === "undefined" || location.getDistance(current_point.position) < shortest_distance) {
+                if (typeof closest_point_id === "undefined" || point_location.getDistance(current_point.position) < shortest_distance) {
                     closest_point_id = area_to_examine[i];
-                    shortest_distance = location.getDistance(current_point.position);
+                    shortest_distance = point_location.getDistance(current_point.position);
                 } 
             }
         }
@@ -213,24 +213,24 @@ with (paper) {
         delete this.point_images_list[point_id];
         this.number_of_points_placed--;
     }
-    game.renderPoint = function(location) {
+    game.renderPoint = function(point_location) {
         Logger.log(LoggingType.NOTICE, "Adding point");
         // Activate appropriate layer
         this.point_areas_layer.activate();
         // Define the point's area appearance
         var point_area = new Path.Circle({
-            center: location,
+            center: point_location,
             radius: MAX_RADIUS
         });
         if (this.chaining) {
-            point_area = point_area.subtract(new Path.Circle({center: location, radius: MIN_RADIUS}));
+            point_area = point_area.subtract(new Path.Circle({center: point_location, radius: MIN_RADIUS}));
         }
         // Push to own list to keep track of each point
         this.point_areas_list[this.total_number_of_points_placed] = point_area;
         // Do same again for point rendering
         this.point_area_display_layer.activate();
         var point_area_display = new Path.Circle({
-            center: location,
+            center: point_location,
             radius: MIN_RADIUS
         });
         point_area_display.fillColor = point_colour;
@@ -239,32 +239,32 @@ with (paper) {
         // Do same again for actual point
         this.points_layer.activate();
         var point_image = new Path.Circle({
-            center: location,
+            center: point_location,
             radius: 1
         });
         point_image.fillColor = "blue";
         this.point_images_list[this.total_number_of_points_placed] = point_image;
 
         // Update the neighbours map
-        this.restrictions.graph_model.addNode(location, this.total_number_of_points_placed);
+        this.restrictions.graph_model.addNode(point_location, this.total_number_of_points_placed);
         // Update the grid map
-        this.restrictions.grid.addPoint(location, this.total_number_of_points_placed);
+        this.restrictions.grid.addPoint(point_location, this.total_number_of_points_placed);
 
         // Push to index tracking quadrants
-        this.determineSection(location).push(this.total_number_of_points_placed);
+        this.determineSection(point_location).push(this.total_number_of_points_placed);
         this.total_number_of_points_placed++;
         this.number_of_points_placed++;
     }
-    game.updateMouseAppearance = function(location) {
+    game.updateMouseAppearance = function(point_location) {
         this.mouse_track_layer.activate();
 
         // Move custom mouse to correct location
-        this.mouse_marker.position = location;
-        this.mouse_validity_indicator.position = location;
+        this.mouse_marker.position = point_location;
+        this.mouse_validity_indicator.position = point_location;
 
         // Correct custom mouse colour
         // Have used if and else because fill operation seems to take a long time and only want to call it once if possible
-        if (!game.checkValidity(location)) {
+        if (!game.checkValidity(point_location)) {
             this.mouse_marker.fillColor = "red";
             this.mouse_validity_indicator.fillColor = reject_colour;
         } else {
@@ -302,7 +302,7 @@ with (paper) {
         }
         if (data.point_pattern.x.length !== data.point_pattern.y.length) {
             Logger.log(LoggingType.ERROR, ["Point formatting process failed", "Substantial error with page", "Reloading"]);
-            location.reload();
+            window.location.reload();
             return;
         }
         data.limitations = {};
@@ -432,17 +432,17 @@ with (paper) {
     // # This will become problematic once max_distance > 128
     // # Is this going to be a problem?
     // ##########################################################################################
-    game.restrictions.distance.checkDistance = function(location) {
+    game.restrictions.distance.checkDistance = function(point_location) {
         // Check if there are any points already existing, otherwise this questions irrelevant
         if (Object.keys(game.point_areas_list).length === 0) {
             return true;
         }
 
         // Check which quadrant the mouse is in
-        var points_of_interest = game.determineSectionAndSurroundings(location);
+        var points_of_interest = game.determineSectionAndSurroundings(point_location);
 
         // Loop through all points in the section and it's surroundings (for edge cases) looking for collision within min distance
-        var min_distance = this.checkMinimumDistance(location, points_of_interest);
+        var min_distance = this.checkMinimumDistance(point_location, points_of_interest);
         // Break function early if point is inside another to avoid second loop
         if (!min_distance) {
             return false;
@@ -452,23 +452,23 @@ with (paper) {
         // I.e. check if it's within the required number of points
         var max_distance = true;
         if (game.chaining) {
-            max_distance = this.checkMaxDistance(location, points_of_interest);
+            max_distance = this.checkMaxDistance(point_location, points_of_interest);
         }
 
         return max_distance;
     }
-    game.restrictions.distance.checkMinimumDistance = function(location, point_ids) {
+    game.restrictions.distance.checkMinimumDistance = function(point_location, point_ids) {
         for (var i = 0; i < point_ids.length; i++) {
-            if (game.point_area_display_list[point_ids[i]].contains(location)) {
+            if (game.point_area_display_list[point_ids[i]].contains(point_location)) {
                 return false;
             }
         }
         return true;
     }
-    game.restrictions.distance.checkMaxDistance = function(location, point_ids, removal_shift=false) {
+    game.restrictions.distance.checkMaxDistance = function(point_location, point_ids, removal_shift=false) {
         var current_number_within_range = removal_shift ? -1 : 0;
         for (var i = 0; i < point_ids.length; i++) {
-            if (game.point_areas_list[point_ids[i]].contains(location)) {
+            if (game.point_areas_list[point_ids[i]].contains(point_location)) {
                 current_number_within_range++;
                 // Check if the point's within range of enough other points to be placed
                 if (current_number_within_range >= NUMBER_WITHIN) {
@@ -494,14 +494,14 @@ with (paper) {
     // Initialise neigbouring map
     game.restrictions.graph_model.graph = {}
     // Adds an item to the graph and updates it's neighbouring nodes
-    game.restrictions.graph_model.addNode = function(location, point_id) {
-        var points_of_interest = game.determineSectionAndSurroundings(location);
+    game.restrictions.graph_model.addNode = function(point_location, point_id) {
+        var points_of_interest = game.determineSectionAndSurroundings(point_location);
         var c_id, c_point_position, c_point_distance;
         var adjacent_nodes = {"ids": [], "distances": []};
         for (var i = 0; i < points_of_interest.length; i++) {
             c_id = points_of_interest[i];
             c_point_position = game.point_areas_list[c_id].position;
-            c_point_distance = location.getDistance(c_point_position);
+            c_point_distance = point_location.getDistance(c_point_position);
             // Determine whether the current node is within a distance that defines it as a neighbouring node
             if (c_point_distance < this.neighbour_distance) {
                 // If so add it to the points list of adjacent nodes
