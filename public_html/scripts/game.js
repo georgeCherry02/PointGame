@@ -881,12 +881,14 @@ with (paper) {
         "s_dev": {"x": 0, "y": 0},
         "mean_restriction_active": MEAN_CHECK_ACTIVE 
     }
-    game.restrictions.statistics.check = function() {
+    game.restrictions.statistics.check = function(point_location) {
         if (!this.mean_restriction_active) {
             return true;
         }
-        var mean_point = new Point(this.mean.x, this.mean.y);
-        return this.mean_path.contains(mean_point);
+        var new_x_mean = (this.mean.x * game.number_of_points_placed + point_location.x)/(game.number_of_points_placed + 1);
+        var new_y_mean = (this.mean.y * game.number_of_points_placed + point_location.y)/(game.number_of_points_placed + 1);
+        var new_mean = new Point(new_x_mean, new_y_mean);
+        return this.mean_path.contains(new_mean);
     }
     game.restrictions.statistics.update = function() {
         var distribution = game.formatPointData();
