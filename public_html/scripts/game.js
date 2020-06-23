@@ -121,6 +121,7 @@ with (paper) {
         this.restrictions.grid.initialiseGrid();
         this.restrictions.colour.initialisePalette();
         this.restrictions.statistics.initialiseMeanRestriction();
+        this.restrictions.functions.initialisePCF();
     }
     game.clear = function() {
         // Remove every single point from all tracking lists and render
@@ -202,6 +203,8 @@ with (paper) {
         Logger.log(LoggingType.NOTICE, "Removing point");
         // Get path of point from total list
         var point_path = this.point_areas_list[point_id];
+        // Remove the point from the PCF
+        this.restrictions.functions.removePoint(point_path.position, point_id);
         // Remove the point from the graph tracking 
         this.restrictions.graph_model.removeNode(point_id);
         // Remove the point from the grid tracking
@@ -237,6 +240,8 @@ with (paper) {
     }
     game.renderPoint = function(point_location) {
         Logger.log(LoggingType.NOTICE, "Adding point");
+        // Update the function based restrictions
+        this.restrictions.functions.addPoint(point_location, this.total_number_of_points_placed);
         // Update the neighbours map
         this.restrictions.graph_model.addNode(point_location, this.total_number_of_points_placed);
         // Update the grid map
@@ -943,6 +948,34 @@ with (paper) {
         }
         var x = Math.floor(location.x), y = Math.floor(location.y);
         return this.data[y][x] == 1;
+    }
+    // ------------------------------------------------------------------------------------------
+    // Implement function based restrictions
+    // ------------------------------------------------------------------------------------------
+    game.restrictions.functions = {};
+    game.restrictions.functions.pcf = {};
+    game.restrictions.functions.initialisePCF = function() {
+        for (var i = 0; i <= 1450; i++) {
+            this.pcf[i] = 0;
+        }
+    }
+    game.restrictions.functions.addPoint = function(point_location, point_id) {
+        this.modifyPCF(point_location, point_id, true);
+    }
+    game.restrictions.functions.removePoint = function(point_location, point_id) {
+        this.modifyPCF(point_location, point_id, false);
+    }
+    game.restrictions.functions.modifyPCF = function(point_location, point_id, adding_point) {
+        var shift = adding_point ? 1 : -1;
+        var c_point, c_distance;
+        for (var id in game.point_images_list) {
+            if (id == point_id) {
+                continue;
+            }
+            c_point = game.point_images_list[id].position;
+            c_distance = Math.floor(c_point.getDistance(point_location));
+            this.pcf[c_distance] += shift;
+        }
     }
 }
 
