@@ -2,7 +2,10 @@
 const accept_colour = new paper.Color(0.9, 1, 0.9, 1);
 const reject_colour = new paper.Color(1, 0.9, 0.9, 1);
 
-const GIVEN_SHAPE = false;
+// Restrictions outline
+// ##########################################################################################
+// # Consider rewriting this to represent a neighbour number
+// ##########################################################################################
 const NUMBER_WITHIN = 1;
 const RENDER_GRID = true;
 const GRID_MODE = "SQUARE";
