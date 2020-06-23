@@ -7,7 +7,7 @@ const reject_colour = new paper.Color(1, 0.9, 0.9, 1);
 // # Consider rewriting this to represent a neighbour number
 // ##########################################################################################
 const NUMBER_WITHIN = 1;
-const RENDER_GRID = true;
+const RENDER_GRID = false;
 const GRID_MODE = "SQUARE";
 const GRID_RESOLUTION = 32;
 const MAX_NUMBER_PER_GRID_CELL = 2;
@@ -757,10 +757,8 @@ with (paper) {
                 for (var i = 0; i < col_number; i++) {
                     this.tracking[i] = {};
                     for (var j = 0; j < row_number; j++) {
-                        if (RENDER_GRID) {
-                            var grid_element = new Path.Rectangle((i)*this.resolution, (j)*this.resolution, this.resolution, this.resolution);
-                            this.render.addChild(grid_element);
-                        }
+                        var grid_element = new Path.Rectangle((i)*this.resolution, (j)*this.resolution, this.resolution, this.resolution);
+                        this.render.addChild(grid_element);
                         this.tracking[i][j] = {"path": grid_element, "points": []};
                     }
                 }
@@ -776,16 +774,14 @@ with (paper) {
                 for (var i = 0; i < col_number; i++) {
                     this.tracking[i] = {};
                     for (var j = 0; j < row_number; j++) {
-                        if (RENDER_GRID) {
-                            var x_shift = 0;
-                            if (j % 2 == 1) {
-                                x_shift = 1/2;
-                            }
-                            var y = this.resolution * (j * (3/2) - 1/2);
-                            var x = this.resolution * Math.sqrt(3) * (i + x_shift);
-                            var grid_element = this.drawHexagon(x, y);
-                            this.render.addChild(grid_element);
+                        var x_shift = 0;
+                        if (j % 2 == 1) {
+                            x_shift = 1/2;
                         }
+                        var y = this.resolution * (j * (3/2) - 1/2);
+                        var x = this.resolution * Math.sqrt(3) * (i + x_shift);
+                        var grid_element = this.drawHexagon(x, y);
+                        this.render.addChild(grid_element);
                         this.tracking[i][j] = {"path": grid_element, "points": []};
                     }
                 }
@@ -798,15 +794,13 @@ with (paper) {
                 for (var i = 0; i < col_number; i++) {
                     this.tracking[i] = {};
                     for (var j = 0; j < row_number; j++) {
-                        if (RENDER_GRID) {
-                            var y = triangle_height * (j + (1/2));
-                            var x = this.resolution * (i * (1/2));
-                            var grid_element = this.drawTriangle(x, y, triangle_width, triangle_height)
-                            if (i % 2 == j % 2) {
-                                grid_element.rotate(180);
-                            }
-                            this.render.addChild(grid_element);
+                        var y = triangle_height * (j + (1/2));
+                        var x = this.resolution * (i * (1/2));
+                        var grid_element = this.drawTriangle(x, y, triangle_width, triangle_height)
+                        if (i % 2 == j % 2) {
+                            grid_element.rotate(180);
                         }
+                        this.render.addChild(grid_element);
                         this.tracking[i][j] = {"path": grid_element, "points": []};
                     }
                 }
@@ -817,6 +811,9 @@ with (paper) {
         }
         var grid_raster = this.render.rasterize();
         this.render.visible = false;
+        if (!RENDER_GRID) {
+            grid_raster.visible = false;
+        }
         view.draw();
     }
     game.restrictions.grid.drawTriangle = function(x, y, width, height) {
