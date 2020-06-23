@@ -14,6 +14,7 @@ const MEAN_RESTRICTION_X = 32;
 const MEAN_RESTRICTION_Y = 32;
 const MEAN_PATH_SIZE = 32;
 
+const MASK_CHECK_ACTIVE = true;
 with (paper) {
     var game = {};
     // Define basic properties
@@ -908,6 +909,18 @@ with (paper) {
         this.mean_path = new Path.Rectangle(mean_path_location, mean_path_size);
         this.mean_path.fillColor = "purple";
         this.mean_path.visible = false;
+    }
+    // ------------------------------------------------------------------------------------------
+    // Implement binary mask restrictions
+    // ------------------------------------------------------------------------------------------
+    game.restrictions.mask = {};
+    game.restrictions.mask.data = BINARY_MASK;
+    game.restrictions.mask.check = function(location) {
+        if (!MASK_CHECK_ACTIVE) {
+            return true;
+        }
+        var x = Math.floor(location.x), y = Math.floor(location.y);
+        return this.data[y][x] == 1;
     }
 }
 
