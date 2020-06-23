@@ -63,9 +63,9 @@ with (paper) {
         this.point_area_display_layer.opacity = 0.25;
         this.points_layer             = new Layer();
         this.grid_layer               = new Layer();
-        this.grid_layer.opacity = 0.2;
+        this.grid_layer.opacity       = 0.2;
         this.mean_path_layer          = new Layer();
-        this.mean_path_layer.opacity = 0.2;
+        this.mean_path_layer.opacity  = 0.2;
         this.mouse_track_layer        = new Layer();
     
         // Initialise custom mouse
