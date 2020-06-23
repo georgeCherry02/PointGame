@@ -411,10 +411,24 @@ with (paper) {
         if (point_location.x < 0 || point_location.x > 1024 || point_location.y < 0 || point_location.y > 1024) {
             return false;
         }
-        var distance_validity = this.distance.checkDistance(point_location)
-        var grid_validity     = this.grid.checkGrid(point_location);
-        var stat_validity     = this.statistics.check();
-        return grid_validity && distance_validity && stat_validity;
+        // To optimise try to check in order that will require least operations first
+        if (!this.mask.check(point_location)) {
+            Logger.log(LoggingType.NOTICE, "Outside binary mask");
+            return false;
+        }
+        if (!this.statistics.check(point_location)) {
+            Logger.log(LoggingType.NOTICE, "Outside of mean restrictions");
+            return false;
+        }
+        if (!this.grid.check(point_location)) {
+            Logger.log(LoggingType.NOTICE, "Placement within grid is invalid");
+            return false;
+        }
+        if (!this.distance.check(point_location)) {
+            Logger.log(LoggingType.NOTICE, "Distance from other points invalid");
+            return false;
+        }
+        return true;
     }
     game.restrictions.validatePointRemoval = function(point_id) {
         var point_path = game.point_areas_list[point_id];
@@ -476,7 +490,7 @@ with (paper) {
     // # This will become problematic once max_distance > 128
     // # Is this going to be a problem?
     // ##########################################################################################
-    game.restrictions.distance.checkDistance = function(point_location) {
+    game.restrictions.distance.check = function(point_location) {
         // Check if there are any points already existing, otherwise this questions irrelevant
         if (Object.keys(game.point_areas_list).length === 0) {
             return true;
@@ -651,7 +665,7 @@ with (paper) {
         c_entry.splice(c_entry.indexOf(parseInt(point_id)), 1);
         this.tracking[grid_coordinates.x][grid_coordinates.y].points = c_entry;
     }
-    game.restrictions.grid.checkGrid = function(point_location) {
+    game.restrictions.grid.check = function(point_location) {
         if (!GRID_CHECK_ACTIVE) {
             return true;
         }
