@@ -12,12 +12,15 @@ const GRID_MODE = "SQUARE";
 const GRID_RESOLUTION = 32;
 const MAX_NUMBER_PER_GRID_CELL = 2;
 const POINT_COLOURS = ["#5EB1BF", "#6C5EBF", "#9D5EBF", "#BF5EB1", "#BF5E80", "#BF6C5E", "#BF9D5E", "#81BF5E"];
-const MEAN_CHECK_ACTIVE = false;
 const MEAN_RESTRICTION_X = 32;
 const MEAN_RESTRICTION_Y = 32;
 const MEAN_PATH_SIZE = 32;
 
+// Which restrictions are active
+const GRID_CHECK_ACTIVE = true;
+const MEAN_CHECK_ACTIVE = false;
 const MASK_CHECK_ACTIVE = true;
+
 with (paper) {
     var game = {};
     // Define basic properties
@@ -649,6 +652,9 @@ with (paper) {
         this.tracking[grid_coordinates.x][grid_coordinates.y].points = c_entry;
     }
     game.restrictions.grid.checkGrid = function(point_location) {
+        if (!GRID_CHECK_ACTIVE) {
+            return true;
+        }
         var grid_coords = this.determineGridCoordinates(point_location);
         if (!grid_coords) {
             Logger.log(LoggingType.ERROR, ["Failed to fetch grid coordinates", "Point located at: "+point_location.x+", "+point_location.y]);
