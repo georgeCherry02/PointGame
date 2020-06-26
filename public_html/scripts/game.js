@@ -1047,12 +1047,16 @@ with (paper) {
         }
     }
     game.restrictions.functions.addPoint = function(point_location, point_id) {
-        this.modifyPCF(point_location, point_id, true);
+        var init_pcf = this.pcf;
+        var fin_pcf  = this.modifyPCF(point_location, point_id, true, init_pcf);
+        this.pcf = fin_pcf;
     }
     game.restrictions.functions.removePoint = function(point_location, point_id) {
-        this.modifyPCF(point_location, point_id, false);
+        var init_pcf = this.pcf;
+        var fin_pcf  = this.modifyPCF(point_location, point_id, false, init_pcf);
+        this.pcf = fin_pcf;
     }
-    game.restrictions.functions.modifyPCF = function(point_location, point_id, adding_point) {
+    game.restrictions.functions.modifyPCF = function(point_location, point_id, adding_point, pcf) {
         var shift = adding_point ? 1 : -1;
         var c_point, c_distance;
         for (var id in game.point_images_list) {
@@ -1061,8 +1065,9 @@ with (paper) {
             }
             c_point = game.point_images_list[id].position;
             c_distance = Math.floor(c_point.getDistance(point_location));
-            this.pcf[c_distance] += shift;
+            pcf[c_distance] += shift;
         }
+        return pcf;
     }
 }
 
