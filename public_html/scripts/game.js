@@ -71,6 +71,8 @@ with (paper) {
         this.point_area_display_layer = new Layer();
         this.point_area_display_layer.opacity = 0.25;
         this.points_layer             = new Layer();
+        this.graph_layer              = new Layer();
+        this.graph_layer.visible = false;
         this.grid_layer               = new Layer();
         this.grid_layer.opacity       = 0.2;
         this.mean_path_layer          = new Layer();
@@ -577,26 +579,24 @@ with (paper) {
     // Adds an item to the graph and updates it's neighbouring nodes
     game.restrictions.graph_model.addNode = function(point_location, point_id) {
         Logger.log(LoggingType.NOTICE, "Adding node to graph tracking");
-        var points_of_interest = game.determineSectionAndSurroundings(point_location);
-        var c_id, c_point_position, c_point_distance;
-        var adjacent_nodes = {"ids": [], "distances": []};
-        for (var i = 0; i < points_of_interest.length; i++) {
-            c_id = points_of_interest[i];
-            c_point_position = game.point_areas_list[c_id].position;
-            c_point_distance = point_location.getDistance(c_point_position);
-            // Determine whether the current node is within a distance that defines it as a neighbouring node
-            if (c_point_distance < this.neighbour_distance) {
-                // If so add it to the points list of adjacent nodes
-                adjacent_nodes.ids.push(c_id);
-                adjacent_nodes.distances.push(c_point_distance);
-                // Add the new point to the adjacent points list of neighbours too
-                if (!this.graph.hasOwnProperty(c_id)) {
-                    // Initialise adjacent node array for a node incase it doens't already have one
-                    this.graph[c_id] = {"ids": [], "distances": []};
-                }
-                this.graph[c_id].ids.push(point_id);
-                this.graph[c_id].distances.push(c_point_distance)
+        // Activate appropriate layer
+        var neighbouring_points = this.determineNeighbours(point_location);
+        game.graph_layer.activate();
+        var c_id, c_point, c_edge;
+        var adjacent_nodes = {"ids": [], "paths": []};
+        for (var i = 0; i < neighbouring_points.length; i++) {
+            c_id = neighbouring_points[i];
+            c_point = game.point_areas_list[c_id];
+            c_edge = new Path.Line(point_location, c_point.position);
+            adjacent_nodes.ids.push(c_id);
+            adjacent_nodes.paths.push(c_edge);
+            // Add the new point to the adjacent points list of neighbours too
+            if (!this.graph.hasOwnProperty(c_id)) {
+                // Initialise it just in case it hasn't been
+                this.graph[c_id] = {"ids": [], "paths": []};
             }
+            this.graph[c_id].ids.push(point_id);
+            this.graph[c_id].paths.push(c_edge);
         }
         this.graph[point_id] = adjacent_nodes;
     }
@@ -604,7 +604,7 @@ with (paper) {
     game.restrictions.graph_model.removeNode = function(point_id) {
         Logger.log(LoggingType.NOTICE, "Removing node from graph tracking");
         // Loop through nodes neighbours and remove the node from their adjacent nodes list
-        var c_entry, c_id, c_index;
+        var c_entry, c_id, c_index, old_path;
         for (var i = 0 ; i < this.graph[point_id].ids.length; i++) {
             // Get the adjacent node's list of adjacent nodes
             c_id = this.graph[point_id].ids[i];
@@ -612,11 +612,16 @@ with (paper) {
             c_index = c_entry.ids.indexOf(parseInt(point_id));
             // Remove the point id from the entry of it's neighbour
             c_entry.ids.splice(c_index, 1);
-            c_entry.distances.splice(c_index, 1);
+            old_path = c_entry.paths[c_index];
+            old_path.remove();
+            c_entry.paths.splice(c_index, 1);
             this.graph[c_id] = c_entry;
         }
         // Remove the nodes own adjacent list from the graph
         delete this.graph[point_id];
+    }
+    game.restrictions.graph_model.check = function(point_location) {
+        return !this.checkIfPointWillCreateIntersects(point_location);
     }
     // Determines if a connection exists between two nodes
     // Optional variable of deleted_node that allows you to ignore a node in BFS
@@ -661,7 +666,77 @@ with (paper) {
         // If you've looped through all connected points and not found the destination they're obviously not connected
         return false;
     }
-
+    game.restrictions.graph_model.determineNeighbours = function(point_location) {
+        var points_of_interest = game.determineSectionAndSurroundings(point_location);
+        var neighbours = [];
+        var c_id, c_position, c_distance;
+        for (var i = 0; i < points_of_interest.length; i++) {
+            c_id = points_of_interest[i];
+            c_position = game.point_areas_list[c_id].position;
+            c_point_distance = point_location.getDistance(c_position);
+            if (c_point_distance < this.neighbour_distance) {
+                neighbours.push(c_id);
+            }
+        }
+        return neighbours;
+    }
+    game.restrictions.graph_model.checkIfPointWillCreateIntersects = function(point_location) {
+        game.graph_layer.activate();
+        var neighbouring_points = this.determineNeighbours(point_location);
+        // First determine set of new paths
+        var paths_to_neighbours = this.createVirtualPaths(point_location, neighbouring_points);
+        // Then for each of these new paths, check if they intersect with any of the neighbours paths
+        // Loop through each point that's defined as a neighbour from the new position
+        var paths_from_neighbours;
+        for (var i = 0; i < neighbouring_points.length; i++) {
+            neighbour_id = neighbouring_points[i];
+            neighbour_point = game.point_areas_list[neighbour_id].position;
+            // Determine all the paths that originate from this neighbour
+            paths_from_neighbours = this.graph[neighbour_id].paths;
+            // Loop through each of this neighbour's paths
+            for (var j = 0; j < paths_from_neighbours.length; j++) {
+                // For each of this neighbour's paths select one
+                path_from_neighbour = paths_from_neighbours[j];
+                // Then loop through each of the paths that would originate from the new position if it were implemented
+                for (var k = 0; k < paths_to_neighbours.length; k++) {
+                    // For each of these pairs of paths fetch any interesections that may occur between them
+                    var intersections = path_from_neighbour.getIntersections(paths_to_neighbours[k]);
+                    // Determine which neighbour this "new path" will end at
+                    var neighbour_at_end_of_path = game.point_areas_list[neighbouring_points[k]].position;
+                    // If there's an intersection
+                    if (intersections.length == 1) {
+                        // Check if the intersection is just occuring at a point (This will occur)
+                        // Need to compare x and y of each object as otherwise they will not equal one another as they're not both points
+                        // Check whether it's at the neighbouring id that's currently being examined i.e. neighbouring_points[i]
+                        var intersection_at_point_being_examined = (intersections[0].point.x == neighbour_point.x && intersections[0].point.y == neighbour_point.y);
+                        // Check whether it's at the neighbouring point that the path currently being looked at ends at i.e. neighbouring_points[k]
+                        var intersection_at_neighbour_that_path_is_to = (intersections[0].point.x == neighbour_at_end_of_path.x && intersections[0].point.y == neighbour_at_end_of_path.y);
+                        // If the point of intersection does not occur at either of the above points then this is an illegal interception
+                        // Hence return true for causing intersections
+                        if (!intersection_at_point_being_examined && !intersection_at_neighbour_that_path_is_to) {
+                            return true;
+                        }
+                    } else if (intersections.length > 1) {
+                        // If there is more than one intersection it is guaranteed that one of the intersections is illegal
+                        // Therefore return true
+                        return true;
+                    }
+                }
+            }
+        }
+        // If all the above is satisfied this point is legal
+        return false;
+    }
+    game.restrictions.graph_model.createVirtualPaths = function(point_location, destination_ids) {
+        game.graph_layer.activate();
+        var paths_to_neighbours = [];
+        var neighbour_point;
+        for (var i = 0; i < destination_ids.length; i++) {
+            neighbour_point = game.point_areas_list[destination_ids[i]].position;
+            paths_to_neighbours.push(new Path.Line(point_location, neighbour_point));
+        }
+        return paths_to_neighbours;
+    }
     // ------------------------------------------------------------------------------------------
     // Implement grid based restrictions
     // ------------------------------------------------------------------------------------------
