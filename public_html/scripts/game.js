@@ -16,10 +16,19 @@ const MEAN_RESTRICTION_X = 32;
 const MEAN_RESTRICTION_Y = 32;
 const MEAN_PATH_SIZE = 32;
 
+// -------------------------------------
 // Which restrictions are active
-const GRID_CHECK_ACTIVE = true;
-const MEAN_CHECK_ACTIVE = false;
-const MASK_CHECK_ACTIVE = true;
+// -------------------------------------
+const GRAPH_CHECK_ACTIVE        = false;
+// -------------------------------------
+const GRID_CHECK_ACTIVE         = false;
+// -------------------------------------
+const STATISTIC_CHECK_ACTIVE    = false;
+// Sub statistic checks
+const MEAN_CHECK_ACTIVE         = false;
+// -------------------------------------
+const MASK_CHECK_ACTIVE         = false;
+// -------------------------------------
 
 with (paper) {
     var game = {};
@@ -417,20 +426,29 @@ with (paper) {
             return false;
         }
         // To optimise try to check in order that will require least operations first
-        if (!this.mask.check(point_location)) {
+        if (MASK_CHECK_ACTIVE && !this.mask.check(point_location)) {
             Logger.log(LoggingType.NOTICE, "Outside binary mask");
             return false;
         }
-        if (!this.statistics.check(point_location)) {
+        if (STATISTIC_CHECK_ACTIVE && !this.statistics.check(point_location)) {
             Logger.log(LoggingType.NOTICE, "Outside of mean restrictions");
             return false;
         }
-        if (!this.grid.check(point_location)) {
+        if (GRID_CHECK_ACTIVE && !this.grid.check(point_location)) {
             Logger.log(LoggingType.NOTICE, "Placement within grid is invalid");
             return false;
         }
+        // Distance check must be kept active all times
         if (!this.distance.check(point_location)) {
             Logger.log(LoggingType.NOTICE, "Distance from other points invalid");
+            return false;
+        }
+        if (FUNCTION_CHECK_ACTIVE && !this.functions.check(point_location)) {
+            Logger.log(LoggingType.NOTICE, "Statistics check invalid");
+            return false;
+        }
+        if (GRAPH_CHECK_ACTIVE && !this.graph_model.check(point_location)) {
+            Logger.log(LoggingType.NOTICE, "Would create an intersect in graph");
             return false;
         }
         return true;
@@ -671,9 +689,6 @@ with (paper) {
         this.tracking[grid_coordinates.x][grid_coordinates.y].points = c_entry;
     }
     game.restrictions.grid.check = function(point_location) {
-        if (!GRID_CHECK_ACTIVE) {
-            return true;
-        }
         var grid_coords = this.determineGridCoordinates(point_location);
         if (!grid_coords) {
             Logger.log(LoggingType.ERROR, ["Failed to fetch grid coordinates", "Point located at: "+point_location.x+", "+point_location.y]);
@@ -943,9 +958,6 @@ with (paper) {
     game.restrictions.mask = {};
     game.restrictions.mask.data = BINARY_MASK;
     game.restrictions.mask.check = function(location) {
-        if (!MASK_CHECK_ACTIVE) {
-            return true;
-        }
         var x = Math.floor(location.x), y = Math.floor(location.y);
         return this.data[y][x] == 1;
     }
