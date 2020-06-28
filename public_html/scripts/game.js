@@ -591,21 +591,28 @@ with (paper) {
         // Activate appropriate layer
         var neighbouring_points = this.determineNeighbours(point_location);
         game.graph_layer.activate();
-        var c_id, c_point, c_edge;
-        var adjacent_nodes = {"ids": [], "paths": []};
+        var c_id, c_point, c_edge, c_distance;
+        var adjacent_nodes = {"ids": [], "paths": [], "shortest_distance": Infinity};
         for (var i = 0; i < neighbouring_points.length; i++) {
             c_id = neighbouring_points[i];
             c_point = game.point_areas_list[c_id];
             c_edge = new Path.Line(point_location, c_point.position);
+            c_distance = Math.floor(c_edge.length);
             adjacent_nodes.ids.push(c_id);
             adjacent_nodes.paths.push(c_edge);
+            if (c_distance < adjacent_nodes.shortest_distance) {
+                adjacent_nodes.shortest_distance = c_distance;
+            }
             // Add the new point to the adjacent points list of neighbours too
             if (!this.graph.hasOwnProperty(c_id)) {
                 // Initialise it just in case it hasn't been
-                this.graph[c_id] = {"ids": [], "paths": []};
+                this.graph[c_id] = {"ids": [], "paths": [], "shortest_distance": Infinity};
             }
             this.graph[c_id].ids.push(point_id);
             this.graph[c_id].paths.push(c_edge);
+            if (c_distance < this.graph[c_id].shortest_distance) {
+                this.graph[c_id].shortest_distance = c_distance;
+            }
         }
         this.graph[point_id] = adjacent_nodes;
     }
@@ -614,6 +621,7 @@ with (paper) {
         Logger.log(LoggingType.NOTICE, "Removing node from graph tracking");
         // Loop through nodes neighbours and remove the node from their adjacent nodes list
         var c_entry, c_id, c_index, old_path;
+        var flag_nearest_neighbour_update, c_n_path;
         for (var i = 0 ; i < this.graph[point_id].ids.length; i++) {
             // Get the adjacent node's list of adjacent nodes
             c_id = this.graph[point_id].ids[i];
@@ -621,9 +629,20 @@ with (paper) {
             c_index = c_entry.ids.indexOf(parseInt(point_id));
             // Remove the point id from the entry of it's neighbour
             c_entry.ids.splice(c_index, 1);
+            // Remove the path and update the shortest distance for neighbour
             old_path = c_entry.paths[c_index];
+            flag_nearest_neighbour_update = Math.floor(old_path.length) == c_entry.shortest_distance;
             old_path.remove();
             c_entry.paths.splice(c_index, 1);
+            if (flag_nearest_neighbour_update) {
+                c_entry.shortest_distance = Infinity;
+                for (var j = 0; j < c_entry.paths.length; j++) {
+                    c_n_path = c_entry.paths[j];
+                    if (Math.floor(c_n_path.length) < c_entry.shortest_distance) {
+                        c_entry.shortest_distance = Math.floor(c_n_path.length);
+                    }
+                }
+            }
             this.graph[c_id] = c_entry;
         }
         // Remove the nodes own adjacent list from the graph
