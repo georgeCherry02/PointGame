@@ -1091,23 +1091,18 @@ with (paper) {
     // ------------------------------------------------------------------------------------------
     // Implement function based restrictions
     // ------------------------------------------------------------------------------------------
-    game.restrictions.functions = {};
-    game.restrictions.functions.pcf = {};
-    game.restrictions.functions.nearest_neighbour = {};
+    game.restrictions.functions = {
+        "pcf": {},
+        "nearest_neighbour": {},
+        "spherical_contact": {
+            "random_points": {},
+            "distances": {}
+        }
+    };
     game.restrictions.functions.initialisePCF = function() {
         for (var i = 0; i <= 1450; i++) {
             this.pcf[i] = 0;
         }
-    }
-    game.restrictions.functions.addPoint = function(point_location, point_id) {
-        var init_pcf = this.pcf;
-        var fin_pcf  = this.modifyPCF(point_location, point_id, true, init_pcf);
-        this.pcf = fin_pcf;
-    }
-    game.restrictions.functions.removePoint = function(point_location, point_id) {
-        var init_pcf = this.pcf;
-        var fin_pcf  = this.modifyPCF(point_location, point_id, false, init_pcf);
-        this.pcf = fin_pcf;
     }
     game.restrictions.functions.check = function(point_location) {
         if (PCF_CHECK_ACTIVE && !this.checkPCF(point_location)) {
@@ -1115,6 +1110,29 @@ with (paper) {
             return false;
         }
         return true;
+    }
+    game.restrictions.functions.addPoint = function(point_location, point_id) {
+        // N.B. The Nearest Neighbour is handled through graph restrictions as it made sense to implement it there
+        // Handle PCF
+        var init_pcf = this.pcf;
+        var fin_pcf  = this.modifyPCF(point_location, point_id, true, init_pcf);
+        this.pcf = fin_pcf;
+        // Handle Spherical Contact distribution
+        var random_point = new Point(Math.random() * 1024, Math.random() * 1024);
+        this.spherical_contact.random_points[point_id] = random_point;
+        this.spherical_contact.distances[point_id] = Infinity;
+        // Update all their nearest neighbours
+        this.spherical_contact.updateNeighbours();
+    }
+    game.restrictions.functions.removePoint = function(point_location, point_id) {
+        // N.B. The Nearest Neighbour is handled through graph restrictions as it made sense to implement it there
+        // Handle PCF
+        var init_pcf = this.pcf;
+        var fin_pcf  = this.modifyPCF(point_location, point_id, false, init_pcf);
+        this.pcf = fin_pcf;
+        // Handle Spherical Contact distribution
+        delete this.spherical_contact.random_points[point_id];
+        delete this.spherical_contact.distances[point_id];
     }
     game.restrictions.functions.modifyPCF = function(point_location, point_id, adding_point, pcf) {
         var shift = adding_point ? 1 : -1;
@@ -1176,6 +1194,20 @@ with (paper) {
             }
         }
         return true;
+    }
+    game.restrictions.functions.spherical_contact.updateNeighbours = function() {
+        var c_point, c_neighbours, c_nearest, c_n_id;
+        for (var id in this.random_points) {
+            point = this.random_points[id];
+            // Determine neighbours
+            c_neighbours = game.determineSectionAndSurroundings(point);
+            for (var i = 0; i < c_neighbours.length; i++) {
+                c_n_id = neighbours[i];
+                if (game.point_areas_list[c_n_id].position.getDistance(point) < this.distances[id]) {
+                    this.distances[id] = Math.floor(game.point_areas_list[c_n_id].position.getDistance(point));
+                }
+            }
+        }
     }
 }
 
