@@ -15,6 +15,7 @@ const POINT_COLOURS = ["#5EB1BF", "#6C5EBF", "#9D5EBF", "#BF5EB1", "#BF5E80", "#
 const MEAN_RESTRICTION_X = 32;
 const MEAN_RESTRICTION_Y = 32;
 const MEAN_PATH_SIZE = 32;
+const PCF_LIMITATIONS = {"short": {"range": 32, "average_low": 0, "average_high": Infinity}, "medium": {"range": 128, "average_low": 0, "average_high": Infinity}, "long": {"average_low": 0, "average_high": Infinity}};
 
 // -------------------------------------
 // Which restrictions are active
@@ -28,6 +29,10 @@ const STATISTIC_CHECK_ACTIVE    = false;
 const MEAN_CHECK_ACTIVE         = false;
 // -------------------------------------
 const MASK_CHECK_ACTIVE         = false;
+// -------------------------------------
+const FUNCTION_CHECK_ACTIVE     = true;
+// Sub function checks
+const PCF_CHECK_ACTIVE          = true;
 // -------------------------------------
 
 with (paper) {
@@ -1056,6 +1061,13 @@ with (paper) {
         var fin_pcf  = this.modifyPCF(point_location, point_id, false, init_pcf);
         this.pcf = fin_pcf;
     }
+    game.restrictions.functions.check = function(point_location) {
+        if (PCF_CHECK_ACTIVE && !this.checkPCF(point_location)) {
+            Logger.log(LoggingType.NOTICE, "Failed PCF check");
+            return false;
+        }
+        return true;
+    }
     game.restrictions.functions.modifyPCF = function(point_location, point_id, adding_point, pcf) {
         var shift = adding_point ? 1 : -1;
         var c_point, c_distance;
@@ -1068,6 +1080,54 @@ with (paper) {
             pcf[c_distance] += shift;
         }
         return pcf;
+    }
+    game.restrictions.functions.normalisePCF = function(pcf, number_of_points) {
+        // Determine point/px^2
+        var point_density = 1 / Math.pow(1024, 2);
+        if (number_of_points == 0) { 
+            point_density = number_of_points / Math.pow(1024, 2);
+        }
+        var area, exp_points;
+        for (var i = 0; i <= 1450; i++) {
+            // Determine area of this annulus
+            area = Math.PI * (Math.pow(i+1, 2) - Math.pow(i, 2));
+            // Determine expected number of points
+            exp_points = area * point_density;
+            // Normalise pcf_value
+            pcf[i] = Math.floor(pcf[i] / exp_points);
+        }
+        return pcf;
+    }
+    game.restrictions.functions.checkPCF = function(point_location) {
+        var pcf = {};
+        pcf = Object.assign(pcf, this.pcf);
+        pcf = this.modifyPCF(point_location, -1, true, pcf);
+        this.normalisePCF(pcf, game.number_of_points_placed + 1);
+        var sums = {"short": 0, "medium": 0, "long": 0}
+        var key = "long";
+        for (var i = 0; i <= 1450; i++) {
+            key = "long";
+            if (i <= PCF_LIMITATIONS.short.range) {
+                key = "short";
+            } else if (i <= PCF_LIMITATIONS.medium.range) {
+                key = "medium";
+            }
+            sums[key] += pcf[i];
+        }
+
+        var keys = Object.keys(PCF_LIMITATIONS);
+        var average, range;
+        for (var i = 0; i < keys.length; i++) {
+            range = PCF_LIMITATIONS[keys[i]].range;
+            if (i > 0) {
+                range = PCF_LIMITATIONS[keys[i]].range - PCF_LIMITATIONS[keys[i-1]].range;
+            }
+            average = sums[keys[i]] / range;
+            if (average < PCF_LIMITATIONS[keys[i]].low || average > PCF_LIMITATIONS[keys[i]].high) {
+                return false;
+            }
+        }
+        return true;
     }
 }
 
