@@ -55,12 +55,11 @@
             </div>
         </div>
         <div class="canvas-container">
-            <canvas id="game_canvas" height="1024" width="1024" style="-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); width: 100%; border: blue 1px solid;"></canvas>
+            <canvas id="game_canvas" height="1024" width="1024" style="-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); width: 100%;"></canvas>
         </div>
     </div>
     <script src="./tmp/mask.js" type="application/javascript"></script>
     <script src="./scripts/game.js" type="application/javascript"></script>
-    <script src="./scripts/test.js" type="application/javascript"></script>
 </div>
 <div class="modal fade" id="confirmation_modal" tabindex="-1" role="dialog">
     <div class="modal-dialog">
