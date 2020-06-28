@@ -16,11 +16,15 @@ const MEAN_RESTRICTION_X = 32;
 const MEAN_RESTRICTION_Y = 32;
 const MEAN_PATH_SIZE = 32;
 const PCF_LIMITATIONS = {"short": {"range": 32, "average_low": 0, "average_high": Infinity}, "medium": {"range": 128, "average_low": 0, "average_high": Infinity}, "long": {"average_low": 0, "average_high": Infinity}};
+const MAXIMUM_NUMBER_OF_VERTICES = 5;
 
 // -------------------------------------
 // Which restrictions are active
 // -------------------------------------
-const GRAPH_CHECK_ACTIVE        = false;
+const GRAPH_CHECK_ACTIVE        = true;
+// Sub graph checks
+const INTERSECTING_EDGE_CHECK   = false;
+const NUMBER_OF_VERTICES_CHECK  = true;
 // -------------------------------------
 const GRID_CHECK_ACTIVE         = false;
 // -------------------------------------
@@ -30,9 +34,9 @@ const MEAN_CHECK_ACTIVE         = false;
 // -------------------------------------
 const MASK_CHECK_ACTIVE         = false;
 // -------------------------------------
-const FUNCTION_CHECK_ACTIVE     = true;
+const FUNCTION_CHECK_ACTIVE     = false;
 // Sub function checks
-const PCF_CHECK_ACTIVE          = true;
+const PCF_CHECK_ACTIVE          = false;
 // -------------------------------------
 
 with (paper) {
@@ -455,7 +459,7 @@ with (paper) {
             return false;
         }
         if (GRAPH_CHECK_ACTIVE && !this.graph_model.check(point_location)) {
-            Logger.log(LoggingType.NOTICE, "Would create an intersect in graph");
+            Logger.log(LoggingType.NOTICE, "Failed Graph checks");
             return false;
         }
         return true;
@@ -626,7 +630,17 @@ with (paper) {
         delete this.graph[point_id];
     }
     game.restrictions.graph_model.check = function(point_location) {
-        return !this.checkIfPointWillCreateIntersects(point_location);
+        // Determine all neighbouring points
+        var neighbouring_points = this.determineNeighbours(point_location);
+        if (INTERSECTING_EDGE_CHECK && this.checkIfPointWillCreateIntersects(point_location, neighbouring_points)) {
+            Logger.log(LoggingType.NOTICE, "Placing a point here would create intersections in graph");
+            return false;
+        }
+        if (NUMBER_OF_VERTICES_CHECK && !this.checkVerticesAmountValid(point_location, neighbouring_points)){
+            Logger.log(LoggingType.NOTICE, "Create a node with too many vertices");
+            return false;
+        }
+        return true;
     }
     // Determines if a connection exists between two nodes
     // Optional variable of deleted_node that allows you to ignore a node in BFS
@@ -685,9 +699,8 @@ with (paper) {
         }
         return neighbours;
     }
-    game.restrictions.graph_model.checkIfPointWillCreateIntersects = function(point_location) {
+    game.restrictions.graph_model.checkIfPointWillCreateIntersects = function(point_location, neighbouring_points) {
         game.graph_layer.activate();
-        var neighbouring_points = this.determineNeighbours(point_location);
         // First determine set of new paths
         var paths_to_neighbours = this.createVirtualPaths(point_location, neighbouring_points);
         // Then for each of these new paths, check if they intersect with any of the neighbours paths
@@ -731,6 +744,20 @@ with (paper) {
         }
         // If all the above is satisfied this point is legal
         return false;
+    }
+    game.restrictions.graph_model.checkVerticesAmountValid = function(point_location, neighbouring_points) {
+        // Determine if it has too many neighbouring points
+        if (neighbouring_points.length > MAXIMUM_NUMBER_OF_VERTICES) {
+            return false;
+        }
+        var neighbour_id, neighbours_neighbour_amount;
+        for (var i = 0; i < neighbouring_points.length; i++) {
+            neighbour_id = neighbouring_points[i];
+            if (this.graph[neighbour_id].ids.length >= MAXIMUM_NUMBER_OF_VERTICES) {
+                return false;
+            }
+        }
+        return true;
     }
     game.restrictions.graph_model.createVirtualPaths = function(point_location, destination_ids) {
         game.graph_layer.activate();
