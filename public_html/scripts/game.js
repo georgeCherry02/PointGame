@@ -1232,6 +1232,20 @@ with (paper) {
         }
         return nearPoints;
     }
+    game.restrictions.functions.findNearestPoint = function(point_location, point_id=-1) {
+        var neighbours = this.findNearestPoints(point_location, point_id);
+        var nearest_id = neighbours[0], neighbour_id;
+        var shortest_distance = game.point_areas_list[neighbours[0]].position.getDistance(point_location), neighbour_distance;
+        for (var i = 1; i < neighbours.length; i++) {
+            neighbour_id = neighbours[i];
+            neighbour_distance = game.point_areas_list[neighbour_id].position.getDistance(point_location);
+            if (neighbour_distance < shortest_distance) {
+                nearest_id = neighbour_id;
+                shortest_distance = neighbour_distance;
+            }
+        }
+        return nearest_id;
+    }
     game.restrictions.functions.modifyPCF = function(point_location, point_id, adding_point, pcf) {
         var shift = adding_point ? 1 : -1;
         var c_point, c_distance;
