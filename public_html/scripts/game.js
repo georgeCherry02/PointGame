@@ -81,7 +81,7 @@ with (paper) {
         this.point_area_display_layer.opacity = 0.25;
         this.points_layer             = new Layer();
         this.graph_layer              = new Layer();
-        this.graph_layer.visible = false;
+        this.graph_layer.visible      = false;
         this.grid_layer               = new Layer();
         this.grid_layer.opacity       = 0.2;
         this.mean_path_layer          = new Layer();
@@ -656,7 +656,7 @@ with (paper) {
             Logger.log(LoggingType.NOTICE, "Placing a point here would create intersections in graph");
             return false;
         }
-        if (NUMBER_OF_VERTICES_CHECK && !this.checkVerticesAmountValid(point_location, neighbouring_points)){
+        if (NUMBER_OF_VERTICES_CHECK && !this.checkVerticesAmountValid(neighbouring_points)){
             Logger.log(LoggingType.NOTICE, "Create a node with too many vertices");
             return false;
         }
@@ -765,12 +765,12 @@ with (paper) {
         // If all the above is satisfied this point is legal
         return false;
     }
-    game.restrictions.graph_model.checkVerticesAmountValid = function(point_location, neighbouring_points) {
+    game.restrictions.graph_model.checkVerticesAmountValid = function(neighbouring_points) {
         // Determine if it has too many neighbouring points
         if (neighbouring_points.length > MAXIMUM_NUMBER_OF_VERTICES) {
             return false;
         }
-        var neighbour_id, neighbours_neighbour_amount;
+        var neighbour_id;
         for (var i = 0; i < neighbouring_points.length; i++) {
             neighbour_id = neighbouring_points[i];
             if (this.graph[neighbour_id].ids.length >= MAXIMUM_NUMBER_OF_VERTICES) {
