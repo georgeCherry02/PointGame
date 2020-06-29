@@ -215,12 +215,13 @@ with (paper) {
     }
     game.formatPointData = function() {
         Logger.log(LoggingType.NOTICE, "Formatting point data");
-        var result = {"x": [], "y": []};
+        var result = {"x": [], "y": [], "c": []};
         var c_point, c_object;
         for (var id in this.point_images_list) {
             c_point = this.point_images_list[id];
             result.x.push(Math.floor(c_point.position.x));
             result.y.push(Math.floor(c_point.position.y));
+            result.c.push(Math.floor(this.restrictions.colour.tracking[id]));
         }
         return result;
     }
