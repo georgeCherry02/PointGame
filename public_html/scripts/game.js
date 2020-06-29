@@ -11,6 +11,9 @@ const RENDER_GRID = false;
 const GRID_MODE = "SQUARE";
 const GRID_RESOLUTION = 32;
 const MAX_NUMBER_PER_GRID_CELL = 2;
+const MIN_NUMBER_PER_GRID_CELL = 0;
+const MAX_NUMBER_PER_GRID_CELL_DISTRIBUTION = {"2": 19, "3": 50, "4": 30, "5": 1};
+const MIN_NUMBER_PER_GRID_CELL_DISTRIBUTION = {"0": 99, "1": 1};
 const POINT_COLOURS = ["#5EB1BF", "#6C5EBF", "#9D5EBF", "#BF5EB1", "#BF5E80", "#BF6C5E", "#BF9D5E", "#81BF5E"];
 const MEAN_RESTRICTION_X = 32;
 const MEAN_RESTRICTION_Y = 32;
@@ -21,12 +24,14 @@ const MAXIMUM_NUMBER_OF_VERTICES = 5;
 // -------------------------------------
 // Which restrictions are active
 // -------------------------------------
-const GRAPH_CHECK_ACTIVE        = true;
+const GRAPH_CHECK_ACTIVE        = false;
 // Sub graph checks
 const INTERSECTING_EDGE_CHECK   = false;
-const NUMBER_OF_VERTICES_CHECK  = true;
+const NUMBER_OF_VERTICES_CHECK  = false;
 // -------------------------------------
-const GRID_CHECK_ACTIVE         = false;
+const GRID_CHECK_ACTIVE         = true;
+// Sub graph checks
+const COMPLEX_DENSITY_ACTIVE    = true;
 // -------------------------------------
 const STATISTIC_CHECK_ACTIVE    = false;
 // Sub statistic checks
@@ -793,11 +798,11 @@ with (paper) {
     // Implement grid based restrictions
     // ------------------------------------------------------------------------------------------
     game.restrictions.grid = {
+        "density": {},
         "mode": GRID_MODE,
         "resolution": GRID_RESOLUTION,
-        "max_density": MAX_NUMBER_PER_GRID_CELL
+        "tracking": {},
     }
-    game.restrictions.grid.tracking = {}
     game.restrictions.grid.addPoint = function(point_location, point_id) {
         Logger.log(LoggingType.NOTICE, "Adding point to grid tracking")
         var grid_coordinates = this.determineGridCoordinates(point_location);
@@ -821,7 +826,10 @@ with (paper) {
             Logger.log(LoggingType.ERROR, ["Failed to fetch grid coordinates", "Point located at: "+point_location.x+", "+point_location.y]);
             return false;
         }
-        return this.tracking[grid_coords.x][grid_coords.y].points.length < this.max_density;
+        if (!COMPLEX_DENSITY_ACTIVE) {
+            var amount = this.tracking[grid_coords.x][grid_coords.y].points.length;
+            return (amount < this.density.max && !removal) || (amount > this.density.min && removal);
+        }
     }
     game.restrictions.grid.determineGridUnitCell = function(point_location) {
         var x = point_location.x;
@@ -888,6 +896,14 @@ with (paper) {
     }
     // Created a raster because otherwise massive lag was suffered due to re-rendering the grid each time
     game.restrictions.grid.initialiseGrid = function() {
+        // Determine density model to use
+        if (COMPLEX_DENSITY_ACTIVE) {
+            this.density.max = MAX_NUMBER_PER_GRID_CELL_DISTRIBUTION;
+            this.density.min = MIN_NUMBER_PER_GRID_CELL_DISTRIBUTION;
+        } else {
+            this.density.max = MAX_NUMBER_PER_GRID_CELL;
+            this.density.min = MIN_NUMBER_PER_GRID_CELL;
+        }
         // Activate appropriate layer
         game.grid_layer.activate();
         // Try to do a square grid
@@ -956,6 +972,8 @@ with (paper) {
                 Logger.log(LoggingType.ERROR, ["Invalid grid type received", "Grid type:"+GRID_MODE]);
                 window.location.reload();
         }
+        this.cell_number = i*j;
+        this.density.tracking = {"0": this.cell_number}
         var grid_raster = this.render.rasterize();
         this.render.visible = false;
         if (!RENDER_GRID) {
