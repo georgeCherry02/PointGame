@@ -1196,15 +1196,24 @@ with (paper) {
         return true;
     }
     game.restrictions.functions.spherical_contact.updateNeighbours = function() {
-        var c_point, c_neighbours, c_nearest, c_n_id;
+        var c_point, c_neighbours, c_nearest, n_point;
         for (var id in this.random_points) {
             point = this.random_points[id];
             // Determine neighbours
             c_neighbours = game.determineSectionAndSurroundings(point);
-            for (var i = 0; i < c_neighbours.length; i++) {
-                c_n_id = neighbours[i];
-                if (game.point_areas_list[c_n_id].position.getDistance(point) < this.distances[id]) {
-                    this.distances[id] = Math.floor(game.point_areas_list[c_n_id].position.getDistance(point));
+            if (c_neighbours.length == 0) {
+                for (var n_id in game.point_areas_list) {
+                    n_point = game.point_areas_list[n_id];
+                    if (n_point.position.getDistance(point) < this.distances[id]) {
+                        this.distances[id] = Math.floor(n_point.position.getDistance(point));
+                    }
+                }
+            } else {
+                for (var i = 0; i < c_neighbours.length; i++) {
+                    n_point = game.point_areas_list[c_neighbours[i]]
+                    if (n_point.position.getDistance(point) < this.distances[id]) {
+                        this.distances[id] = Math.floor(n_point.position.getDistance(point));
+                    }
                 }
             }
         }
