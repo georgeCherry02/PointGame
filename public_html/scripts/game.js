@@ -1094,12 +1094,16 @@ with (paper) {
     game.restrictions.statistics = {
         "mean": {"x": 0, "y": 0},
         "s_dev": {"x": 0, "y": 0},
-        "mean_restriction_active": MEAN_CHECK_ACTIVE 
+        "ppmcc": 0
     }
     game.restrictions.statistics.check = function(point_location) {
-        if (!this.mean_restriction_active) {
-            return true;
+        if (MEAN_CHECK_ACTIVE && !this.checkMean(point_location)) {
+            Logger.log(LoggingType.NOTICE, "Failed mean check");
+            return false;
         }
+        return true;
+    }
+    game.restrictions.statistics.checkMean = function(point_location) {
         var new_x_mean = (this.mean.x * game.number_of_points_placed + point_location.x)/(game.number_of_points_placed + 1);
         var new_y_mean = (this.mean.y * game.number_of_points_placed + point_location.y)/(game.number_of_points_placed + 1);
         var new_mean = new Point(new_x_mean, new_y_mean);
