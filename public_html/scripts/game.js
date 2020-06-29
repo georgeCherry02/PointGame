@@ -811,6 +811,7 @@ with (paper) {
             return false;
         }
         this.tracking[grid_coordinates.x][grid_coordinates.y].points.push(point_id);
+        this.density.updateTracking(grid_coordinates, increase=true);
         return true;
     }
     game.restrictions.grid.removePoint = function(point_location, point_id) {
@@ -819,8 +820,18 @@ with (paper) {
         var c_entry = this.tracking[grid_coordinates.x][grid_coordinates.y].points;
         c_entry.splice(c_entry.indexOf(parseInt(point_id)), 1);
         this.tracking[grid_coordinates.x][grid_coordinates.y].points = c_entry;
+        this.density.updateTracking(grid_coordinates, increase=false);
     }
-    game.restrictions.grid.check = function(point_location) {
+    game.restrictions.grid.density.updateTracking = function(grid_coordinates, increase) {
+        var new_density = game.restrictions.grid.tracking[grid_coordinates.x][grid_coordinates.y].points.length;
+        var old_density = increase ? new_density - 1 : new_density + 1;
+        if (!this.tracking.hasOwnProperty(new_density)) {
+            this.tracking[new_density] = 0;
+        }
+        this.tracking[new_density]++;
+        this.tracking[old_density]--;
+    }
+    game.restrictions.grid.check = function(point_location, removal=false) {
         var grid_coords = this.determineGridCoordinates(point_location);
         if (!grid_coords) {
             Logger.log(LoggingType.ERROR, ["Failed to fetch grid coordinates", "Point located at: "+point_location.x+", "+point_location.y]);
