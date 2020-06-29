@@ -1101,6 +1101,10 @@ with (paper) {
             Logger.log(LoggingType.NOTICE, "Failed mean check");
             return false;
         }
+        if (PPMCC_CHECK_ACTIVE && !this.checkPPMCC(point_location)) {
+            Logger.log(LoggingType.NOTICE, "Failed PPMCC check");
+            return false;
+        }
         return true;
     }
     game.restrictions.statistics.checkMean = function(point_location) {
@@ -1108,6 +1112,16 @@ with (paper) {
         var new_y_mean = (this.mean.y * game.number_of_points_placed + point_location.y)/(game.number_of_points_placed + 1);
         var new_mean = new Point(new_x_mean, new_y_mean);
         return this.mean_path.contains(new_mean);
+    }
+    game.restrictions.statistics.checkPPMCC = function(point_location) {
+        var distribution = game.formatPointData();
+        distribution.x.push(point_location.x);
+        distribution.y.push(point_location.y);
+        var new_x_mean = (this.mean.x * game.number_of_points_placed + point_location.x)/(game.number_of_points_placed + 1);
+        var new_y_mean = (this.mean.y * game.number_of_points_placed + point_location.y)/(game.number_of_points_placed + 1);
+        var new_s_dev = this.findStandardDeviation(distribution, [new_x_mean, new_y_mean]);
+        var new_ppmcc = this.findPPMCC(distribution, [new_x_mean, new_y_mean], new_s_dev);
+        return new_ppmcc >= 0;
     }
     game.restrictions.statistics.update = function() {
         var distribution = game.formatPointData();
@@ -1130,7 +1144,17 @@ with (paper) {
             sum_y += Math.pow((distribution.y[i]-mean[1]), 2);
         }
         return [Math.sqrt(sum_x/n), Math.sqrt(sum_y/n)];
+    }
+    game.restrictions.statistics.findPPMCC = function(distribution, mean, s_dev) {
+        var cov_sum = 0, n = distribution.x.length;
+        if (n == 1) {
+            return 0;
         }
+        for (var i = 0; i < n; i++) {
+            cov_sum += (distribution.x[i] - mean[0]) * (distribution.y[i] - mean[1]);
+        }
+        var cov = cov_sum/n;
+        return cov / (s_dev[0] * s_dev[1]);
     }
     game.restrictions.statistics.initialiseMeanRestriction = function() {
         var mean_path_location = new Point(MEAN_RESTRICTION_X, MEAN_RESTRICTION_Y);
