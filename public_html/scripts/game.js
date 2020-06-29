@@ -1217,6 +1217,21 @@ with (paper) {
         delete this.spherical_contact.random_points[point_id];
         delete this.spherical_contact.distances[point_id];
     }
+    game.restrictions.functions.findNearestPoints = function(point_location, point_id=-1) {
+        // If point_id is set then should be able to find it through graph
+        if (game.restrictions.graph_model.graph.hasOwnProperty(point_id)) {
+            return game.restrictions.graph_model.graph[point_id];
+        } 
+        // If not see if there are any near neighbours
+        search_radius = 0;
+        nearPoints = [];
+        // For each time nothing's turned up expand search radius
+        while (search_radius < 8 && nearPoints.length == 0) {
+            nearPoints = game.determineSectionAndSurroundings(point_location, search_radius)
+            search_radius++;
+        }
+        return nearPoints;
+    }
     game.restrictions.functions.modifyPCF = function(point_location, point_id, adding_point, pcf) {
         var shift = adding_point ? 1 : -1;
         var c_point, c_distance;
