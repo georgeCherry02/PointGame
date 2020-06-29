@@ -29,13 +29,14 @@ const GRAPH_CHECK_ACTIVE        = false;
 const INTERSECTING_EDGE_CHECK   = false;
 const NUMBER_OF_VERTICES_CHECK  = false;
 // -------------------------------------
-const GRID_CHECK_ACTIVE         = true;
+const GRID_CHECK_ACTIVE         = false;
 // Sub graph checks
-const COMPLEX_DENSITY_ACTIVE    = true;
+const COMPLEX_DENSITY_ACTIVE    = false;
 // -------------------------------------
-const STATISTIC_CHECK_ACTIVE    = false;
+const STATISTIC_CHECK_ACTIVE    = true;
 // Sub statistic checks
 const MEAN_CHECK_ACTIVE         = false;
+const PPMCC_CHECK_ACTIVE        = true;
 // -------------------------------------
 const MASK_CHECK_ACTIVE         = false;
 // -------------------------------------
@@ -1106,8 +1107,9 @@ with (paper) {
     }
     game.restrictions.statistics.update = function() {
         var distribution = game.formatPointData();
-        this.findMean(distribution);
-        this.findStandardDeviation(distribution);
+        [this.mean.x, this.mean.y] = this.findMean(distribution);
+        [this.s_dev.x, this.s_dev.y] = this.findStandardDeviation(distribution, [this.mean.x, this.mean.y]);
+        this.ppmcc = this.findPPMCC(distribution, [this.mean.x, this.mean.y], [this.s_dev.x, this.s_dev.y]);
     }
     game.restrictions.statistics.findMean = function(distribution) {
         var sum_x = 0, sum_y = 0, n = distribution.x.length;
@@ -1115,17 +1117,16 @@ with (paper) {
             sum_x += distribution.x[i];
             sum_y += distribution.y[i];
         }
-        this.mean.x = sum_x/n;
-        this.mean.y = sum_y/n;
+        return [sum_x/n, sum_y/n];
     }
-    game.restrictions.statistics.findStandardDeviation = function(distribution) {
+    game.restrictions.statistics.findStandardDeviation = function(distribution, mean) {
         var sum_x = 0, sum_y = 0, n = distribution.x.length;
         for (var i = 0; i < n; i++) {
-            sum_x += Math.pow((distribution.x[i]-this.mean.x), 2);
-            sum_y += Math.pow((distribution.y[i]-this.mean.y), 2);
+            sum_x += Math.pow((distribution.x[i]-mean[0]), 2);
+            sum_y += Math.pow((distribution.y[i]-mean[1]), 2);
         }
-        this.s_dev.x = Math.sqrt(sum_x/n);
-        this.s_dev.y = Math.sqrt(sum_y/n);
+        return [Math.sqrt(sum_x/n), Math.sqrt(sum_y/n)];
+        }
     }
     game.restrictions.statistics.initialiseMeanRestriction = function() {
         var mean_path_location = new Point(MEAN_RESTRICTION_X, MEAN_RESTRICTION_Y);
