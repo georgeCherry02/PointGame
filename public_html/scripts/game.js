@@ -840,7 +840,29 @@ with (paper) {
         if (!COMPLEX_DENSITY_ACTIVE) {
             var amount = this.tracking[grid_coords.x][grid_coords.y].points.length;
             return (amount < this.density.max && !removal) || (amount > this.density.min && removal);
+        } else {
+            return this.density.check(grid_coords, removal);
         }
+    }
+    game.restrictions.grid.density.check = function(grid_coords, removal) {
+        // Determine new density
+        var point_density_in_current_cell = game.restrictions.grid.tracking[grid_coords.x][grid_coords.y].points.length;
+        var changed_density = removal ? point_density_in_current_cell - 1 : point_density_in_current_cell + 1;
+        // Determine occupation space available for density
+        var occupation_space = 0, occupation_amount = 0;
+        var limitations = removal ? this.min : this.max;
+        for (var density in limitations) {
+            if ((density >= changed_density && !removal) || (density <= changed_density && removal)) {
+                occupation_space += limitations[density];
+            }
+        }
+        for (density in this.tracking) {
+            if ((density >= changed_density && !removal) || (density <= changed_density && removal)) {
+                occupation_amount += this.tracking[density];
+            }
+        }
+        var occupation_percentage = Math.floor(occupation_amount / 1024 * 100);
+        return occupation_percentage < occupation_space;
     }
     game.restrictions.grid.determineGridUnitCell = function(point_location) {
         var x = point_location.x;
