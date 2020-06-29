@@ -166,29 +166,30 @@ with (paper) {
         }
         return this.canvas_sections[section_number];
     }
-    game.determineSectionAndSurroundings = function(point_location) {
+    game.determineSectionAndSurroundings = function(point_location, radius = 1) {
         var i = Math.floor((point_location.x / 1024) * 8);
         var j = Math.floor((point_location.y / 1024) * 8);
         var section_id = this.determineSectionID(point_location);
         // Trying to optimise a bit by checking if we've already formed this array
-        if (!this.last_used_section_requires_update && section_id == this.last_used_section_and_surroundings_id) {
+        if (!this.last_used_section_requires_update && section_id == this.last_used_section_and_surroundings_id && radius == this.last_used_section_and_surroundings_radius) {
             return this.last_used_section_and_surroundings;
         }
         this.last_used_section_and_surroundings_id = section_id;
         this.last_used_section_requires_update = false;
-        var resulting_array = [];
-        for (var section_i = i - 1; section_i <= i + 1; section_i++) {
+        var surrounding_ids = [];
+        for (var section_i = i - radius; section_i <= i + radius; section_i++) {
             if (section_i >= 0 && section_i < 8) {
-                for (var section_j = j - 1; section_j <= j + 1; section_j++) {
+                for (var section_j = j - radius; section_j <= j + radius; section_j++) {
                     if (section_j >= 0 && section_j < 8) {
                         var section_number = 8 * section_j + section_i;
-                        Array.prototype.push.apply(resulting_array, this.canvas_sections[section_number]);
+                        Array.prototype.push.apply(surrounding_ids, this.canvas_sections[section_number]);
                     }
                 }       
             }
         }
-        this.last_used_section_and_surroundings = resulting_array;
-        return resulting_array;
+        this.last_used_section_and_surroundings_radius = radius;
+        this.last_used_section_and_surroundings = surrounding_ids;
+        return surrounding_ids;
     }
     game.determineSectionID = function(point_location) {
         var i = Math.floor((point_location.x / 1024) * 8);
