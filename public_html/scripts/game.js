@@ -231,8 +231,6 @@ with (paper) {
         Logger.log(LoggingType.NOTICE, "Removing point");
         // Get path of point from total list
         var point_path = this.point_areas_list[point_id];
-        // Remove the point from the PCF
-        this.restrictions.functions.removePoint(point_path.position, point_id);
         // Remove the point from the graph tracking 
         this.restrictions.graph_model.removeNode(point_id);
         // Remove the point from the grid tracking
@@ -262,14 +260,14 @@ with (paper) {
 
         // Update mean and standard dev
         this.restrictions.statistics.update();
+        // Update functions
+        this.restrictions.functions.removePoint(point_path.position, point_id);
 
         // Decrease point tally
         this.number_of_points_placed--;
     }
     game.renderPoint = function(point_location) {
         Logger.log(LoggingType.NOTICE, "Adding point");
-        // Update the function based restrictions
-        this.restrictions.functions.addPoint(point_location, this.total_number_of_points_placed);
         // Update the neighbours map
         this.restrictions.graph_model.addNode(point_location, this.total_number_of_points_placed);
         // Update the grid map
@@ -317,6 +315,8 @@ with (paper) {
 
         // Update mean and standard dev
         this.restrictions.statistics.update();
+        // Update the function based restrictions
+        this.restrictions.functions.addPoint(point_location, this.total_number_of_points_placed);
 
         // Increase point tallies
         this.total_number_of_points_placed++;
