@@ -1220,7 +1220,7 @@ with (paper) {
     game.restrictions.functions.findNearestPoints = function(point_location, point_id=-1) {
         // If point_id is set then should be able to find it through graph
         if (game.restrictions.graph_model.graph.hasOwnProperty(point_id)) {
-            return game.restrictions.graph_model.graph[point_id];
+            return game.restrictions.graph_model.graph[point_id].ids;
         } 
         // If not see if there are any near neighbours
         search_radius = 0;
@@ -1234,6 +1234,9 @@ with (paper) {
     }
     game.restrictions.functions.findNearestPoint = function(point_location, point_id=-1) {
         var neighbours = this.findNearestPoints(point_location, point_id);
+        if (neighbours.length == 0) {
+            return -1;
+        }
         var nearest_id = neighbours[0], neighbour_id;
         var shortest_distance = game.point_areas_list[neighbours[0]].position.getDistance(point_location), neighbour_distance;
         for (var i = 1; i < neighbours.length; i++) {
