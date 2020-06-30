@@ -1221,27 +1221,33 @@ with (paper) {
     game.restrictions.functions.findNearestPoints = function(point_location, point_id=-1) {
         // If point_id is set then should be able to find it through graph
         if (game.restrictions.graph_model.graph.hasOwnProperty(point_id)) {
-            return game.restrictions.graph_model.graph[point_id].ids;
+            // Check if it's not a lone node on graph
+            if (game.restrictions.graph_model.graph[point_id].length > 0) {
+                return game.restrictions.graph_model.graph[point_id].ids;
+            }
         } 
         // If not see if there are any near neighbours
         search_radius = 0;
-        nearPoints = [];
+        near_points = [];
         // For each time nothing's turned up expand search radius
-        while (search_radius < 8 && nearPoints.length == 0) {
-            nearPoints = game.determineSectionAndSurroundings(point_location, search_radius)
+        while (search_radius < 8 && (near_points.length == 0 || (near_points.length == 1 && near_points[0] == point_id))) {
+            near_points = game.determineSectionAndSurroundings(point_location, search_radius)
             search_radius++;
         }
-        return nearPoints;
+        return near_points;
     }
     game.restrictions.functions.findNearestPoint = function(point_location, point_id=-1) {
         var neighbours = this.findNearestPoints(point_location, point_id);
         if (neighbours.length == 0) {
             return -1;
         }
-        var nearest_id = neighbours[0], neighbour_id;
-        var shortest_distance = game.point_areas_list[neighbours[0]].position.getDistance(point_location), neighbour_distance;
-        for (var i = 1; i < neighbours.length; i++) {
+        var nearest_id = -1, neighbour_id;
+        var shortest_distance = Infinity, neighbour_distance;
+        for (var i = 0; i < neighbours.length; i++) {
             neighbour_id = neighbours[i];
+            if (neighbour_id == point_id) {
+                continue;
+            }
             neighbour_distance = game.point_areas_list[neighbour_id].position.getDistance(point_location);
             if (neighbour_distance < shortest_distance) {
                 nearest_id = neighbour_id;
@@ -1254,10 +1260,13 @@ with (paper) {
         var point_location = game.point_areas_list[point_id].position;
         var nearest_point = this.findNearestPoint(point_location, point_id);
         if (nearest_point < 0) {
+            this.nearest_neighbour[point_id] = {"distance": Infinity};
             return false;
         }
-        var shortest_distance = game.point_areas_list[nearest_point].position.getDistance(point_location);
-        this.nearest_neighbour[point_id] = {"id": nearest_point, "distance": shortest_distance};
+        var shortest_distance = Math.floor(game.point_areas_list[nearest_point].position.getDistance(point_location));
+        this.nearest_neighbour[point_id] = {};
+        this.nearest_neighbour[point_id].id = nearest_point;
+        this.nearest_neighbour[point_id].distance = shortest_distance;
     }
     game.restrictions.functions.modifyPCF = function(point_location, point_id, adding_point, pcf) {
         var shift = adding_point ? 1 : -1;
