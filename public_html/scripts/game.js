@@ -1175,6 +1175,13 @@ with (paper) {
             Logger.log(LoggingType.NOTICE, "Failed PCF check");
             return false;
         }
+        // ##########################################################################################
+        // # There restrictions are bloody weird
+        // ##########################################################################################
+        if (NN_CHECK_ACTIVE && !this.checkNN(point_location)) {
+            Logger.log(LoggingType.NOTICE, "Failed NN check");
+            return false;
+        }
         return true;
     }
     game.restrictions.functions.addPoint = function(point_location, point_id) {
@@ -1298,6 +1305,28 @@ with (paper) {
             pcf[i] = Math.floor(pcf[i] / exp_points);
         }
         return pcf;
+    }
+    game.restrictions.functions.checkNN = function(point_location) {
+        if (game.number_of_points_placed < 2) {
+            return true;
+        }
+        var nearest_neighbour_distribution = Array(1451).fill(0);
+        var c_point, c_distance, shortest_distance = 1450;
+        for (var id in this.nearest_neighbour) {
+            c_point = game.point_areas_list[this.nearest_neighbour[id].id];
+            c_distance = Math.floor(c_point.position.getDistance(point_location));
+            if (c_distance < this.nearest_neighbour[id].distance) {
+                nearest_neighbour_distribution[c_distance]++;
+            } else {
+                nearest_neighbour_distribution[this.nearest_neighbour[id].distance]++;
+            }
+            if (c_distance < shortest_distance) {
+                shortest_distance = c_distance;
+            }
+        }
+        nearest_neighbour_distribution[shortest_distance]++;
+
+        return this.checkDistribution(nearest_neighbour_distribution, NN_LIMITATIONS);
     }
     game.restrictions.functions.checkPCF = function(point_location) {
         var pcf = {};
