@@ -18,7 +18,8 @@ const POINT_COLOURS = ["#5EB1BF", "#6C5EBF", "#9D5EBF", "#BF5EB1", "#BF5E80", "#
 const MEAN_RESTRICTION_X = 32;
 const MEAN_RESTRICTION_Y = 32;
 const MEAN_PATH_SIZE = 32;
-const PCF_LIMITATIONS = {"short": {"range": 32, "average_low": 0, "average_high": Infinity}, "medium": {"range": 128, "average_low": 0, "average_high": Infinity}, "long": {"average_low": 0, "average_high": Infinity}};
+const PCF_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
+const NN_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
 const MAXIMUM_NUMBER_OF_VERTICES = 5;
 
 // -------------------------------------
@@ -43,6 +44,7 @@ const MASK_CHECK_ACTIVE         = false;
 const FUNCTION_CHECK_ACTIVE     = false;
 // Sub function checks
 const PCF_CHECK_ACTIVE          = false;
+const NN_CHECK_ACTIVE           = false;
 // -------------------------------------
 
 with (paper) {
@@ -1178,14 +1180,13 @@ with (paper) {
     game.restrictions.functions.addPoint = function(point_location, point_id) {
         // N.B. The Nearest Neighbour is handled through graph restrictions as it made sense to implement it there
         // Determine all neighbouring points and update their nearest neighbours
+        // Worth noting that findNearestPoints returns itself included
         var neighbouring_points = this.findNearestPoints(point_location, point_id);
         var c_id;
         for (var i = 0; i < neighbouring_points.length; i++) {
             c_id = neighbouring_points[i];
             this.updateNearestNeighbour(c_id);
         }
-        // Update the points own nearest neighbour
-        this.updateNearestNeighbour(point_id);
         // Handle PCF
         var init_pcf = this.pcf;
         var fin_pcf  = this.modifyPCF(point_location, point_id, true, init_pcf);
@@ -1303,27 +1304,30 @@ with (paper) {
         pcf = Object.assign(pcf, this.pcf);
         pcf = this.modifyPCF(point_location, -1, true, pcf);
         this.normalisePCF(pcf, game.number_of_points_placed + 1);
-        var sums = {"short": 0, "medium": 0, "long": 0}
-        var key = "long";
+        return this.checkDistribution(pcf, PCF_LIMITATIONS);
+    }
+    game.restrictions.functions.checkDistribution = function(distribution, limitations) {
+        var sums = {"short": 0, "medium": 0, "long": 0};
+        var key;
         for (var i = 0; i <= 1450; i++) {
             key = "long";
-            if (i <= PCF_LIMITATIONS.short.range) {
+            if (i <= limitations.short.range) {
                 key = "short";
-            } else if (i <= PCF_LIMITATIONS.medium.range) {
+            } else if (i <= limitations.medium.range) {
                 key = "medium";
             }
-            sums[key] += pcf[i];
+            sums[key] += distribution[i];
         }
 
-        var keys = Object.keys(PCF_LIMITATIONS);
+        var keys = Object.keys(limitations);
         var average, range;
         for (var i = 0; i < keys.length; i++) {
-            range = PCF_LIMITATIONS[keys[i]].range;
+            range = limitations[keys[i]].range;
             if (i > 0) {
-                range = PCF_LIMITATIONS[keys[i]].range - PCF_LIMITATIONS[keys[i-1]].range;
+                range = limitations[keys[i]].range - limitations[keys[i-1]].range;
             }
             average = sums[keys[i]] / range;
-            if (average < PCF_LIMITATIONS[keys[i]].low || average > PCF_LIMITATIONS[keys[i]].high) {
+            if (average < limitations[keys[i]].low || average > limitations[keys[i]].high) {
                 return false;
             }
         }
