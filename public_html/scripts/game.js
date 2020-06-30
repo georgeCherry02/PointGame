@@ -603,19 +603,14 @@ with (paper) {
         // Activate appropriate layer
         var neighbouring_points = this.determineNeighbours(point_location);
         game.graph_layer.activate();
-        var c_id, c_point, c_edge, c_distance;
+        var c_id, c_point, c_edge;
         var adjacent_nodes = {"ids": [], "paths": []};
-        game.restrictions.functions.nearest_neighbour[point_id] = Infinity;
         for (var i = 0; i < neighbouring_points.length; i++) {
             c_id = neighbouring_points[i];
             c_point = game.point_areas_list[c_id];
             c_edge = new Path.Line(point_location, c_point.position);
-            c_distance = Math.floor(c_edge.length);
             adjacent_nodes.ids.push(c_id);
             adjacent_nodes.paths.push(c_edge);
-            if (c_distance < game.restrictions.functions.nearest_neighbour[point_id]) {
-                game.restrictions.functions.nearest_neighbour[point_id] = c_distance;
-            }
             // Add the new point to the adjacent points list of neighbours too
             if (!this.graph.hasOwnProperty(c_id)) {
                 // Initialise it just in case it hasn't been
@@ -623,9 +618,6 @@ with (paper) {
             }
             this.graph[c_id].ids.push(point_id);
             this.graph[c_id].paths.push(c_edge);
-            if (!game.restrictions.functions.nearest_neighbour.hasOwnProperty(c_id) || c_distance < game.restrictions.functions.nearest_neighbour[c_id]) {
-                game.restrictions.functions.nearest_neighbour[c_id] = c_distance;
-            }
         }
         this.graph[point_id] = adjacent_nodes;
     }
@@ -634,7 +626,6 @@ with (paper) {
         Logger.log(LoggingType.NOTICE, "Removing node from graph tracking");
         // Loop through nodes neighbours and remove the node from their adjacent nodes list
         var c_entry, c_id, c_index, old_path;
-        var flag_nearest_neighbour_update, c_n_path;
         for (var i = 0 ; i < this.graph[point_id].ids.length; i++) {
             // Get the adjacent node's list of adjacent nodes
             c_id = this.graph[point_id].ids[i];
@@ -644,18 +635,8 @@ with (paper) {
             c_entry.ids.splice(c_index, 1);
             // Remove the path and update the shortest distance for neighbour
             old_path = c_entry.paths[c_index];
-            flag_nearest_neighbour_update = Math.floor(old_path.length) == game.restrictions.functions.nearest_neighbour[c_id];
             old_path.remove();
             c_entry.paths.splice(c_index, 1);
-            if (flag_nearest_neighbour_update) {
-                game.restrictions.functions.nearest_neighbour[c_id] = Infinity;
-                for (var j = 0; j < c_entry.paths.length; j++) {
-                    c_n_path = c_entry.paths[j];
-                    if (Math.floor(c_n_path.length) < game.restrictions.functions.nearest_neighbour[c_id]) {
-                        game.restrictions.functions.nearest_neighbour[c_id] = Math.floor(c_n_path.length);
-                    }
-                }
-            }
             this.graph[c_id] = c_entry;
         }
         // Remove the nodes own adjacent list from the graph
@@ -1196,6 +1177,15 @@ with (paper) {
     }
     game.restrictions.functions.addPoint = function(point_location, point_id) {
         // N.B. The Nearest Neighbour is handled through graph restrictions as it made sense to implement it there
+        // Determine all neighbouring points and update their nearest neighbours
+        var neighbouring_points = this.findNearestPoints(point_location, point_id);
+        var c_id;
+        for (var i = 0; i < neighbouring_points.length; i++) {
+            c_id = neighbouring_points[i];
+            this.updateNearestNeighbour(c_id);
+        }
+        // Update the points own nearest neighbour
+        this.updateNearestNeighbour(point_id);
         // Handle PCF
         var init_pcf = this.pcf;
         var fin_pcf  = this.modifyPCF(point_location, point_id, true, init_pcf);
@@ -1209,6 +1199,17 @@ with (paper) {
     }
     game.restrictions.functions.removePoint = function(point_location, point_id) {
         // N.B. The Nearest Neighbour is handled through graph restrictions as it made sense to implement it there
+        // Handle the Nearest Neighbour
+        var neighbouring_points = this.findNearestPoints(point_location, point_id);
+        var c_id;
+        for (var i = 0; i < neighbouring_points.length; i++) {
+            c_id = neighbouring_points[i];
+            if (this.nearest_neighbour[c_id].id == point_id) {
+                // Update it's nearest point
+                this.updateNearestNeighbour(c_id);
+            }
+        }
+        delete this.nearest_neighbour[point_id];
         // Handle PCF
         var init_pcf = this.pcf;
         var fin_pcf  = this.modifyPCF(point_location, point_id, false, init_pcf);
@@ -1248,6 +1249,15 @@ with (paper) {
             }
         }
         return nearest_id;
+    }
+    game.restrictions.functions.updateNearestNeighbour = function(point_id) {
+        var point_location = game.point_areas_list[point_id].position;
+        var nearest_point = this.findNearestPoint(point_location, point_id);
+        if (nearest_point < 0) {
+            return false;
+        }
+        var shortest_distance = game.point_areas_list[nearest_point].position.getDistance(point_location);
+        this.nearest_neighbour[point_id] = {"id": nearest_point, "distance": shortest_distance};
     }
     game.restrictions.functions.modifyPCF = function(point_location, point_id, adding_point, pcf) {
         var shift = adding_point ? 1 : -1;
