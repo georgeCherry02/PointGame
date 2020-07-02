@@ -463,6 +463,7 @@ with (paper) {
         return true;
     }
     game.restrictions.validatePointRemoval = function(point_id) {
+        Logger.log(LoggingType.NOTICE, "Validating point removal");
         var point_path = game.point_areas_list[point_id];
         if (GRID_CHECK_ACTIVE && !this.grid.check(point_path.position, removal=true)) {
             Logger.log(LoggingType.NOTICE, "Illegal point removal");
