@@ -1310,22 +1310,27 @@ with (paper) {
         if (game.number_of_points_placed < 2) {
             return true;
         }
+
         var nearest_neighbour_distribution = Array(1451).fill(0);
         var c_point, c_distance, shortest_distance = 1450;
+        // Loop through all points in the nearest neighbours distribution
         for (var id in this.nearest_neighbour) {
-            c_point = game.point_areas_list[this.nearest_neighbour[id].id];
+            // Select the current point
+            c_point = game.point_areas_list[id];
+            // Determine the distance from the current point to the new location
             c_distance = Math.floor(c_point.position.getDistance(point_location));
-            if (c_distance < this.nearest_neighbour[id].distance) {
-                nearest_neighbour_distribution[c_distance]++;
-            } else {
-                nearest_neighbour_distribution[this.nearest_neighbour[id].distance]++;
-            }
+            // Determine whether the distance to the new point is shorter than the distance to the current nearest point
+            key = c_distance < this.nearest_neighbour[id].distance ? c_distance : this.nearest_neighbour[id].distance;
+            // Whichever distance is shorter increment it on nearest neighbour distribution
+            nearest_neighbour_distribution[key]++;
+            // Finally keep track of the nearest neighbour of the new point, only need to be concerned about distance
             if (c_distance < shortest_distance) {
                 shortest_distance = c_distance;
             }
         }
+        // Add the new point to the nearest neighbour distribution
         nearest_neighbour_distribution[shortest_distance]++;
-
+        // Now parse the distribution limitations to check all's okay
         return this.checkDistribution(nearest_neighbour_distribution, NN_LIMITATIONS);
     }
     game.restrictions.functions.checkPCF = function(point_location) {
