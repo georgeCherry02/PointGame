@@ -1349,6 +1349,7 @@ with (paper) {
         return this.checkDistribution(pcf, PCF_LIMITATIONS);
     }
     game.restrictions.functions.checkDistribution = function(distribution, limitations) {
+    game.restrictions.functions.checkDistribution = function(distribution, limitations, removal=false) {
         var sums = {"short": 0, "medium": 0, "long": 0};
         var key;
         for (var i = 0; i <= 1450; i++) {
@@ -1369,7 +1370,10 @@ with (paper) {
                 range = limitations[keys[i]].range - limitations[keys[i-1]].range;
             }
             average = sums[keys[i]] / range;
-            if (average < limitations[keys[i]].low || average > limitations[keys[i]].high) {
+            if (keys[i] == "short" && removal) {
+                console.log("Average: "+average);
+            }
+            if ((removal && average < limitations[keys[i]].low) || (!removal && average > limitations[keys[i]].high)) {
                 return false;
             }
         }
