@@ -469,6 +469,10 @@ with (paper) {
             Logger.log(LoggingType.NOTICE, "Illegal point removal");
             return false;
         }
+        if (FUNCTION_CHECK_ACTIVE && !this.functions.check(point_path.position, point_id)) {
+            Logger.log(LoggingType.NOTICE, "Illegal point removal");
+            return false;
+        }
         if (game.chaining) {
             var points_of_interest = game.determineSectionAndSurroundings(point_path.position);
             var affected_points = [];
@@ -1163,8 +1167,8 @@ with (paper) {
             this.pcf[i] = 0;
         }
     }
-    game.restrictions.functions.check = function(point_location) {
-        if (PCF_CHECK_ACTIVE && !this.checkPCF(point_location)) {
+    game.restrictions.functions.check = function(point_location, point_id=-1) {
+        if (PCF_CHECK_ACTIVE && !this.checkPCF(point_location, point_id)) {
             Logger.log(LoggingType.NOTICE, "Failed PCF check");
             return false;
         }
@@ -1341,14 +1345,20 @@ with (paper) {
         }
         return this.checkDistribution(spherical_contact_distribution, SC_LIMITATIONS);
     }
-    game.restrictions.functions.checkPCF = function(point_location) {
+    game.restrictions.functions.checkPCF = function(point_location, point_id) {
+        var removal = point_id != -1;
+        // Obtain initial pcf
         var pcf = {};
         pcf = Object.assign(pcf, this.pcf);
-        pcf = this.modifyPCF(point_location, -1, true, pcf);
-        this.normalisePCF(pcf, game.number_of_points_placed + 1);
-        return this.checkDistribution(pcf, PCF_LIMITATIONS);
+        // Alter the pcf to reflect the change about to occur
+        pcf = this.modifyPCF(point_location, point_id, removal, pcf);
+        // Normalise the distribution
+        // Determine the shift in the amount
+        var new_amount = removal ? game.number_of_points_placed - 1 : game.number_of_points_placed + 1;
+        pcf = this.normalisePCF(pcf, new_amount);
+        // Check the distribution
+        return this.checkDistribution(pcf, PCF_LIMITATIONS, removal);
     }
-    game.restrictions.functions.checkDistribution = function(distribution, limitations) {
     game.restrictions.functions.checkDistribution = function(distribution, limitations, removal=false) {
         var sums = {"short": 0, "medium": 0, "long": 0};
         var key;
