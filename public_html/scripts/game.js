@@ -1163,8 +1163,10 @@ with (paper) {
         "pcf": {},
         "nearest_neighbour": {},
         "spherical_contact": {
-            "random_points": {},
-            "distances": {}
+            "-1": {
+                "random_point": new Point(Math.floor(Math.random() * 1024), Math.floor(Math.random() * 1024)),
+                "distance": Infinity
+            }
         }
     };
     game.restrictions.functions.initialisePCF = function() {
@@ -1177,9 +1179,6 @@ with (paper) {
             Logger.log(LoggingType.NOTICE, "Failed PCF check");
             return false;
         }
-        // ##########################################################################################
-        // # There restrictions are bloody weird
-        // ##########################################################################################
         if (NN_CHECK_ACTIVE && !this.checkNN(point_location)) {
             Logger.log(LoggingType.NOTICE, "Failed NN check");
             return false;
@@ -1201,11 +1200,14 @@ with (paper) {
         var fin_pcf  = this.modifyPCF(point_location, point_id, true, init_pcf);
         this.pcf = fin_pcf;
         // Handle Spherical Contact distribution
-        var random_point = new Point(Math.random() * 1024, Math.random() * 1024);
-        this.spherical_contact.random_points[point_id] = random_point;
-        this.spherical_contact.distances[point_id] = Infinity;
+        // First add new random point to distribution for checking
+        var random_point = new Point(Math.floor(Math.random() * 1024), Math.floor(Math.random() * 1024));
+        this.spherical_contact[point_id] = this.spherical_contact["-1"];
+        this.spherical_contact["-1"] = {};
+        this.spherical_contact["-1"].random_point = random_point;
+        this.spherical_contact["-1"].distance = Infinity;
         // Update all their nearest neighbours
-        this.spherical_contact.updateNeighbours();
+        this.updateSphericalContact();
     }
     game.restrictions.functions.removePoint = function(point_location, point_id) {
         // N.B. The Nearest Neighbour is handled through graph restrictions as it made sense to implement it there
@@ -1225,8 +1227,7 @@ with (paper) {
         var fin_pcf  = this.modifyPCF(point_location, point_id, false, init_pcf);
         this.pcf = fin_pcf;
         // Handle Spherical Contact distribution
-        delete this.spherical_contact.random_points[point_id];
-        delete this.spherical_contact.distances[point_id];
+        delete this.spherical_contact[point_id];
     }
     game.restrictions.functions.findNearestPoints = function(point_location, point_id=-1) {
         // If point_id is set then should be able to find it through graph
@@ -1369,27 +1370,17 @@ with (paper) {
         }
         return true;
     }
-    game.restrictions.functions.spherical_contact.updateNeighbours = function() {
+    game.restrictions.functions.updateSphericalContact = function() {
         var c_point, c_neighbours, c_nearest, n_point;
-        for (var id in this.random_points) {
-            point = this.random_points[id];
-            // Determine neighbours
-            c_neighbours = game.determineSectionAndSurroundings(point);
-            if (c_neighbours.length == 0) {
-                for (var n_id in game.point_areas_list) {
-                    n_point = game.point_areas_list[n_id];
-                    if (n_point.position.getDistance(point) < this.distances[id]) {
-                        this.distances[id] = Math.floor(n_point.position.getDistance(point));
-                    }
-                }
-            } else {
-                for (var i = 0; i < c_neighbours.length; i++) {
-                    n_point = game.point_areas_list[c_neighbours[i]]
-                    if (n_point.position.getDistance(point) < this.distances[id]) {
-                        this.distances[id] = Math.floor(n_point.position.getDistance(point));
-                    }
-                }
-            }
+        // Loop through all ids in the spherical contact distribution
+        for (var id in this.spherical_contact) {
+            // Determine the point
+            point = this.spherical_contact[id].random_point;
+            // Get the nearest point to this random point
+            nearest_id = this.findNearestPoint(point);
+            nearest_point = game.point_areas_list[nearest_id].position;
+            // Update the spherical contact distribution with this information
+            this.spherical_contact[id].distance = Math.floor(nearest_point.getDistance(point));
         }
     }
 }
