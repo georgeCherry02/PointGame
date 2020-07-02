@@ -21,6 +21,7 @@ const MEAN_PATH_SIZE = 32;
 const PCF_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
 const NN_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
 const SC_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
+const NEIGHBOURING_DISTANCE = 10;
 const MAXIMUM_NUMBER_OF_VERTICES = 5;
 
 // -------------------------------------
@@ -580,9 +581,11 @@ with (paper) {
     // ------------------------------------------------------------------------------------------
     game.restrictions.graph_model = {}
     // Initialise neighbour distance
-    game.restrictions.graph_model.neighbour_distance = MIN_RADIUS + 10;
     if (game.chaining) {
         game.restrictions.graph_model.neighbour_distance = MAX_RADIUS;
+    } else {
+        // Allows you not to set NEIGHBOURING_DISTANCE if there's a min+max radius
+        game.restrictions.graph_model.neighbour_distance = MIN_RADIUS + NEIGHBOURING_DISTANCE;
     }
     // Initialise neigbouring map
     game.restrictions.graph_model.graph = {}
