@@ -120,15 +120,19 @@ with (paper) {
                 game.renderPoint(event.point);
             } else {
                 // Fetch closest point
-                var nearest_point_id = game.fetchNearestPoint(event.point);
-                var nearest_point = game.point_areas_list[nearest_point_id];
-                // Check whether max_r > min_r and if so if this is just not valid placement
-                if (game.chaining && typeof nearest_point === "undefined") {
+                var nearest_point_id = game.restrictions.functions.findNearestPoint(event.point);
+                // Determine if there was a nearest point (It can be the case that there was only one point placed)
+                if (nearest_point_id == -1) {
+                    event.stopPropagation();
                     return;
                 }
-                // Otherwise remove point after validation
-                if (game.restrictions.validatePointRemoval(nearest_point_id)) {
-                    game.removePoint(nearest_point_id);
+                var nearest_point = game.point_areas_list[nearest_point_id];
+                // Check that the location's within the points minimum radius
+                if (event.point.getDistance(nearest_point.position)) {
+                    // Check that it's valid to remove this point
+                    if (game.restrictions.validatePointRemoval(nearest_point_id)) {
+                        game.removePoint(nearest_point_id);
+                    }
                 }
             }
             // After effect of click will always require update
@@ -199,25 +203,6 @@ with (paper) {
         var i = Math.floor((point_location.x / 1024) * 8);
         var j = Math.floor((point_location.y / 1024) * 8);
         return 8*j + i;
-    }
-    game.fetchNearestPoint = function(point_location) {
-        // Fetch appropriate sections
-        var area_to_examine = this.determineSectionAndSurroundings(point_location);
-        var closest_point_id, current_point, shortest_distance;
-        for (var i = 0; i < area_to_examine.length; i++) {
-            current_point = this.point_areas_list[area_to_examine[i]];
-            if (this.chaining) {
-                current_point = this.point_area_display_list[area_to_examine[i]];
-            }
-            if (current_point.contains(point_location)) {
-                // Determine if a closest point has been set or if the current point is nearer
-                if (typeof closest_point_id === "undefined" || point_location.getDistance(current_point.position) < shortest_distance) {
-                    closest_point_id = area_to_examine[i];
-                    shortest_distance = point_location.getDistance(current_point.position);
-                } 
-            }
-        }
-        return closest_point_id;
     }
     game.formatPointData = function() {
         Logger.log(LoggingType.NOTICE, "Formatting point data");
