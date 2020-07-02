@@ -1183,6 +1183,10 @@ with (paper) {
             Logger.log(LoggingType.NOTICE, "Failed NN check");
             return false;
         }
+        if (SC_CHECK_ACTIVE && !this.checkSC(point_location)) {
+            Logger.log(LoggingType.NOTICE, "Failed SC check");
+            return false;
+        }
         return true;
     }
     game.restrictions.functions.addPoint = function(point_location, point_id) {
@@ -1315,7 +1319,7 @@ with (paper) {
         }
 
         var nearest_neighbour_distribution = Array(1451).fill(0);
-        var c_point, c_distance, shortest_distance = 1450;
+        var c_point, c_distance, key, shortest_distance = 1450;
         // Loop through all points in the nearest neighbours distribution
         for (var id in this.nearest_neighbour) {
             // Select the current point
@@ -1335,6 +1339,18 @@ with (paper) {
         nearest_neighbour_distribution[shortest_distance]++;
         // Now parse the distribution limitations to check all's okay
         return this.checkDistribution(nearest_neighbour_distribution, NN_LIMITATIONS);
+    }
+    game.restrictions.functions.checkSC = function(point_location) {
+        var spherical_contact_distribution = Array(1451).fill(0);
+        // Loop through all including the additional point in the "-1" index
+        var c_point, c_distance, key;
+        for (var id in this.spherical_contact) {
+            c_point = this.spherical_contact[id].random_point;
+            c_distance = Math.floor(point_location.getDistance(c_point));
+            key = c_distance < this.spherical_contact[id].distance ? c_distance : this.spherical_contact[id].distance;
+            spherical_contact_distribution[key]++;
+        }
+        return this.checkDistribution(spherical_contact_distribution, SC_LIMITATIONS);
     }
     game.restrictions.functions.checkPCF = function(point_location) {
         var pcf = {};
