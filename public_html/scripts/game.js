@@ -129,7 +129,7 @@ with (paper) {
                 }
                 var nearest_point = game.point_areas_list[nearest_point_id];
                 // Check that the location's within the points minimum radius
-                if (event.point.getDistance(nearest_point.position)) {
+                if (event.point.getDistance(nearest_point.position) < MIN_RADIUS) {
                     // Check that it's valid to remove this point
                     if (game.restrictions.validatePointRemoval(nearest_point_id)) {
                         game.removePoint(nearest_point_id);
