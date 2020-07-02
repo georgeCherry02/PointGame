@@ -1189,7 +1189,7 @@ with (paper) {
         }
         // Handle PCF
         var init_pcf = this.pcf;
-        var fin_pcf  = this.modifyPCF(point_location, point_id, true, init_pcf);
+        var fin_pcf  = this.modifyPCF(point_location, point_id, false, init_pcf);
         this.pcf = fin_pcf;
         // Handle Spherical Contact distribution
         // First add new random point to distribution for checking
@@ -1216,7 +1216,7 @@ with (paper) {
         delete this.nearest_neighbour[point_id];
         // Handle PCF
         var init_pcf = this.pcf;
-        var fin_pcf  = this.modifyPCF(point_location, point_id, false, init_pcf);
+        var fin_pcf  = this.modifyPCF(point_location, point_id, true, init_pcf);
         this.pcf = fin_pcf;
         // Handle Spherical Contact distribution
         delete this.spherical_contact[point_id];
@@ -1271,8 +1271,8 @@ with (paper) {
         this.nearest_neighbour[point_id].id = nearest_point;
         this.nearest_neighbour[point_id].distance = shortest_distance;
     }
-    game.restrictions.functions.modifyPCF = function(point_location, point_id, adding_point, pcf) {
-        var shift = adding_point ? 1 : -1;
+    game.restrictions.functions.modifyPCF = function(point_location, point_id, removal, pcf) {
+        var shift = removal ? -1 : 1;
         var c_point, c_distance;
         for (var id in game.point_images_list) {
             if (id == point_id) {
