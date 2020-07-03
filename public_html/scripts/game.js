@@ -1223,6 +1223,7 @@ with (paper) {
         this.spherical_contact["-1"].distance = Infinity;
         // Update all their nearest neighbours
         this.updateSphericalContact();
+        this.updateAverageTracking();
     }
     game.restrictions.functions.removePoint = function(point_location, point_id) {
         // N.B. The Nearest Neighbour is handled through graph restrictions as it made sense to implement it there
