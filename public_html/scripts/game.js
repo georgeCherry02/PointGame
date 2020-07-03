@@ -1245,6 +1245,7 @@ with (paper) {
         this.pcf = fin_pcf;
         // Handle Spherical Contact distribution
         delete this.spherical_contact[point_id];
+        this.updateSphericalContact();
     }
     game.restrictions.functions.findNearestPoints = function(point_location, point_id=-1, excluded_points = []) {
         // If point_id is set then should be able to find it through graph
