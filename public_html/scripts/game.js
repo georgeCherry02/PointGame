@@ -1400,6 +1400,7 @@ with (paper) {
         // Clone the initial distribution
         var distribution = {};
         distribution = Object.assign(distribution, this.spherical_contact);
+        // Simulate point removal
         if (removal) {
             // Remove point that would be removed
             delete distribution[point_id];
