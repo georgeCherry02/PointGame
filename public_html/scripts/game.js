@@ -1208,6 +1208,8 @@ with (paper) {
     }
     game.restrictions.functions.removePoint = function(point_location, point_id) {
         // N.B. The Nearest Neighbour is handled through graph restrictions as it made sense to implement it there
+        // Force update to determining nearest point algorithm
+        game.last_used_section_requires_update = true;
         // Handle the Nearest Neighbour
         var neighbouring_points = this.findNearestPoints(point_location, point_id);
         var c_id;
