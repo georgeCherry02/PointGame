@@ -156,7 +156,7 @@ with (paper) {
         this.restrictions.grid.initialiseGrid();
         this.restrictions.colour.initialisePalette();
         this.restrictions.statistics.initialiseMeanRestriction();
-        this.restrictions.functions.initialisePCF();
+        this.restrictions.functions.initialise();
     }
     game.clear = function() {
         // Remove every single point from all tracking lists and render
@@ -1160,11 +1160,29 @@ with (paper) {
                 "random_point": new Point(Math.floor(Math.random() * 1024), Math.floor(Math.random() * 1024)),
                 "distance": Infinity
             }
+        },
+        "limitations": {
+            "nn": {
+                "values": NN_LIMITATIONS
+            },
+            "pcf": {
+                "values": PCF_LIMITATIONS
+            },
+            "sc": {
+                "values": SC_LIMITATIONS
+            }
         }
     };
-    game.restrictions.functions.initialisePCF = function() {
+    game.restrictions.functions.initialise = function() {
         for (var i = 0; i <= 1450; i++) {
             this.pcf[i] = 0;
+        }
+        // For each limitation implement tracking for surpassing averages
+        for (var distribution in this.limitations) {
+            this.limitations[distribution].average_tracking = {};
+            for (var range in this.limitations[distribution].values) {
+                this.limitations[distribution].average_tracking[range] = false;
+            }
         }
     }
     game.restrictions.functions.check = function(point_location, point_id=-1) {
