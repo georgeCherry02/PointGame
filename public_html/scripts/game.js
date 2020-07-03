@@ -1352,9 +1352,9 @@ with (paper) {
     }
     game.restrictions.functions.normalisePCF = function(pcf, number_of_points) {
         // Determine point/px^2
-        var point_density = 1 / Math.pow(1024, 2);
+        var point_density = number_of_points / Math.pow(1024, 2);
         if (number_of_points == 0) { 
-            point_density = number_of_points / Math.pow(1024, 2);
+            point_density = 1 / Math.pow(1024, 2);
         }
         var area, exp_points;
         for (var i = 0; i <= 1450; i++) {
