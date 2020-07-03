@@ -1246,20 +1246,38 @@ with (paper) {
         // Handle Spherical Contact distribution
         delete this.spherical_contact[point_id];
     }
-    game.restrictions.functions.findNearestPoints = function(point_location, point_id=-1) {
+    game.restrictions.functions.findNearestPoints = function(point_location, point_id=-1, excluded_points = []) {
         // If point_id is set then should be able to find it through graph
         if (game.restrictions.graph_model.graph.hasOwnProperty(point_id)) {
             // Check if it's not a lone node on graph
             if (game.restrictions.graph_model.graph[point_id].length > 0) {
-                return game.restrictions.graph_model.graph[point_id].ids;
+                var graph_result = game.restrictions.graph_model.graph[point_id].ids;
+                if (graph_result.length > 0) {
+                    var exclusion_result = graph_result.filter(
+                        function(e) {
+                            return this.indexOf(e) < 0;
+                        },
+                        excluded_points
+                    );
+                    if (exclusion_result.length != 0) {
+                        return exclusion_result;
+                    }
+                }
             }
         } 
+
         // If not see if there are any near neighbours
         search_radius = 0;
         near_points = [];
         // For each time nothing's turned up expand search radius
         while (search_radius < 8 && (near_points.length == 0 || (near_points.length == 1 && near_points[0] == point_id))) {
             near_points = game.determineSectionAndSurroundings(point_location, search_radius)
+            near_points = near_points.filter(
+                function(e) {
+                    return this.indexOf(e) < 0;
+                },
+                excluded_points 
+            );
             search_radius++;
         }
         return near_points;
