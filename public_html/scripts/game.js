@@ -1194,7 +1194,7 @@ with (paper) {
             Logger.log(LoggingType.NOTICE, "Failed Nearest Neighbour check");
             return false;
         }
-        if (SC_CHECK_ACTIVE && !this.checkSC(point_location)) {
+        if (SC_CHECK_ACTIVE && !this.checkSC(point_location, point_id)) {
             Logger.log(LoggingType.NOTICE, "Failed Spherical Contact check");
             return false;
         }
@@ -1394,15 +1394,48 @@ with (paper) {
         // Now parse the distribution limitations to check all's okay
         return this.checkDistribution(nearest_neighbour_distribution, "nn");
     }
-    game.restrictions.functions.checkSC = function(point_location) {
+    game.restrictions.functions.checkSC = function(point_location, point_id) {
+        var removal = point_id != -1;
         var spherical_contact_distribution = Array(1451).fill(0);
-        // Loop through all including the additional point in the "-1" index
-        var c_point, c_distance, key;
-        for (var id in this.spherical_contact) {
-            c_point = this.spherical_contact[id].random_point;
-            c_distance = Math.floor(point_location.getDistance(c_point));
-            key = c_distance < this.spherical_contact[id].distance ? c_distance : this.spherical_contact[id].distance;
-            spherical_contact_distribution[key]++;
+        // Clone the initial distribution
+        var distribution = {};
+        distribution = Object.assign(distribution, this.spherical_contact);
+        if (removal) {
+            // Remove point that would be removed
+            delete distribution[point_id];
+            // Remove point that models a point being added
+            delete distribution["-1"];
+        }
+        // Loop through all points in distribution (if not removal this includes the "-1" index)
+        // ((The random point that would be added if a new point is added))
+        var c_point, c_distance, key, neighbours, neighbour_point;
+        for (var id in distribution) {
+            c_point = distribution[id].random_point;
+            if (removal) {
+                c_distance = distribution[id].distance;
+                // If the old closest point was the one deleted find the new closest point for this random point
+                if (distribution[id].nearest_id == point_id) {
+                    c_distance = Infinity;
+                    // Determine nearest points excluding "deleted" point
+                    var neighbours = this.findNearestPoints(point_location, point_id=-1, excluded_points=[point_id]);
+                    // Loop through all near points
+                    for (var i = 0; i < neighbours.length; i++) {
+                        // Check if this distance is less than previous closest
+                        neighbour_point = game.point_areas_list[neighbours[i]].position;
+                        if (Math.floor(neighbour_point.getDistance(point_location)) < c_distance) {
+                            c_distance = Math.floor(neighbour_point.getDistance(point_location));
+                        }
+                    }
+                }
+                // Make certain that the points valid
+                key = c_distance;
+            } else {
+                c_distance = Math.floor(point_location.getDistance(c_point));
+                key = c_distance < distribution[id].distance ? c_distance : distribution[id].distance;
+            }
+            if (key != Infinity) {
+                spherical_contact_distribution[key]++;
+            }
         }
         return this.checkDistribution(spherical_contact_distribution, "sc");
     }
