@@ -1408,24 +1408,16 @@ with (paper) {
         }
         // Loop through all points in distribution (if not removal this includes the "-1" index)
         // ((The random point that would be added if a new point is added))
-        var c_point, c_distance, key, neighbours, neighbour_point;
+        var c_point, c_distance, key, nearest_point, nearest_point_id;
         for (var id in distribution) {
             c_point = distribution[id].random_point;
             if (removal) {
                 c_distance = distribution[id].distance;
                 // If the old closest point was the one deleted find the new closest point for this random point
                 if (distribution[id].nearest_id == point_id) {
-                    c_distance = Infinity;
-                    // Determine nearest points excluding "deleted" point
-                    var neighbours = this.findNearestPoints(point_location, point_id=-1, excluded_points=[point_id]);
-                    // Loop through all near points
-                    for (var i = 0; i < neighbours.length; i++) {
-                        // Check if this distance is less than previous closest
-                        neighbour_point = game.point_areas_list[neighbours[i]].position;
-                        if (Math.floor(neighbour_point.getDistance(point_location)) < c_distance) {
-                            c_distance = Math.floor(neighbour_point.getDistance(point_location));
-                        }
-                    }
+                    nearest_point_id = this.findNearestPoints(point_location, point_id, excluded_points=[point_id]);
+                    nearest_point = game.point_areas_list[nearest_point_id].position;
+                    c_distance = Math.floor(point_location.getDistance(nearest_point));
                 }
                 // Make certain that the points valid
                 key = c_distance;
@@ -1433,9 +1425,7 @@ with (paper) {
                 c_distance = Math.floor(point_location.getDistance(c_point));
                 key = c_distance < distribution[id].distance ? c_distance : distribution[id].distance;
             }
-            if (key != Infinity) {
-                spherical_contact_distribution[key]++;
-            }
+            spherical_contact_distribution[key]++;
         }
         return this.checkDistribution(spherical_contact_distribution, "sc");
     }
@@ -1466,7 +1456,6 @@ with (paper) {
             }
             sums[key] += distribution[i];
         }
-
         var keys = Object.keys(limitations);
         var average, range;
         for (var i = 0; i < keys.length; i++) {
