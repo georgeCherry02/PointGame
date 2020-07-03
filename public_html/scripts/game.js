@@ -18,8 +18,8 @@ const POINT_COLOURS = ["#5EB1BF", "#6C5EBF", "#9D5EBF", "#BF5EB1", "#BF5E80", "#
 const MEAN_RESTRICTION_X = 32;
 const MEAN_RESTRICTION_Y = 32;
 const MEAN_PATH_SIZE = 32;
-const PCF_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
 const NN_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
+const PCF_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
 const SC_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
 const NEIGHBOURING_DISTANCE = 10;
 const MAXIMUM_NUMBER_OF_VERTICES = 5;
@@ -45,9 +45,9 @@ const MASK_CHECK_ACTIVE         = false;
 // -------------------------------------
 const FUNCTION_CHECK_ACTIVE     = false;
 // Sub function checks
-const PCF_CHECK_ACTIVE          = false;
-const SC_CHECK_ACTIVE           = false 
 const NN_CHECK_ACTIVE           = false;
+const PCF_CHECK_ACTIVE          = false;
+const SC_CHECK_ACTIVE           = false; 
 // -------------------------------------
 
 with (paper) {
