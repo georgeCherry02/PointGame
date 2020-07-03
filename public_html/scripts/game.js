@@ -1429,7 +1429,7 @@ with (paper) {
         return true;
     }
     game.restrictions.functions.updateSphericalContact = function() {
-        var c_point, c_neighbours, c_nearest, n_point;
+        var point, nearest_id, nearest_point;
         // Loop through all ids in the spherical contact distribution
         for (var id in this.spherical_contact) {
             // Determine the point
@@ -1439,6 +1439,7 @@ with (paper) {
             nearest_point = game.point_areas_list[nearest_id].position;
             // Update the spherical contact distribution with this information
             this.spherical_contact[id].distance = Math.floor(nearest_point.getDistance(point));
+            this.spherical_contact[id].nearest_id = nearest_id;
         }
     }
 }
