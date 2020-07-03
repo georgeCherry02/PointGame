@@ -1190,7 +1190,7 @@ with (paper) {
             Logger.log(LoggingType.NOTICE, "Failed PCF check");
             return false;
         }
-        if (NN_CHECK_ACTIVE && !this.checkNN(point_location)) {
+        if (NN_CHECK_ACTIVE && !this.checkNN(point_location, point_id)) {
             Logger.log(LoggingType.NOTICE, "Failed Nearest Neighbour check");
             return false;
         }
@@ -1367,30 +1367,49 @@ with (paper) {
         }
         return pcf;
     }
-    game.restrictions.functions.checkNN = function(point_location) {
+    game.restrictions.functions.checkNN = function(point_location, point_id) {
         if (game.number_of_points_placed < 2) {
             return true;
         }
-
+        var removal = point_id != -1;
         var nearest_neighbour_distribution = Array(1451).fill(0);
-        var c_point, c_distance, key, shortest_distance = 1450;
-        // Loop through all points in the nearest neighbours distribution
-        for (var id in this.nearest_neighbour) {
-            // Select the current point
-            c_point = game.point_areas_list[id];
-            // Determine the distance from the current point to the new location
-            c_distance = Math.floor(c_point.position.getDistance(point_location));
-            // Determine whether the distance to the new point is shorter than the distance to the current nearest point
-            key = c_distance < this.nearest_neighbour[id].distance ? c_distance : this.nearest_neighbour[id].distance;
-            // Whichever distance is shorter increment it on nearest neighbour distribution
-            nearest_neighbour_distribution[key]++;
-            // Finally keep track of the nearest neighbour of the new point, only need to be concerned about distance
-            if (c_distance < shortest_distance) {
-                shortest_distance = c_distance;
-            }
+        var distribution = {};
+        distribution = Object.assign(distribution, this.nearest_neighbour);
+        // Simulate point removal
+        if (removal) {
+            // Remove the point that would be removed
+            delete distribution[point_id];
         }
-        // Add the new point to the nearest neighbour distribution
-        nearest_neighbour_distribution[shortest_distance]++;
+        // Loop through all points in the nearest neighbours distribution
+        var c_point, c_distance, key, shortest_distance = 1450;
+        for (var id in distribution) {
+            if (removal) {
+                c_distance = distribution[id].distance;
+                if (distribution[id].id == point_id) {
+                    nearest_point = this.findNearestPoint(point_location, point_id, excluded_points=[point_id]);
+                    nearest_point = game.point_areas_list[point_id].position;
+                    c_distance = point_location.getDistance(nearest_point);
+                }
+                key = c_distance;
+            } else {
+                // Select the current point
+                c_point = game.point_areas_list[id];
+                // Determine the distance from the current point to the new location
+                c_distance = Math.floor(c_point.position.getDistance(point_location));
+                // Determine whether the distance to the new point is shorter than the distance to the current nearest point
+                key = c_distance < this.nearest_neighbour[id].distance ? c_distance : this.nearest_neighbour[id].distance;
+                // Finally keep track of the nearest neighbour of the new point, only need to be concerned about distance
+                if (c_distance < shortest_distance) {
+                    shortest_distance = c_distance;
+                }
+            }
+            // Increment the appropriate distance in the distribution
+            nearest_neighbour_distribution[key]++;
+        }
+        // Add the new point to the nearest neighbour distribution if applicable
+        if (!removal) {
+            nearest_neighbour_distribution[shortest_distance]++;
+        }
         // Now parse the distribution limitations to check all's okay
         return this.checkDistribution(nearest_neighbour_distribution, "nn");
     }
