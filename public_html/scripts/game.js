@@ -1490,6 +1490,9 @@ with (paper) {
         return true;
     }
     game.restrictions.functions.updateSphericalContact = function() {
+        if (game.number_of_points_placed < 2) {
+            return;
+        }
         var point, nearest_id, nearest_point;
         // Loop through all ids in the spherical contact distribution
         for (var id in this.spherical_contact) {
