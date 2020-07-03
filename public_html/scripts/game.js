@@ -1305,8 +1305,8 @@ with (paper) {
         }
         return near_points;
     }
-    game.restrictions.functions.findNearestPoint = function(point_location, point_id=-1) {
-        var neighbours = this.findNearestPoints(point_location, point_id);
+    game.restrictions.functions.findNearestPoint = function(point_location, point_id=-1, excluded_points=[]) {
+        var neighbours = this.findNearestPoints(point_location, point_id, excluded_points);
         if (neighbours.length == 0) {
             return -1;
         }
