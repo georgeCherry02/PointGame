@@ -1191,11 +1191,11 @@ with (paper) {
             return false;
         }
         if (NN_CHECK_ACTIVE && !this.checkNN(point_location)) {
-            Logger.log(LoggingType.NOTICE, "Failed NN check");
+            Logger.log(LoggingType.NOTICE, "Failed Nearest Neighbour check");
             return false;
         }
         if (SC_CHECK_ACTIVE && !this.checkSC(point_location)) {
-            Logger.log(LoggingType.NOTICE, "Failed SC check");
+            Logger.log(LoggingType.NOTICE, "Failed Spherical Contact check");
             return false;
         }
         return true;
