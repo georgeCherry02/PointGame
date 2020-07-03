@@ -1247,6 +1247,27 @@ with (paper) {
         delete this.spherical_contact[point_id];
         this.updateSphericalContact();
     }
+    game.restrictions.functions.updateAverageTracking = function() {
+        // Check PCF first
+        var normalised_pcf = Object.assign({}, this.pcf);
+        normalised_pcf = this.normalisePCF(normalised_pcf, game.number_of_points_placed);
+        this.checkDistribution(normalised_pcf, "pcf", validation=true);
+        // Now check Nearest Neighbour
+        if (game.number_of_points_placed >= 2) {
+            // Format nearest neighbour distribution
+            var nearest_neighbour_distribution = Array(1451).fill(0);
+            for (var id in this.nearest_neighbour) {
+                nearest_neighbour_distribution[this.nearest_neighbour[id].distance]++;
+            }
+            this.checkDistribution(nearest_neighbour_distribution, "nn", validation=true);
+        }
+        // Finally check Spherical Contact
+        var spherical_contact_distribution = Array(1451).fill(0);
+        for (var id in this.spherical_contact) {
+            spherical_contact_distribution[this.spherical_contact[id].distance]++;
+        }
+        this.checkDistribution(spherical_contact_distribution, "sc", validation=true);
+    }
     game.restrictions.functions.findNearestPoints = function(point_location, point_id=-1, excluded_points = []) {
         // If point_id is set then should be able to find it through graph
         if (game.restrictions.graph_model.graph.hasOwnProperty(point_id)) {
@@ -1370,7 +1391,7 @@ with (paper) {
         // Add the new point to the nearest neighbour distribution
         nearest_neighbour_distribution[shortest_distance]++;
         // Now parse the distribution limitations to check all's okay
-        return this.checkDistribution(nearest_neighbour_distribution, NN_LIMITATIONS);
+        return this.checkDistribution(nearest_neighbour_distribution, "nn");
     }
     game.restrictions.functions.checkSC = function(point_location) {
         var spherical_contact_distribution = Array(1451).fill(0);
@@ -1382,7 +1403,7 @@ with (paper) {
             key = c_distance < this.spherical_contact[id].distance ? c_distance : this.spherical_contact[id].distance;
             spherical_contact_distribution[key]++;
         }
-        return this.checkDistribution(spherical_contact_distribution, SC_LIMITATIONS);
+        return this.checkDistribution(spherical_contact_distribution, "sc");
     }
     game.restrictions.functions.checkPCF = function(point_location, point_id) {
         var removal = point_id != -1;
@@ -1396,9 +1417,10 @@ with (paper) {
         var new_amount = removal ? game.number_of_points_placed - 1 : game.number_of_points_placed + 1;
         pcf = this.normalisePCF(pcf, new_amount);
         // Check the distribution
-        return this.checkDistribution(pcf, PCF_LIMITATIONS, removal);
+        return this.checkDistribution(pcf, "pcf");
     }
-    game.restrictions.functions.checkDistribution = function(distribution, limitations, removal=false) {
+    game.restrictions.functions.checkDistribution = function(distribution, distribution_type, validation=false) {
+        var limitations = this.limitations[distribution_type].values;
         var sums = {"short": 0, "medium": 0, "long": 0};
         var key;
         for (var i = 0; i <= 1450; i++) {
@@ -1419,10 +1441,15 @@ with (paper) {
                 range = limitations[keys[i]].range - limitations[keys[i-1]].range;
             }
             average = sums[keys[i]] / range;
-            if (keys[i] == "short" && removal) {
-                console.log("Average: "+average);
+            var above_lower_bound = average >= limitations[keys[i]].low;
+            var below_upper_bound = average <= limitations[keys[i]].high;
+            if (!this.limitations[distribution_type].average_tracking[keys[i]] && validation) {
+                // If validating a new distribution, check if it's surpassed the lower bound to the average for the
+                // first time, if so, track it.
+                this.limitations[distribution_type].average_tracking[keys[i]] = above_lower_bound;
             }
-            if ((removal && average < limitations[keys[i]].low) || (!removal && average > limitations[keys[i]].high)) {
+            var previously_surpassed_lower_bound = this.limitations[distribution_type].average_tracking[keys[i]];
+            if ((previously_surpassed_lower_bound && (!below_upper_bound || !above_lower_bound)) || (!previously_surpassed_lower_bound && !below_upper_bound)) {
                 return false;
             }
         }
