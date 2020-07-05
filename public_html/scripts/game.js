@@ -19,6 +19,7 @@ const PPMCC_RESTRICTIONS = {"min": -1, "max": 1};
 const NN_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
 const PCF_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
 const SC_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
+const JF_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
 const NEIGHBOURING_DISTANCE = 10;
 const MAXIMUM_NUMBER_OF_VERTICES = 5;
 
@@ -45,6 +46,7 @@ const FUNCTION_CHECK_ACTIVE     = false;
 const NN_CHECK_ACTIVE           = false;
 const PCF_CHECK_ACTIVE          = false;
 const SC_CHECK_ACTIVE           = false; 
+const JF_CHECK_ACTIVE           = false;
 // -------------------------------------
 
 with (paper) {
@@ -1207,6 +1209,9 @@ with (paper) {
             },
             "sc": {
                 "values": SC_LIMITATIONS
+            },
+            "jf": {
+                "values": JF_LIMITATIONS
             }
         }
     };
@@ -1227,12 +1232,22 @@ with (paper) {
             Logger.log(LoggingType.NOTICE, "Failed PCF check");
             return false;
         }
-        if (NN_CHECK_ACTIVE && !this.checkNN(point_location, point_id)) {
-            Logger.log(LoggingType.NOTICE, "Failed Nearest Neighbour check");
-            return false;
+        if (NN_CHECK_ACTIVE) {
+            var [result, nearest_neighbour_distribution] = this.checkNN(point_location, point_id);
+            if (!result) {
+                Logger.log(LoggingType.NOTICE, "Failed Nearest Neighbour check");
+                return false;
+            }
         }
-        if (SC_CHECK_ACTIVE && !this.checkSC(point_location, point_id)) {
-            Logger.log(LoggingType.NOTICE, "Failed Spherical Contact check");
+        if (SC_CHECK_ACTIVE) {
+            var [result, spherical_contact_distribution] = this.checkSC(point_location, point_id);
+            if (!result) {
+                Logger.log(LoggingType.NOTICE, "Failed Spherical Contact check");
+                return false;
+            }
+        }
+        if (NN_CHECK_ACTIVE && SC_CHECK_ACTIVE && JF_CHECK_ACTIVE && !this.checkJF(nearest_neighbour_distribution, spherical_contact_distribution, point_id)) {
+            Logger.log(LoggingType.NOTICE, "Failed J-Function check");
             return false;
         }
         return true;
@@ -1305,6 +1320,7 @@ with (paper) {
             spherical_contact_distribution[this.spherical_contact[id].distance]++;
         }
         this.checkDistribution(spherical_contact_distribution, "sc", validation=true);
+        this.checkJF(nearest_neighbour_distribution, spherical_contact_distribution, point_id=-1, validation=true);
     }
     game.restrictions.functions.findNearestPoints = function(point_location, point_id=-1, excluded_points = []) {
         // If point_id is set then should be able to find it through graph
@@ -1404,9 +1420,28 @@ with (paper) {
         }
         return pcf;
     }
-    game.restrictions.functions.checkNN = function(point_location, point_id) {
+    game.restrictions.functions.checkJF = function(nearest_neighbour_distribution, spherical_contact_distribution, point_id, validation=false) {
         if (game.number_of_points_placed < 2) {
             return true;
+        }
+        var removal = point_id != -1;
+        // First change nn and sc to CDFs from count distributions
+        var point_count = removal ? game.number_of_points_placed - 1 : game.number_of_points_placed + 1;
+        var jf = Array(1451).fill(0);
+        spherical_running_total = spherical_contact_distribution[0]/point_count;
+        nearest_running_total = nearest_neighbour_distribution[0]/point_count;
+        jf[0] = (1 - nearest_running_total) / (1 - spherical_running_total);
+        for (var i = 1; i <= 1450; i++) {
+            spherical_running_total += spherical_contact_distribution[i] / point_count;
+            nearest_running_total += nearest_neighbour_distribution[i] / point_count;
+            // Javascript doesn't like dividing by 0
+            jf[i] = (1 - nearest_running_total) / (1.000000001 - spherical_running_total);
+        }
+        return this.checkDistribution(jf, "jf", validation);
+    }
+    game.restrictions.functions.checkNN = function(point_location, point_id) {
+        if (game.number_of_points_placed < 2) {
+            return [true, null];
         }
         var removal = point_id != -1;
         var nearest_neighbour_distribution = Array(1451).fill(0);
@@ -1448,7 +1483,7 @@ with (paper) {
             nearest_neighbour_distribution[shortest_distance]++;
         }
         // Now parse the distribution limitations to check all's okay
-        return this.checkDistribution(nearest_neighbour_distribution, "nn");
+        return [this.checkDistribution(nearest_neighbour_distribution, "nn"), nearest_neighbour_distribution];
     }
     game.restrictions.functions.checkSC = function(point_location, point_id) {
         var removal = point_id != -1;
@@ -1484,7 +1519,7 @@ with (paper) {
             }
             spherical_contact_distribution[key]++;
         }
-        return this.checkDistribution(spherical_contact_distribution, "sc");
+        return [this.checkDistribution(spherical_contact_distribution, "sc"), spherical_contact_distribution];
     }
     game.restrictions.functions.checkPCF = function(point_location, point_id) {
         var removal = point_id != -1;
