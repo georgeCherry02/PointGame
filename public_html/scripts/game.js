@@ -1472,7 +1472,7 @@ with (paper) {
                 c_distance = distribution[id].distance;
                 // If the old closest point was the one deleted find the new closest point for this random point
                 if (distribution[id].nearest_id == point_id) {
-                    nearest_point_id = this.findNearestPoints(point_location, point_id, excluded_points=[point_id]);
+                    nearest_point_id = this.findNearestPoint(point_location, point_id, excluded_points=[point_id]);
                     nearest_point = game.point_areas_list[nearest_point_id].position;
                     c_distance = Math.floor(point_location.getDistance(nearest_point));
                 }
