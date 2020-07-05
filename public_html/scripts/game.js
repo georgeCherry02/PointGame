@@ -1082,15 +1082,15 @@ with (paper) {
     }
     game.restrictions.statistics.check = function(point_location, removal=false) {
         if (MEAN_CHECK_ACTIVE && !this.checkMean(point_location, removal)) {
-            Logger.log(LoggingType.STATUS, "Failed mean check");
+            Logger.log(LoggingType.NOTICE, "Failed mean check");
             return false;
         }
         if (STDEV_CHECK_ACTIVE && game.number_of_points_placed > 0 && !this.checkStandardDeviation(point_location, removal)) {
-            Logger.log(LoggingType.STATUS, "Failed Standard Deviation check");
+            Logger.log(LoggingType.NOTICE, "Failed Standard Deviation check");
             return false;
         }
         if (PPMCC_CHECK_ACTIVE && game.number_of_points_placed > 0 && !this.checkPPMCC(point_location, removal)) {
-            Logger.log(LoggingType.STATUS, "Failed PPMCC check");
+            Logger.log(LoggingType.NOTICE, "Failed PPMCC check");
             return false;
         }
         return true;
