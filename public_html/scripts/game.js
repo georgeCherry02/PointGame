@@ -13,9 +13,9 @@ const GRID_RESOLUTION = 32;
 const MAX_NUMBER_PER_GRID_CELL_DISTRIBUTION = {"50": 100};
 const MIN_NUMBER_PER_GRID_CELL_DISTRIBUTION = {"0": 100};
 const POINT_COLOURS = ["#5EB1BF", "#6C5EBF", "#9D5EBF", "#BF5EB1", "#BF5E80", "#BF6C5E", "#BF9D5E", "#81BF5E"];
-const MEAN_RESTRICTION_X = 32;
-const MEAN_RESTRICTION_Y = 32;
-const MEAN_PATH_SIZE = 32;
+const MEAN_RESTRICTIONS = {"x": {"min": 0, "max": 1024}, "y": {"min": 0, "max": 1024}};
+const STDEV_RESTRICTIONS = {"x": {"min": 0, "max": Infinity}, "y": {"min": 0, "max": Infinity}};
+const PPMCC_RESTRICTIONS = {"min": -1, "max": 1};
 const NN_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
 const PCF_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
 const SC_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
@@ -35,6 +35,7 @@ const GRID_CHECK_ACTIVE         = false;
 const STATISTIC_CHECK_ACTIVE    = false;
 // Sub statistic checks
 const MEAN_CHECK_ACTIVE         = false;
+const STDEV_CHECK_ACTIVE        = false;
 const PPMCC_CHECK_ACTIVE        = false;
 // -------------------------------------
 const MASK_CHECK_ACTIVE         = false;
@@ -151,7 +152,6 @@ with (paper) {
 
         this.restrictions.grid.initialiseGrid();
         this.restrictions.colour.initialisePalette();
-        this.restrictions.statistics.initialiseMeanRestriction();
         this.restrictions.functions.initialise();
     }
     game.clear = function() {
@@ -1063,7 +1063,11 @@ with (paper) {
             Logger.log(LoggingType.NOTICE, "Failed mean check");
             return false;
         }
-        if (PPMCC_CHECK_ACTIVE && !this.checkPPMCC(point_location)) {
+        if (STDEV_CHECK_ACTIVE && game.number_of_points_placed > 0 && !this.checkStandardDeviation(point_location)) {
+            Logger.log(LoggingType.STATUS, "Failed Standard Deviation check");
+            return false;
+        }
+        if (PPMCC_CHECK_ACTIVE && game.number_of_points_placed > 0 && !this.checkPPMCC(point_location)) {
             Logger.log(LoggingType.NOTICE, "Failed PPMCC check");
             return false;
         }
@@ -1072,8 +1076,16 @@ with (paper) {
     game.restrictions.statistics.checkMean = function(point_location) {
         var new_x_mean = (this.mean.x * game.number_of_points_placed + point_location.x)/(game.number_of_points_placed + 1);
         var new_y_mean = (this.mean.y * game.number_of_points_placed + point_location.y)/(game.number_of_points_placed + 1);
-        var new_mean = new Point(new_x_mean, new_y_mean);
-        return this.mean_path.contains(new_mean);
+        return (new_x_mean >= MEAN_RESTRICTIONS.x.min && new_x_mean <= MEAN_RESTRICTIONS.x.max && new_y_mean >= MEAN_RESTRICTIONS.y.min && new_y_mean <= MEAN_RESTRICTIONS.y.max);
+    }
+    game.restrictions.statistics.checkStandardDeviation = function(point_location) {
+        var distribution = game.formatPointData();
+        distribution.x.push(point_location.x);
+        distribution.y.push(point_location.y);
+        var new_x_mean = (this.mean.x * game.number_of_points_placed + point_location.x)/(game.number_of_points_placed + 1);
+        var new_y_mean = (this.mean.y * game.number_of_points_placed + point_location.y)/(game.number_of_points_placed + 1);
+        var [stdev_x, stdev_y] = this.findStandardDeviation(distribution, [new_x_mean, new_y_mean]);
+        return (stdev_x >= STDEV_RESTRICTIONS.x.min && stdev_x <= STDEV_RESTRICTIONS.x.max && stdev_y >= STDEV_RESTRICTIONS.y.min && stdev_y <= STDEV_RESTRICTIONS.y.max);
     }
     game.restrictions.statistics.checkPPMCC = function(point_location) {
         var distribution = game.formatPointData();
@@ -1083,7 +1095,7 @@ with (paper) {
         var new_y_mean = (this.mean.y * game.number_of_points_placed + point_location.y)/(game.number_of_points_placed + 1);
         var new_s_dev = this.findStandardDeviation(distribution, [new_x_mean, new_y_mean]);
         var new_ppmcc = this.findPPMCC(distribution, [new_x_mean, new_y_mean], new_s_dev);
-        return new_ppmcc >= 0;
+        return new_ppmcc >= PPMCC_RESTRICTIONS.min && new_ppmcc <= PPMCC_RESTRICTIONS.max;
     }
     game.restrictions.statistics.update = function() {
         var distribution = game.formatPointData();
@@ -1117,14 +1129,6 @@ with (paper) {
         }
         var cov = cov_sum/n;
         return cov / (s_dev[0] * s_dev[1]);
-    }
-    game.restrictions.statistics.initialiseMeanRestriction = function() {
-        var mean_path_location = new Point(MEAN_RESTRICTION_X, MEAN_RESTRICTION_Y);
-        var mean_path_size = new Size(MEAN_PATH_SIZE, MEAN_PATH_SIZE)
-        game.mean_path_layer.activate();
-        this.mean_path = new Path.Rectangle(mean_path_location, mean_path_size);
-        this.mean_path.fillColor = "purple";
-        this.mean_path.visible = false;
     }
     // ------------------------------------------------------------------------------------------
     // Implement binary mask restrictions
