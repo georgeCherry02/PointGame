@@ -214,7 +214,7 @@ with (paper) {
         return result;
     }
     game.removePoint = function(point_id) {
-        Logger.log(LoggingType.NOTICE, "Removing point");
+        Logger.log(LoggingType.NOTICE, "Removing point "+point_id);
         // Get path of point from total list
         var point_path = this.point_areas_list[point_id];
         // Remove the point from the graph tracking 
@@ -227,7 +227,7 @@ with (paper) {
         var section_id = this.determineSectionID(point_path.position);
         // Remove point_area path from section
         var list_of_ids = this.canvas_sections[section_id];
-        list_of_ids.splice(list_of_ids.indexOf(point_id), 1);
+        list_of_ids.splice(list_of_ids.indexOf(parseInt(point_id)), 1);
         this.canvas_sections[section_id] = list_of_ids;
         // Remove point_area from tracking list
         this.point_areas_layer.activate();
@@ -251,6 +251,8 @@ with (paper) {
 
         // Decrease point tally
         this.number_of_points_placed--;
+        // Remind determineSectionsAndSurroundings to update
+        game.last_used_section_requires_update = true;
     }
     game.renderPoint = function(point_location) {
         Logger.log(LoggingType.NOTICE, "Adding point");
@@ -428,6 +430,7 @@ with (paper) {
     game.restrictions.checkPlacementValidity = function(point_location) {
         // Make sure point_location is valid
         if (point_location.x < 0 || point_location.x > 1024 || point_location.y < 0 || point_location.y > 1024) {
+            Logger.log(LoggingType.NOTICE, "Outside of canvas");
             return false;
         }
         // To optimise try to check in order that will require least operations first
@@ -462,11 +465,15 @@ with (paper) {
         Logger.log(LoggingType.NOTICE, "Validating point removal");
         var point_path = game.point_areas_list[point_id];
         if (GRID_CHECK_ACTIVE && !this.grid.check(point_path.position, removal=true)) {
-            Logger.log(LoggingType.NOTICE, "Illegal point removal");
+            Logger.log(LoggingType.NOTICE, "Failed grid density check");
+            return false;
+        }
+        if (STATISTIC_CHECK_ACTIVE && !this.statistics.check(point_path.position, removal=true)) {
+            Logger.log(LoggingType.NOTICE, "Failed statistical checks")
             return false;
         }
         if (FUNCTION_CHECK_ACTIVE && !this.functions.check(point_path.position, point_id)) {
-            Logger.log(LoggingType.NOTICE, "Illegal point removal");
+            Logger.log(LoggingType.NOTICE, "Failed functional checks");
             return false;
         }
         if (game.chaining) {
@@ -1058,44 +1065,69 @@ with (paper) {
         "s_dev": {"x": 0, "y": 0},
         "ppmcc": 0
     }
-    game.restrictions.statistics.check = function(point_location) {
-        if (MEAN_CHECK_ACTIVE && !this.checkMean(point_location)) {
-            Logger.log(LoggingType.NOTICE, "Failed mean check");
+    game.restrictions.statistics.check = function(point_location, removal=false) {
+        if (MEAN_CHECK_ACTIVE && !this.checkMean(point_location, removal)) {
+            Logger.log(LoggingType.STATUS, "Failed mean check");
             return false;
         }
-        if (STDEV_CHECK_ACTIVE && game.number_of_points_placed > 0 && !this.checkStandardDeviation(point_location)) {
+        if (STDEV_CHECK_ACTIVE && game.number_of_points_placed > 0 && !this.checkStandardDeviation(point_location, removal)) {
             Logger.log(LoggingType.STATUS, "Failed Standard Deviation check");
             return false;
         }
-        if (PPMCC_CHECK_ACTIVE && game.number_of_points_placed > 0 && !this.checkPPMCC(point_location)) {
-            Logger.log(LoggingType.NOTICE, "Failed PPMCC check");
+        if (PPMCC_CHECK_ACTIVE && game.number_of_points_placed > 0 && !this.checkPPMCC(point_location, removal)) {
+            Logger.log(LoggingType.STATUS, "Failed PPMCC check");
             return false;
         }
         return true;
     }
-    game.restrictions.statistics.checkMean = function(point_location) {
-        var new_x_mean = (this.mean.x * game.number_of_points_placed + point_location.x)/(game.number_of_points_placed + 1);
-        var new_y_mean = (this.mean.y * game.number_of_points_placed + point_location.y)/(game.number_of_points_placed + 1);
+    game.restrictions.statistics.checkMean = function(point_location, removal) {
+        // If there's only one point placed this will always return true for removal
+        if (removal && game.number_of_points_placed == 1) {
+            return true;
+        }
+        var [new_x_mean, new_y_mean] = this.findModifiedMean(point_location, removal);
         return (new_x_mean >= MEAN_RESTRICTIONS.x.min && new_x_mean <= MEAN_RESTRICTIONS.x.max && new_y_mean >= MEAN_RESTRICTIONS.y.min && new_y_mean <= MEAN_RESTRICTIONS.y.max);
     }
-    game.restrictions.statistics.checkStandardDeviation = function(point_location) {
+    game.restrictions.statistics.checkStandardDeviation = function(point_location, removal) {
         var distribution = game.formatPointData();
-        distribution.x.push(point_location.x);
-        distribution.y.push(point_location.y);
-        var new_x_mean = (this.mean.x * game.number_of_points_placed + point_location.x)/(game.number_of_points_placed + 1);
-        var new_y_mean = (this.mean.y * game.number_of_points_placed + point_location.y)/(game.number_of_points_placed + 1);
-        var [stdev_x, stdev_y] = this.findStandardDeviation(distribution, [new_x_mean, new_y_mean]);
+        distribution = this.modifyDistribution(distribution, point_location, removal);
+        var new_mean = this.findModifiedMean(point_location, removal);
+        var [stdev_x, stdev_y] = this.findStandardDeviation(distribution, new_mean);
         return (stdev_x >= STDEV_RESTRICTIONS.x.min && stdev_x <= STDEV_RESTRICTIONS.x.max && stdev_y >= STDEV_RESTRICTIONS.y.min && stdev_y <= STDEV_RESTRICTIONS.y.max);
     }
-    game.restrictions.statistics.checkPPMCC = function(point_location) {
+    game.restrictions.statistics.checkPPMCC = function(point_location, removal) {
         var distribution = game.formatPointData();
-        distribution.x.push(point_location.x);
-        distribution.y.push(point_location.y);
-        var new_x_mean = (this.mean.x * game.number_of_points_placed + point_location.x)/(game.number_of_points_placed + 1);
-        var new_y_mean = (this.mean.y * game.number_of_points_placed + point_location.y)/(game.number_of_points_placed + 1);
-        var new_s_dev = this.findStandardDeviation(distribution, [new_x_mean, new_y_mean]);
-        var new_ppmcc = this.findPPMCC(distribution, [new_x_mean, new_y_mean], new_s_dev);
+        distribution = this.modifyDistribution(distribution, point_location, removal);
+        var new_mean = this.findModifiedMean(point_location, removal);
+        var new_s_dev = this.findStandardDeviation(distribution, new_mean);
+        var new_ppmcc = this.findPPMCC(distribution, new_mean, new_s_dev);
         return new_ppmcc >= PPMCC_RESTRICTIONS.min && new_ppmcc <= PPMCC_RESTRICTIONS.max;
+    }
+    game.restrictions.statistics.findModifiedMean = function(point_location, removal) {
+        var new_amount = removal ? game.number_of_points_placed - 1 : game.number_of_points_placed + 1;
+        var x_shift = removal ? -point_location.x : point_location.x;
+        var y_shift = removal ? -point_location.y : point_location.y;
+        var new_x_mean = (this.mean.x * game.number_of_points_placed + x_shift)/(new_amount);
+        var new_y_mean = (this.mean.y * game.number_of_points_placed + y_shift)/(new_amount);
+        return [new_x_mean, new_y_mean];
+    }
+    game.restrictions.statistics.modifyDistribution = function(distribution, point_location, removal) {
+        if (removal) {
+            var removal_index = -1;
+            for (var i = 0; i < distribution.x.length; i++) {
+                if (distribution.x[i] == point_location.x && distribution.y[i] == point_location.y) {
+                    removal_index = i;
+                }
+            }
+            if (removal_index != -1) {
+                distribution.x.splice(removal_index, 1);
+                distribution.y.splice(removal_index, 1);
+            }
+        } else {
+            distribution.x.push(point_location.x);
+            distribution.y.push(point_location.y);
+        }
+        return distribution;
     }
     game.restrictions.statistics.update = function() {
         var distribution = game.formatPointData();
