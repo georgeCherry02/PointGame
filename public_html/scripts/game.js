@@ -478,6 +478,10 @@ with (paper) {
         }
         if (game.chaining) {
             var points_of_interest = game.determineSectionAndSurroundings(point_path.position);
+            if (MAX_RADIUS > 128) {
+                var search_radius = Math.floor(MAX_RADIUS / 128);
+                points_of_interest = game.determineSectionAndSurroundings(point_path.position, search_radius);
+            }
             var affected_points = [];
             for (var i = 0; i < points_of_interest.length; i++) {
                 var id = points_of_interest[i];
@@ -514,7 +518,12 @@ with (paper) {
                         }
                     }
                     // Checks (b)
-                    valid_number_of_connections = this.distance.checkMaxDistance(point_position, game.determineSectionAndSurroundings(point_position), true);
+                    var points_within_max_distance = game.determineSectionAndSurroundings(point_position);
+                    if (MAX_RADIUS > 128) {
+                        var search_radius = Math.floor(MAX_RADIUS / 128);
+                        points_within_max_distance = game.determineSectionAndSurroundings(point_position, search_radius);
+                    }
+                    valid_number_of_connections = this.distance.checkMaxDistance(point_position, points_within_max_distance, true);
                     if (!valid_connection || !valid_number_of_connections) {
                         Logger.log(LoggingType.STATUS, "Failed to remove point as it would have broken restrictions");
                         Logger.log(LoggingType.STATUS, "Valid Connection: "+valid_connection);
@@ -530,10 +539,6 @@ with (paper) {
     // Implement distance based restrictions
     // ------------------------------------------------------------------------------------------
     game.restrictions.distance = {}
-    // ##########################################################################################
-    // # This will become problematic once max_distance > 128
-    // # Is this going to be a problem?
-    // ##########################################################################################
     game.restrictions.distance.check = function(point_location) {
         // Check if there are any points already existing, otherwise this questions irrelevant
         if (Object.keys(game.point_areas_list).length === 0) {
@@ -542,6 +547,12 @@ with (paper) {
 
         // Check which quadrant the mouse is in
         var points_of_interest = game.determineSectionAndSurroundings(point_location);
+        if (MAX_RADIUS > 128) {
+            // Need to determine a search radius, otherwise game.determineSectionAndSurroundings may 
+            // miss points actually within max radius
+            var search_radius = Math.floor(MAX_RADIUS / 128);
+            points_of_interest = game.determineSectionAndSurroundings(point_location, search_radius);
+        }
 
         // Loop through all points in the section and it's surroundings (for edge cases) looking for collision within min distance
         var min_distance = this.checkMinimumDistance(point_location, points_of_interest);
@@ -698,6 +709,10 @@ with (paper) {
         // If you've looped through all connected points and not found the destination they're obviously not connected
         return false;
     }
+    // ##########################################################################################
+    // # Minor issue of neighbouring distance going greater than 128px
+    // # However I really doubt that'll happen, worth noting as an exception though
+    // ##########################################################################################
     game.restrictions.graph_model.determineNeighbours = function(point_location) {
         var points_of_interest = game.determineSectionAndSurroundings(point_location);
         var neighbours = [];
