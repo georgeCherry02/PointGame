@@ -37,6 +37,16 @@
             </div>
             <div class="col-8">
                 <p class="grey-text text-center">Please draw a <span class="highlight-text"><?php echo $chosen_shape->getRenderedName(); ?></span> with at least <span class="highlight-text" id="min_number_limit"><?php echo $_SESSION["minimum_number"]; ?></span> and no more than <span class="highlight-text" id="max_number_limit"><?php echo $_SESSION["maximum_number"]; ?></span> points.</p>
+                <div class="colour_palette">
+                    <div class="colour_select" id="colour_select_0"></div>
+                    <div class="colour_select" id="colour_select_1"></div>
+                    <div class="colour_select" id="colour_select_2"></div>
+                    <div class="colour_select" id="colour_select_3"></div>
+                    <div class="colour_select" id="colour_select_4"></div>
+                    <div class="colour_select" id="colour_select_5"></div>
+                    <div class="colour_select" id="colour_select_6"></div>
+                    <div class="colour_select" id="colour_select_7"></div>
+                </div>
             </div>
             <div class="col-2">
                 <button class="btn btn-primary highlight-background highlight-border float-right" type="button" data-toggle="modal" data-target="#clear_modal">
@@ -48,6 +58,7 @@
             <canvas id="game_canvas" height="1024" width="1024" style="-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); width: 100%;"></canvas>
         </div>
     </div>
+    <script src="./tmp/mask.js" type="application/javascript"></script>
     <script src="./scripts/game.js" type="application/javascript"></script>
 </div>
 <div class="modal fade" id="confirmation_modal" tabindex="-1" role="dialog">

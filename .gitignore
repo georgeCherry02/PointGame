@@ -3,3 +3,4 @@ notes/
 inc/admin_constants.php
 public_html/admin/tmp*
 public_html/tmp*
+public_html/scripts/test.js
