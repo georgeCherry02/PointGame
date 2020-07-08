@@ -3,6 +3,7 @@
     include_once "../inc/classes/Database.php";
 
     include_once "../inc/enums/Shapes.php";
+    include_once "../inc/enums/CheckTypes.php";
     include_once "../inc/enums/RestrictionTypes.php";
 
     $page_title = "Game";
@@ -36,7 +37,7 @@
                 <button class="btn btn-primary highlight-background highlight-border" id="submit_point_pattern" onclick="game.submitPoints()">Submit!</button>
             </div>
             <div class="col-8">
-                <p class="grey-text text-center">Please draw a <span class="highlight-text"><?php echo $chosen_shape->getRenderedName(); ?></span> with at least <span class="highlight-text" id="min_number_limit"><?php echo $_SESSION["minimum_number"]; ?></span> and no more than <span class="highlight-text" id="max_number_limit"><?php echo $_SESSION["maximum_number"]; ?></span> points.</p>
+                <p class="grey-text text-center">Please draw a <span class="highlight-text"><?php echo $chosen_shape->getRenderedName(); ?></span> with at least <span class="highlight-text" id="min_number_limit"><?php echo $values["minimum_number"]; ?></span> and no more than <span class="highlight-text" id="max_number_limit"><?php echo $values["maximum_number"]; ?></span> points.</p>
                 <div class="colour_palette">
                     <div class="colour_select" id="colour_select_0"></div>
                     <div class="colour_select" id="colour_select_1"></div>
