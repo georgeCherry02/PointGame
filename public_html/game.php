@@ -20,7 +20,7 @@
     <h5 class="grey-text">Hi, this game is optimised for use on a desktop computer!</h5>
     <p class="grey-text">Please switch over to desktop to play the game and help our research!</p>
 </div>
-<div class="desktop_container" class="container d-none d-lg-block">
+<div class="desktop_container container d-none d-lg-block">
     <div id="start_message" class="container multi_collapse collapse show">
         <h3 class="grey-text">Hi and welcome to our game!</h3>
         <p class="grey-text">The basics premise of the game is you draw a named shape from placing a number of points</p>
@@ -33,11 +33,8 @@
     </div>
     <div id="game_container" class="container collapse multi_collapse">
         <div class="row">
-            <div class="col-2">
-                <button class="btn btn-primary highlight-background highlight-border" id="submit_point_pattern" onclick="game.submitPoints()">Submit!</button>
-            </div>
-            <div class="col-8">
-                <p class="grey-text text-center">Please draw a <span class="highlight-text"><?php echo $chosen_shape->getRenderedName(); ?></span> with at least <span class="highlight-text" id="min_number_limit"><?php echo $values["minimum_number"]; ?></span> and no more than <span class="highlight-text" id="max_number_limit"><?php echo $values["maximum_number"]; ?></span> points.</p>
+            <div class="col-2 tool_container">
+                <p class="grey-text text-left">Please draw a <span class="highlight-text"><?php echo $chosen_shape->getRenderedName(); ?></span> with at least <span class="highlight-text" id="min_number_limit"><?php echo $values["minimum_number"]; ?></span> and no more than <span class="highlight-text" id="max_number_limit"><?php echo $values["maximum_number"]; ?></span> points.</p>
                 <div class="colour_palette">
                     <div class="colour_select" id="colour_select_0"></div>
                     <div class="colour_select" id="colour_select_1"></div>
@@ -47,16 +44,17 @@
                     <div class="colour_select" id="colour_select_5"></div>
                     <div class="colour_select" id="colour_select_6"></div>
                     <div class="colour_select" id="colour_select_7"></div>
+                    <button class="btn btn-primary highlight-background highlight-border submit_button" id="submit_point_pattern" onclick="game.submitPoints()"><span>Submit!</span></button>
+                    <button class="btn btn-primary highlight-background highlight-border clear_button" type="button" data-toggle="modal" data-target="#clear_modal">
+                        <i class="fas fa-trash"><span class="sr-only">Clear Canvas</span></i>
+                    </button>
                 </div>
             </div>
-            <div class="col-2">
-                <button class="btn btn-primary highlight-background highlight-border float-right" type="button" data-toggle="modal" data-target="#clear_modal">
-                    <i class="fas fa-trash"><span class="sr-only">Clear Canvas</span></i>
-                </button>
+            <div class="col-10">
+                <div class="canvas-container" style="width: 750px; height: 750px;">
                     <canvas id="game_canvas" width="750" height="750" style="-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></canvas>
+                </div>
             </div>
-        </div>
-        <div class="canvas-container">
         </div>
     </div>
     <script src="./tmp/mask.js" type="application/javascript"></script>
