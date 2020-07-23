@@ -169,11 +169,14 @@
     echo "<script>";
     echo "const MINIMUM_RADIUS = ".$values["minimum_radius"].";\n";
     echo "const MAXIMUM_RADIUS = ".$values["maximum_radius"].";\n";
-    $_SESSION["max_radius"] = $values["maximum_radius"];
-    $_SESSION["min_radius"] = $values["minimum_radius"];
+    $_SESSION["maximum_radius"] = $values["maximum_radius"];
+    $_SESSION["minimum_radius"] = $values["minimum_radius"];
     echo "const MINIMUM_NUMBER = ".$values["minimum_number"].";\n";
     echo "const MAXIMUM_NUMBER = ".$values["maximum_number"].";\n";
+    $_SESSION["minimum_number"] = $values["minimum_number"];
+    $_SESSION["maximum_number"] = $values["maximum_number"];
     echo "const NUMBER_OF_CLOSE_NEIGHBOURS = ".$values["number_of_close_neighbours"].";\n";
+    echo "const EXPECTED_SHAPE = \"".$values["shape_name"]."\";\n";
     foreach (CheckTypes::ALL() as $check_type) {
         $check_type->determineCheckActive($values[$check_type->getKey()]["active"]);
         if ($values[$check_type->getKey()]["active"]) {
@@ -181,5 +184,5 @@
         }
     }
     echo "</script>";
-    $chosen_shape = Shapes::fromName($values["shape_name"]);
+    $_SESSION["Chosen_Shape"] = $values["shape_name"];
 ?>

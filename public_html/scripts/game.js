@@ -370,6 +370,7 @@ with (paper) {
         var process = "submitPoints";
         var data = {};
         data.point_pattern = this.formatPointData();
+        data.expected_shape = EXPECTED_SHAPE;
         // Validate the number of points client side too
         if (data.point_pattern.x.length < MINIMUM_NUMBER) {
             this.showSubmitError(true);
@@ -403,12 +404,9 @@ with (paper) {
                 var response = JSON.parse(data);
                 if (response.status === "success") {
                     Logger.log(LoggingType.STATUS, "Successfully submitted point pattern");
-                    // Update the current pattern id
-                    game.current_pattern_id = response.insert_id;
-                    // Bring up submission confirmation screen
-                    $("#confirmation_modal").modal("show");
+                    window.location.href = "review.php";
                 } else {
-                    Logger.log(LoggingType.ERROR, ["Error Code: "+response.error_code, "Message: "+respone.error_message]);
+                    Logger.log(LoggingType.ERROR, ["Error Code: "+response.error_code, "Message: "+response.error_message]);
                     // ###################################################################################################################
                     // # Explain to user what was wrong with their submission
                     // # Note this should be quite difficult to get to without malicious activity, so maybe just redirect is solution
@@ -417,33 +415,6 @@ with (paper) {
             },
             error: function() {
                 Logger.log(LoggingType.ERROR, ["Server error occurred!"]);
-            }
-        });
-    }
-    game.confirmPointPattern = function() {
-        Logger.log(LoggingType.NOTICE, "Confirming point pattern with server");
-        var process = "confirmSubmission";
-        var data = {"confirm_id": game.current_pattern_id};
-        $.ajax({
-            type:   "POST",
-            url:    "api.php",
-            data: {
-                "ajax_token":   AJAX_TOKEN,
-                "process":      process,
-                "data":         JSON.stringify(data)
-            },
-            success: function(data) {
-                var response = JSON.parse(data);
-                if (response.status === "success") {
-                    Logger.log(LoggingType.STATUS, "Confirmed Point Pattern");
-                    // Redirect to review page
-                    window.location.href = "review.php";
-                } else {
-                    Logger.log(LoggingType.ERROR, ["Error Code: "+response.error_code, "Message: "+response.error_message]);
-                }
-            },
-            error: function() {
-                Logger.log(LoggingType.ERROR, ["Server error occured!"]);
             }
         });
     }

@@ -34,7 +34,7 @@
     <div id="game_container" class="container collapse multi_collapse">
         <div class="row">
             <div class="col-2 tool_container">
-                <p class="grey-text text-left">Please draw a <span class="highlight-text"><?php echo $chosen_shape->getRenderedName(); ?></span> with at least <span class="highlight-text" id="min_number_limit"><?php echo $values["minimum_number"]; ?></span> and no more than <span class="highlight-text" id="max_number_limit"><?php echo $values["maximum_number"]; ?></span> points.</p>
+                <p class="grey-text text-left">Please draw a <span class="highlight-text"><?php echo $_SESSION["Chosen_Shape"]; ?></span> with at least <span class="highlight-text" id="min_number_limit"><?php echo $values["minimum_number"]; ?></span> and no more than <span class="highlight-text" id="max_number_limit"><?php echo $values["maximum_number"]; ?></span> points.</p>
                 <div class="colour_palette">
                     <div class="colour_select" id="colour_select_0"></div>
                     <div class="colour_select" id="colour_select_1"></div>
@@ -44,7 +44,9 @@
                     <div class="colour_select" id="colour_select_5"></div>
                     <div class="colour_select" id="colour_select_6"></div>
                     <div class="colour_select" id="colour_select_7"></div>
-                    <button class="btn btn-primary highlight-background highlight-border submit_button" id="submit_point_pattern" onclick="game.submitPoints()"><span>Submit!</span></button>
+                    <button class="btn btn-primary highlight-background highlight-border submit_button" id="submit_point_pattern" type="button" data-toggle="modal" data-target="#confirmation_modal">
+                        <span>Submit!</span>
+                    </button>
                     <button class="btn btn-primary highlight-background highlight-border clear_button" type="button" data-toggle="modal" data-target="#clear_modal">
                         <i class="fas fa-trash"><span class="sr-only">Clear Canvas</span></i>
                     </button>
@@ -67,7 +69,7 @@
                 <h5 class="modal-title">Confirm Submission?</h5>
             </div>
             <div class="modal-body">
-                <button class="btn btn-primary highlight-background highlight-border" type="button" onclick="game.confirmPointPattern()">Yes</button>
+                <button class="btn btn-primary highlight-background highlight-border" type="button" onclick="game.submitPoints()">Yes</button>
                 <button class="btn btn-primary highlight-background highlight-border ml-2" type="button" data-dismiss="modal" aria-label="Close">No</button>
             </div>
         </div>

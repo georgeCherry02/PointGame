@@ -29,58 +29,6 @@
     // Validate provided process
     // Error codes documented at bottom of API
     switch($_POST["process"]) {
-        case "confirmSubmission":
-            // Decode the data
-            $request_data = json_decode($_POST["data"], $assoc=TRUE);
-            // Check the data decoded correctly
-            if (sizeof($request_data) === 0) {
-                $response["error_message"] = "Malformed Data";
-                $response["error_code"] = 1;
-                break;
-            }
-            // Check that the ID provided was created by the SESSION
-            if (!in_array($request_data["confirm_id"], $_SESSION["pattern_ids"])) {
-                $response["error_message"] = "Pattern ID not created by user";
-                $response["error_code"] = 2;
-                break;
-            }
-            // Confirm the provided point pattern
-            $confirmation_sql = "UPDATE `point_patterns` SET `Confirmed`=1 WHERE `ID`=:id";
-            $confirmation_sql_variables = array(":id" => $request_data["confirm_id"]);
-            try {
-                DB::query($confirmation_sql, $confirmation_sql_variables);
-            } catch (PDOException $e) {
-                Logger::log(LoggingType::WARNING(), array("PDOException", "Failed to confirm point pattern", "ID: ".$request_data["confirm_id"]));
-                $response["error_message"] = "Server Error";
-                $response["error_code"] = 0;
-                break;
-            }
-            // Delete other point patterns
-            $cleanup_sql = "DELETE FROM `point_patterns` WHERE (`Confirmed`=0) AND (`ID`=:id0";
-            $cleanup_sql_variables = array(":id0" => $_SESSION["pattern_ids"][0]);
-            for ($i = 1; $i < sizeof($_SESSION["pattern_ids"]); $i++) {
-                $cleanup_sql .= " OR `ID`=:id".$i;
-                $cleanup_sql_variables[":id".$i] = $_SESSION["pattern_ids"][$i];
-            }
-            $cleanup_sql .= ")";
-            try {
-                DB::query($cleanup_sql, $cleanup_sql_variables);
-            } catch (PDOException $e) {
-                Logger::log(LoggingType::ERROR(), array("PDOException", "Failed to delete unconfirmed patterns", "IDs: ".json_encode($_SESSION["pattern_ids"])));
-                // ##########################################################################################
-                // # Not sure whether to keep this in... will decide once hosting's sorted
-                // ##########################################################################################
-                error_log("Failed to delete unconfirmed patterns, needs to be resolved", 1, ADMIN_EMAIL);
-                $response["error_message"] = "Server Error";
-                $response["error_code"] = 0;
-                break;
-            }
-            // Reset tracked point patterns
-            $_SESSION["pattern_ids"] = array();
-            $_SESSION["review_mode"] = TRUE;
-            Logger::log(LoggingType::NOTICE(), array("New point pattern submitted", "ID: ".$request_data["confirm_id"]));
-            $response["status"] = "success";
-            break;
         case "fetchReviewPatterns":
             // No data required
             include_once "../inc/classes/Review.php";
@@ -120,8 +68,7 @@
                 array_push($_SESSION["reviewed_pattern_ids"], $current_pattern["ID"]);
                 // Fetch pattern shape
                 try {
-                    $shape_id = intval($current_pattern["Shape_ID"]);
-                    $point_pattern_shape = Shapes::fromID($shape_id);
+                    $point_pattern_shape = Shapes::fromName($current_pattern["Shape_Name"]);
                     $response[$rspns_key]["Shape_Name"] = $point_pattern_shape->getRenderedName();
                 } catch (OutOfRangeException $e) {
                     // Logging handled inside Review::removeInvalidPattern logging
@@ -175,8 +122,8 @@
                 break;
             }
             // Check the shape matches the expected shape
-            if ($request_data["expected_shape"] != $_SESSION["Expected_Shape_ID"]) {
-                $response["error_message"] = "Unexpected shape tag received";
+            if ($request_data["expected_shape"] != $_SESSION["Chosen_Shape"]) {
+                $response["error_message"] = "Mismatching shape received";
                 $response["error_code"] = 2;
                 break;
             }
@@ -198,8 +145,9 @@
             }
             // Validate all restrictions
             foreach (RestrictionTypes::ALL() as $restriction) {
-                if ($request_data["limitations"][$restriction->getFunctionalName()] !== $_SESSION[$restriction->getFunctionalName()]) {
+                if ($request_data["limitations"][$restriction->getFunctionalName()] != $_SESSION[$restriction->getFunctionalName()]) {
                     $response["error_message"] = "Mismatch in restrictions expected and those provided by user";
+                    $response["extra_data"] = "req_data=".$request_data["limitations"][$restriction->getFunctionalName()]." | serv_data=".$_SESSION[$restriction->getFunctionalName()];
                     $response["error_code"] = 6;
                     echo json_encode($response);
                     exit;
@@ -218,8 +166,8 @@
                 break;
             }
             if ($limitation_id) {
-                $point_pattern_sql = "INSERT INTO `point_patterns` (`Shape_ID`, `Limitations_ID`, `Point_Pattern`) VALUES (:shape_id, :lim_id, :pp)";
-                $point_pattern_sql_param = array(":shape_id" => $request_data["expected_shape"], ":lim_id" => $limitation_id, ":pp" => json_encode($request_data["point_pattern"]));
+                $point_pattern_sql = "INSERT INTO `point_patterns` (`Shape_Name`, `Limitations_ID`, `Point_Pattern`) VALUES (:shape, :lim_id, :pp)";
+                $point_pattern_sql_param = array(":shape" => $request_data["expected_shape"], ":lim_id" => $limitation_id, ":pp" => json_encode($request_data["point_pattern"]));
                 try {
                     $insert_id = DB::query($point_pattern_sql, $point_pattern_sql_param);
                 } catch (PDOException $e) {
@@ -234,7 +182,8 @@
                         // ##########################################################################################
                         // # Not sure whether to keep this in... will decide once hosting's sorted
                         // ##########################################################################################
-                        error_log("Failed to delete limitation of failed pattern insert, needs to be resolved, limitation id: ".$limitation_id, 1, ADMIN_EMAIL);
+                        // # error_log("Failed to delete limitation of failed pattern insert, needs to be resolved, limitation id: ".$limitation_id, 1, ADMIN_EMAIL);
+                        // ##########################################################################################
                     }
                     $response["error_message"] = "Server Error";
                     $response["error_code"] = 0;
@@ -244,11 +193,8 @@
                 $response["error_code"] = 0;
                 break;
             }
-            if (!isset($_SESSION["pattern_ids"])) {
-                $_SESSION["pattern_ids"] = array($insert_id);
-            } else {
-                array_push($_SESSION["pattern_ids"], $insert_id);
-            }
+            $_SESSION["review_mode"] = True;
+            Logger::log(LoggingType::NOTICE(), array("New point pattern submitted", "ID: ".$insert_id));
             $response["status"] = "success";
             $response["insert_id"] = $insert_id;
             break;
