@@ -61,8 +61,8 @@
                 $density_count = $_POST["grid_density_".$type."_count"];
                 for ($i = 1; $i <= $density_count; $i++) {
                     $amount = $_POST["grid_density_".$type."_".$i."_value"];
-                    $prob = intval($_POST["grid_density_".$type."_".$i."_prob"]);
-                    $distribution[$amount] = $prob;
+                    $prop = intval($_POST["grid_density_".$type."_".$i."_prop"]);
+                    $distribution[$amount] = $prop;
                 }
                 $values["grid_check"]["values"][$type."_grid_density"] = json_encode($distribution);
             }

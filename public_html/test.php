@@ -177,8 +177,8 @@
                     </div>
                 </div>
                 <div class="grid_density_max_1">
-                    <label for="grid_density_max_1_prob">Probability 1:</label>
-                    <input type="number" class="form-control" id="grid_density_max_1_prob" name="grid_density_max_1_prob" min="0" max="100"/>
+                    <label for="grid_density_max_1_prop">Proportion 1:</label>
+                    <input type="number" class="form-control" id="grid_density_max_1_prop" name="grid_density_max_1_prop" min="0" max="100"/>
                     <label for="grid_density_max_1_value">Value 1:</label>
                     <input type="number" class="form-control" id="grid_density_max_1_value" name="grid_density_max_1_value" min="0"/>
                 </div>
@@ -201,8 +201,8 @@
                     </div>
                 </div>
                 <div class="grid_density_min_1">
-                    <label for="grid_density_min_1_prob">Probability 1:</label>
-                    <input type="number" class="form-control" id="grid_density_min_1_prob" name="grid_density_min_1_prob" min="0" max="100"/>
+                    <label for="grid_density_min_1_prop">Proportion 1:</label>
+                    <input type="number" class="form-control" id="grid_density_min_1_prop" name="grid_density_min_1_prop" min="0" max="100"/>
                     <label for="grid_density_min_1_value">Value 1:</label>
                     <input type="number" class="form-control" id="grid_density_min_1_value" name="grid_density_min_1_value" min="0"/>
                 </div>
@@ -214,7 +214,7 @@
         </div>
     </div>
     <hr/>
-    <h4>Statistics Restrictions:</h4>
+    <h4>Statistical Restrictions:</h4>
     <div class="form-group">
         <div class="form-check">
             <input class="form-check-input" type="checkbox" name="statistics_check_active" id="statistics_active"/>
@@ -382,8 +382,8 @@
         var new_amount = init_amount + 1;
         var new_input_html =    "<div id=\"grid_"+container_type+"_"+new_amount+"_container\">"
                            +        "<hr/>"
-                           +        "<label for=\"grid_"+container_type+"_"+new_amount+"_prob\">Probability "+new_amount+":</label>"
-                           +        "<input type=\"number\" class=\"form-control\" id=\"grid_"+container_type+"_"+new_amount+"_prob\" name=\"grid_"+container_type+"_"+new_amount+"_prob\" min=\"0\" max=\"100\"/>"
+                           +        "<label for=\"grid_"+container_type+"_"+new_amount+"_prop\">Proportion "+new_amount+":</label>"
+                           +        "<input type=\"number\" class=\"form-control\" id=\"grid_"+container_type+"_"+new_amount+"_prop\" name=\"grid_"+container_type+"_"+new_amount+"_prop\" min=\"0\" max=\"100\"/>"
                            +        "<label for=\"grid_"+container_type+"_"+new_amount+"_value\">Value "+new_amount+":</label>"
                            +        "<input type=\"number\" class=\"form-control\" id=\"grid_"+container_type+"_"+new_amount+"_value\" name=\"grid_"+container_type+"_"+new_amount+"_value\" min=\"0\"/>"
                            +    "</div>";
