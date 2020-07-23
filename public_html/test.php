@@ -82,7 +82,7 @@
               .         "<label for=\"".$type."_range_1_min\">Average minimum 1:</label>"
               .         "<input type=\"number\" class=\"form-control\" name=\"".$type."_range_1_min\" id=\"".$type."_range_1_min\"/>"
               .     "</div>"
-              .     "<small>Make sure your last range's top distance is 1450</small>"
+              .     "<small>Make sure your last range's top distance is 1100</small>"
               .     "<script>\n"
               .     "   form_counts[\"".$type."\"] = 1;\n"
               .     "</script>"

@@ -60,7 +60,7 @@ with (paper) {
     // Define basic properties
     game.canvas = $("#game_canvas");
     game.origin = new Point(0, 0);
-    game.canvas_size = new Size(1024, 1024);
+    game.canvas_size = new Size(750, 750);
     // Note this just increments when points are placed and doesn't decrement when points are removed
     game.number_of_points_placed = 0;
     game.total_number_of_points_placed = 0;
@@ -81,6 +81,7 @@ with (paper) {
     for (var i = 0; i < 64; i++) {
         game.canvas_sections.push([]);
     }
+    game.canvas_sections_size = Math.floor(game.canvas_size.width / 8);
     // Define the variables required for caching sections
     game.last_used_section_requires_update = false;
     game.last_used_section_and_surroundings_id;
@@ -184,8 +185,8 @@ with (paper) {
         return this.canvas_sections[section_number];
     }
     game.determineSectionAndSurroundings = function(point_location, radius = 1) {
-        var i = Math.floor((point_location.x / 1024) * 8);
-        var j = Math.floor((point_location.y / 1024) * 8);
+        var i = Math.floor(point_location.x / this.canvas_sections_size);
+        var j = Math.floor(point_location.y / this.canvas_sections_size);
         var section_id = this.determineSectionID(point_location);
         // Trying to optimise a bit by checking if we've already formed this array
         if (!this.last_used_section_requires_update && section_id == this.last_used_section_and_surroundings_id && radius == this.last_used_section_and_surroundings_radius) {
@@ -209,8 +210,8 @@ with (paper) {
         return surrounding_ids;
     }
     game.determineSectionID = function(point_location) {
-        var i = Math.floor((point_location.x / 1024) * 8);
-        var j = Math.floor((point_location.y / 1024) * 8);
+        var i = Math.floor(point_location.x / this.canvas_sections_size);
+        var j = Math.floor(point_location.y / this.canvas_sections_size);
         return 8*j + i;
     }
     game.formatPointData = function() {
@@ -454,7 +455,7 @@ with (paper) {
     // ------------------------------------------------------------------------------------------
     game.restrictions.checkPlacementValidity = function(point_location) {
         // Make sure point_location is valid
-        if (point_location.x < 0 || point_location.x > 1024 || point_location.y < 0 || point_location.y > 1024) {
+        if (point_location.x < 0 || point_location.x > game.canvas_size.width || point_location.y < 0 || point_location.y > game.canvas_size.height) {
             Logger.log(LoggingType.NOTICE, "Outside of canvas");
             return false;
         }
@@ -503,8 +504,8 @@ with (paper) {
         }
         if (game.chaining) {
             var points_of_interest = game.determineSectionAndSurroundings(point_path.position);
-            if (MAXIMUM_RADIUS > 128) {
-                var search_radius = Math.floor(MAXIMUM_RADIUS / 128);
+            if (MAXIMUM_RADIUS > game.canvas_sections_size) {
+                var search_radius = Math.floor(MAXIMUM_RADIUS / game.canvas_sections_size);
                 points_of_interest = game.determineSectionAndSurroundings(point_path.position, search_radius);
             }
             var affected_points = [];
@@ -544,8 +545,8 @@ with (paper) {
                     }
                     // Checks (b)
                     var points_within_max_distance = game.determineSectionAndSurroundings(point_position);
-                    if (MAXIMUM_RADIUS > 128) {
-                        var search_radius = Math.floor(MAXIMUM_RADIUS / 128);
+                    if (MAXIMUM_RADIUS > game.canvas_sections_size) {
+                        var search_radius = Math.floor(MAXIMUM_RADIUS / game.canvas_sections_size);
                         points_within_max_distance = game.determineSectionAndSurroundings(point_position, search_radius);
                     }
                     valid_number_of_connections = this.distance.checkMaxDistance(point_position, points_within_max_distance, true);
@@ -572,10 +573,10 @@ with (paper) {
 
         // Check which quadrant the mouse is in
         var points_of_interest = game.determineSectionAndSurroundings(point_location);
-        if (MAXIMUM_RADIUS > 128) {
+        if (MAXIMUM_RADIUS > game.canvas_sections_size) {
             // Need to determine a search radius, otherwise game.determineSectionAndSurroundings may 
             // miss points actually within max radius
-            var search_radius = Math.floor(MAXIMUM_RADIUS / 128);
+            var search_radius = Math.floor(MAXIMUM_RADIUS / game.canvas_sections_size);
             points_of_interest = game.determineSectionAndSurroundings(point_location, search_radius);
         }
 
@@ -738,7 +739,7 @@ with (paper) {
         return false;
     }
     // ##########################################################################################
-    // # Minor issue of neighbouring distance going greater than 128px
+    // # Minor issue of neighbouring distance going greater than canvas_dim / 8;
     // # However I really doubt that'll happen, worth noting as an exception though
     // ##########################################################################################
     game.restrictions.graph_model.determineNeighbours = function(point_location) {
@@ -830,7 +831,8 @@ with (paper) {
     // ------------------------------------------------------------------------------------------
     game.restrictions.grid = {
         "density": {},
-        "tracking": {}
+        "tracking": {},
+        "cell_number": 0
     }
     game.restrictions.grid.addPoint = function(point_location, point_id) {
         Logger.log(LoggingType.NOTICE, "Adding point to grid tracking")
@@ -880,12 +882,14 @@ with (paper) {
                 occupation_space += limitations[density];
             }
         }
+        // Determine occupation amount in units of number of cells
         for (density in this.tracking) {
             if ((density >= changed_density && !removal) || (density <= changed_density && removal)) {
                 occupation_amount += this.tracking[density];
             }
         }
-        var occupation_percentage = Math.floor(occupation_amount / 1024 * 100);
+        // Determine occupation percentage in units of percentage of grid
+        var occupation_percentage = Math.floor(occupation_amount / game.restrictions.grid.cell_number * 100);
         return occupation_percentage < occupation_space;
     }
     game.restrictions.grid.determineGridUnitCell = function(point_location) {
@@ -1222,7 +1226,7 @@ with (paper) {
         "nearest_neighbour": {},
         "spherical_contact": {
             "-1": {
-                "random_point": new Point(Math.floor(Math.random() * 1024), Math.floor(Math.random() * 1024)),
+                "random_point": new Point(Math.floor(Math.random() * game.canvas_size.width), Math.floor(Math.random() * game.canvas_size.height)),
                 "distance": Infinity
             }
         },
@@ -1234,7 +1238,7 @@ with (paper) {
         }
     };
     game.restrictions.functions.initialise = function() {
-        for (var i = 0; i <= 1450; i++) {
+        for (var i = 0; i <= 1100; i++) {
             this.pcf[i] = 0;
         }
         // For each limitation implement tracking for surpassing averages
@@ -1298,7 +1302,7 @@ with (paper) {
         this.pcf = fin_pcf;
         // Handle Spherical Contact distribution
         // First add new random point to distribution for checking
-        var random_point = new Point(Math.floor(Math.random() * 1024), Math.floor(Math.random() * 1024));
+        var random_point = new Point(Math.floor(Math.random() * game.canvas_size.width), Math.floor(Math.random() * game.canvas_size.height));
         this.spherical_contact[point_id] = this.spherical_contact["-1"];
         this.spherical_contact["-1"] = {};
         this.spherical_contact["-1"].random_point = random_point;
@@ -1443,12 +1447,12 @@ with (paper) {
     }
     game.restrictions.functions.normalisePCF = function(pcf, number_of_points) {
         // Determine point/px^2
-        var point_density = number_of_points / Math.pow(1024, 2);
+        var point_density = number_of_points / (game.canvas_size.width * game.canvas_size.height);
         if (number_of_points == 0) { 
-            point_density = 1 / Math.pow(1024, 2);
+            point_density = 1 / (game.canvas_size.width * game.canvas_size.height);
         }
         var area, exp_points;
-        for (var i = 0; i <= 1450; i++) {
+        for (var i = 0; i <= 1100; i++) {
             // Determine area of this annulus
             area = Math.PI * (Math.pow(i+1, 2) - Math.pow(i, 2));
             // Determine expected number of points
@@ -1469,7 +1473,7 @@ with (paper) {
         spherical_running_total = spherical_contact_distribution[0]/point_count;
         nearest_running_total = nearest_neighbour_distribution[0]/point_count;
         jf[0] = (1 - nearest_running_total) / (1 - spherical_running_total);
-        for (var i = 1; i <= 1450; i++) {
+        for (var i = 1; i <= 1100; i++) {
             spherical_running_total += spherical_contact_distribution[i] / point_count;
             nearest_running_total += nearest_neighbour_distribution[i] / point_count;
             // Javascript doesn't like dividing by 0
@@ -1491,7 +1495,7 @@ with (paper) {
             delete distribution[point_id];
         }
         // Loop through all points in the nearest neighbours distribution
-        var c_point, c_distance, key, shortest_distance = 1450;
+        var c_point, c_distance, key, shortest_distance = 1100;
         for (var id in distribution) {
             if (removal) {
                 c_distance = distribution[id].distance;
@@ -1577,7 +1581,7 @@ with (paper) {
         var limitations = this.limitations[distribution_type].values;
         var sums = {"short": 0, "medium": 0, "long": 0};
         var key;
-        for (var i = 0; i <= 1450; i++) {
+        for (var i = 0; i <= 1100; i++) {
             key = "long";
             if (i <= limitations.short.range) {
                 key = "short";

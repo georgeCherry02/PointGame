@@ -53,10 +53,10 @@
                 <button class="btn btn-primary highlight-background highlight-border float-right" type="button" data-toggle="modal" data-target="#clear_modal">
                     <i class="fas fa-trash"><span class="sr-only">Clear Canvas</span></i>
                 </button>
+                    <canvas id="game_canvas" width="750" height="750" style="-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></canvas>
             </div>
         </div>
         <div class="canvas-container">
-            <canvas id="game_canvas" height="1024" width="1024" style="-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); width: 100%;"></canvas>
         </div>
     </div>
     <script src="./tmp/mask.js" type="application/javascript"></script>
