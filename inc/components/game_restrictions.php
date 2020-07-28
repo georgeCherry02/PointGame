@@ -40,7 +40,7 @@
         if ($values["graph_check"]["active"]) {
             $values["graph_check"]["values"] = array();
             $values["graph_check"]["values"]["graph_render"] = isset($_POST["render_graph"]);
-            if ($values["maximum_radius"] < $values["minimum_radius"]) {
+            if ($values["maximum_radius"] <= $values["minimum_radius"]) {
                 $values["graph_check"]["values"]["neighbouring_distance"] = $_POST["neighbouring_distance"];
             }
             $values["graph_check"]["values"]["intersecting_edge"] = !isset($_POST["intersecting_edge"]);

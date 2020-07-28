@@ -193,7 +193,7 @@
                     }
                     break;
                 case CheckTypes::Graph():
-                    if ($_SESSION["max_radius"] < $_SESSION["min_radius"]) {
+                    if ($_SESSION["maximum_radius"] <= $_SESSION["minimum_radius"]) {
                         echo "const NEIGHBOURING_DISTANCE = ".$values["neighbouring_distance"].";\n";
                     }
                     $js_bool = $values["intersecting_edge"] ? "true" : "false";
