@@ -62,8 +62,10 @@
                 // Fetch basic pattern data
                 $response[$rspns_key]["x"] = $current_pattern_data["x"];
                 $response[$rspns_key]["y"] = $current_pattern_data["y"];
+                $response[$rspns_key]["c"] = $current_pattern_data["c"];
                 // Fetch pattern ID
                 $response[$rspns_key]["ID"] = $current_pattern["ID"];
+                $response[$rspns_key]["canvas_size"] = $current_pattern["Canvas_Size"];
                 // Track pattern IDs being reviewed
                 array_push($_SESSION["reviewed_pattern_ids"], $current_pattern["ID"]);
                 // Fetch pattern shape

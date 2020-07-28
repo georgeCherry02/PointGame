@@ -28,7 +28,7 @@
         }
         $html.= "\">"
               .     "<h5 class=\"review_question grey-text\">How much does this look like a <span id=\"review_question_".$i."\" class=\"highlight-text\"></span>?</h5>"
-              .     "<canvas id=\"review_canvas_".$i."\" width=\"512\" height=\"512\"></canvas>"
+              .     "<canvas id=\"review_canvas_".$i."\" style=\"background: white;\" width=\"512\" height=\"512\"></canvas>"
               .     "<div class=\"review_input_container\">"
               .         "<p class=\"min_indicator\">0</p>"
               .         "<input type=\"hidden\" id=\"review_pattern_id_".$i."\">"
