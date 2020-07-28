@@ -1219,12 +1219,12 @@ with (paper) {
     // ------------------------------------------------------------------------------------------
     // Implement binary mask restrictions
     // ------------------------------------------------------------------------------------------
-    game.restrictions.mask = {};
-    game.restrictions.mask.data = BINARY_MASK;
-    game.restrictions.mask.check = function(location) {
-        var x = Math.floor(location.x), y = Math.floor(location.y);
-        return this.data[y][x] == 1;
-    }
+    // game.restrictions.mask = {};
+    // game.restrictions.mask.data = BINARY_MASK;
+    // game.restrictions.mask.check = function(location) {
+    //     var x = Math.floor(location.x), y = Math.floor(location.y);
+    //     return this.data[y][x] == 1;
+    // }
     // ------------------------------------------------------------------------------------------
     // Implement function based restrictions
     // ------------------------------------------------------------------------------------------
