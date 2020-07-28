@@ -1,47 +1,54 @@
-.landing.jumbotron {
-    height: 12em;
+.landing-page-jumbotron {
+    height: calc(100% - 3.5rem);
+    text-align: center;
 }
-.btn {
-    margin-left: 35%;
-    width: 30%;
-
-    font-size: 24px;
+.landing-page-jumbotron h1 {
+    font-size: 84px;
+    font-family: "Arial Black";
 }
-.landing-circle-1 {
+.landing-page-jumbotron h5 {
+    font-weight: normal;
+}
+.landing-page-jumbotron .text-container {
+    position: relative;
+    top: 50%;
+    transform: translateY(calc(-50% - 3rem));
+    width: fit-content;
+    margin: auto;
+}
+p.navbar-title:hover {
+    color: black;
+    cursor: default;
+}
+.play_button {
     position: absolute;
+    top: 65%;
+    left: 50%;
+    transform: translate(-50%, 0);
 
-    height: 3em;
-    width: 3em;
-    border-radius: 1.5em;
+    width: 10rem;
+    height: 10rem;
+    border-radius: 5rem;
 
-    opacity: 0.35;
-    transform: translate(0, 0);
+    cursor: pointer;
+    background: #C9CDB3;
 
-    background-color: red;
-    animation-name: landing-circle-1-load;
-    animation-duration: 2s;
+
+    text-align: center;
 }
-.landing-circle-2 {
-    position: absolute;
-    right: 4em;
-
-    height: 6em;
-    width: 6em;
-    border-radius: 3em;
-
-    opacity: 0.4;
-    transform: translate(0, 0);
-
-    background-color: blue; 
-    animation-name: landing-circle-2-load;
-    animation-duration: 3s;
+.play_button:hover {
+    transform: translate(calc(-50% + 1px), 1px);
+    background: #DADEC4;
 }
-
-@keyframes landing-circle-1-load {
-    from {opacity: 0; transform: translate(0, 50px); }
-    to {opacity: 0.35; transform: translate(0, 0); }
+.play_button .link_container {
+    margin-top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
 }
-@keyframes landing-circle-2-load {
-    from {opacity: 0; transform: translate(0, -75px); }
-    to {opacity: 0.4; transform: translate(0, 0); }
+.play_button a {
+    margin: auto;
+    text-decoration: none;
+    color: black;
+    font-family: "Arial Black";
+    cursor: pointer;
 }
