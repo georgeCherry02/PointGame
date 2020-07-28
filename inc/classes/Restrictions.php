@@ -184,5 +184,51 @@
             Logger::log(LoggingType::STATUS(), array("Successfully updated restriction set", "ID: ".$update_id));
             return true;
         }
+
+        public static function manageCheckType($check_type, $values) {
+            switch($check_type) {
+                case CheckTypes::Functions():
+                    if ($values["j_function"]["active"] && !($values["nearest_neighbour"]["active"] && $values["spherical_contact"]["active"])) {
+                        $values["j_function"]["active"] = false;
+                    }
+                    break;
+                case CheckTypes::Graph():
+                    if ($_SESSION["maximum_radius"] <= $_SESSION["minimum_radius"]) {
+                        echo "const NEIGHBOURING_DISTANCE = ".$values["neighbouring_distance"].";\n";
+                    }
+                    $js_bool = $values["intersecting_edge"] ? "true" : "false";
+                    echo "const INTERSECTING_EDGE_CHECK_ACTIVE = ".$js_bool.";\n";
+                    $js_bool = $values["graph_render"] ? "true" : "false";
+                    echo "const GRAPH_RENDER = ".$js_bool.";\n";
+                    break;
+                case CheckTypes::Grid():
+                    echo "const GRID_MODE = '".$values["grid_mode"]."';\n";
+                    echo "const GRID_RESOLUTION = ".$values["grid_resolution"].";\n";
+                    $js_bool = $values["grid_render"] ? "true" : "false";
+                    echo "const GRID_RENDER = ".$js_bool.";\n";
+                    echo "const MAX_NUMBER_PER_GRID_CELL_DISTRIBUTION = ".$values["max_grid_density"].";\n";
+                    echo "const MIN_NUMBER_PER_GRID_CELL_DISTRIBUTION = ".$values["min_grid_density"].";\n";
+                    break;
+                case CheckTypes::Mask():
+                    echo "const MASK_ROOT = ".$values["mask_root"].";\n";
+                    break;
+                case CheckTypes::Statistics():
+                    if (!$values["mean"]["active"]) {
+                        $values["stdev"]["active"] = false;
+                        $values["ppmcc"]["active"] = false;
+                    } 
+                    if (!$values["stdev"]["active"]) {
+                        $values["ppmcc"] = false;
+                    }
+                    break;
+            }
+            foreach ($check_type->getSubChecks() as $sub_check) {
+                $js_bool = $values[$sub_check]["active"] ? "true" : "false";
+                echo "const ".strtoupper($sub_check)."_CHECK_ACTIVE = ".$js_bool.";\n";
+                if ($values[$sub_check]["active"]) {
+                    echo "const ".strtoupper($sub_check)."_LIMITATIONS = ".$values[$sub_check]["value"].";\n";
+                }
+            }
+        }
     }
 ?>

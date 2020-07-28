@@ -1,8 +1,13 @@
-.canvas-container {
-    margin: 2em;
+h5 {
+    margin: 0;
+    font-family: "Arial Black";
+}
+.tool_container {
+    padding-top: 2em;
 }
 #game_canvas {
     cursor: none;
+    border: 1px solid #C0BABA;    
 }
 
 #desktop_optimisation_message {
@@ -12,7 +17,6 @@
 .desktop_container {
     /* Height of navbar is 3.5rem */
     height: calc(100vh - 3.5rem);
-    padding-top: 1rem;
 }
 #start_message p {
     margin-bottom: 0.125rem;
@@ -21,15 +25,10 @@
     margin-top: 1rem;
 }
 
-#game_container {
+#game_container, #canvas_container {
     position: relative;
-}
-
-.clear_icon {
-    cursor: pointer;
-    position: absolute;
-    top: 0.3rem;
-    right: 0;
+    padding: 0;
+    height: 100%;
 }
 
 .limitation_error_text {
@@ -37,19 +36,111 @@
     text-decoration: underline;
 }
 
-.colour_palette {
-    width: 144px;
-    height: 72px;
-    margin: auto;
+#left_panel {
+    position: absolute;
+    z-index: 5;
+    margin-top: 18px;
 }
 .colour_select {
-    float: left;
     width: 32px;
     height: 32px;
     border-width: 1px;
     border-style: solid;
     border-color: transparent;
-    margin: 1px;
     cursor: pointer;
-    border-radius: 5px;
+    margin: auto;
+    margin-bottom: 1rem;
+}
+#right_panel {
+    top: 18px;
+    position: absolute;
+    z-index: 5;
+}
+#submit_button {
+    position: absolute;
+    bottom: 3rem;
+    left: 3rem;
+
+    width: 0px;
+    height: 0px;
+    border-radius: 3rem;
+
+    text-align: center;
+    background: #C9CDB3;
+    cursor: pointer;
+    transition: width 1s, height 1s, bottom 1s, left 1s;
+}
+h5#submit_button_text {
+    position: absolute;
+    transform: translateY(50%);
+    bottom: 3rem;
+    left: 0.5rem;
+
+    cursor: pointer;
+}
+#clear_button {
+    cursor: pointer;
+}
+#clear_button h5 {
+    cursor: pointer;
+}
+.info_button {
+    cursor: pointer;
+}
+.info_button h5 {
+    cursor: pointer;
+}
+.modal {
+    padding-right: 0 !important;
+}
+#clear_modal .modal-content {
+    border: none;
+    background: #EBB391;
+}
+#info_modal .modal-content {
+    border: none;
+    background: #E8D19D;
+}
+#confirmation_modal .modal-content {
+    border: none;
+    background: #C9CDB3;
+}
+.modal-dialog {
+    margin-top: 50vh;
+    transform: translateY(-50%) !important;
+}
+.modal-content {
+    height: 20rem;
+    width: 20rem;
+    border-radius: 10rem;
+}
+h5.modal-title {
+    width: 10rem;
+    margin-left: 5rem;
+    margin-top: 2rem;
+}
+.modal-question-container {
+    margin-top: 50%;
+    transform: translateY(-50%);
+}
+p.modal-question {
+    width: 10rem;
+    margin-left: 5rem;
+}
+h5.modal-answer {
+    cursor: pointer;
+    text-align: center;
+    display: inline-block;
+    width: 25%;
+}
+h5.modal-answer-left {
+    margin-left: 25%;
+}
+.modal-content p {
+    width: 15rem;
+    margin-left: 2.5rem;
+}
+.modal-content .button_container {
+    display: inline-block;
+    width: 50%;
 }

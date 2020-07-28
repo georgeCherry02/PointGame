@@ -45,6 +45,12 @@
 
             throw new OutOfRangeException();
         }
+        
+        public static function Random() {
+            $list = self::ALL();
+            $index = rand(0, sizeof($list));
+            return $list[$index];
+        }
 
         public static function ALL() {
             // Attain a list of all Enums from that class

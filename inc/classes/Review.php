@@ -5,7 +5,7 @@
         private static $_total_pattern_amount = 30;
         public static function fetchReviewablePatterns() {
             // Fetch a subset of patterns that are not fully reviewed yet and are complete
-            $fetch_sql = "SELECT `ID`, `Shape_ID`, `Limitations_ID`, `Point_Pattern` FROM `Point_Patterns` WHERE `Confirmed`=1 AND `Review_Amount` < :rev_amount LIMIT ".self::$_total_pattern_amount;
+            $fetch_sql = "SELECT `ID`, `Shape_Name`, `Limitations_ID`, `Point_Pattern`, `Canvas_Size` FROM `Point_Patterns` WHERE `Review_Amount` < :rev_amount LIMIT ".self::$_total_pattern_amount;
             $fetch_sql_variables = array(":rev_amount" => self::$_valid_review_amount);
             try {
                 $reviewable_patterns = DB::query($fetch_sql, $fetch_sql_variables);
@@ -33,7 +33,7 @@
         public static function removeInvalidPattern($pattern_id) {
             Logger::log(LoggingType::ERROR(), array("Attempting to delete an invalid shape", "ID: ".$pattern_id));
             // Double check it's invalid
-            $invalidity_check_sql = "SELECT `Shape_ID`, `Limitations_ID`, `Confirmed` FROM `Point_Patterns` WHERE `ID`=:id";
+            $invalidity_check_sql = "SELECT `Shape_Name`, `Limitations_ID` FROM `Point_Patterns` WHERE `ID`=:id";
             $invalidity_check_variables = array(":id" => $pattern_id);
             try {
                 $invalid_pattern_info = DB::query($invalidity_check_sql, $invalidity_check_variables)[0];
@@ -43,17 +43,13 @@
             }
             // Declare variables representing whether the pattern should be deleted
             $invalid = false;
-            // If unconfirmed delete as it's unimportant anyways
-            if ($invalid_pattern_info["Confirmed"] !== 1) {
-                $invalid = true;
-            }
             // Check shape pattern
             try {
-                $shape = Shapes::fromID($invalid_pattern_info)["Shape_ID"];
+                $shape = Shapes::fromName($invalid_pattern_info)["Shape_Name"];
             } catch (OutOfRangeException $e) {
                 $invalid = true;
             }
-            // Remove the 
+            // Remove the invalid shape
             if ($invalid) {
                 $delete_limitations_sql = "DELETE FROM `Limitations` WHERE `ID`=:id";
                 $delete_limitations_variables = array(":id" => $invalid_pattern_info["Limitations_ID"]);

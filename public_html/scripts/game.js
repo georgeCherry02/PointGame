@@ -1,60 +1,63 @@
+// ##########################################################################################
+// # Consider adding a function limitation indicator of the values
+// # this could be at the top of the page and be constantly changing...
+// # Disadvangtage is navigating DOM is super slow so may not do that?
+// # Will try to see if it's happy
+// ##########################################################################################
 // Define external constants
 const accept_colour = new paper.Color(0.9, 1, 0.9, 1);
 const reject_colour = new paper.Color(1, 0.9, 0.9, 1);
+// const POINT_COLOURS = ["#5EB1BF", "#6C5EBF", "#9D5EBF", "#BF5EB1", "#BF5E80", "#BF6C5E", "#BF9D5E", "#81BF5E"];
+const POINT_COLOURS = ["#BFD3E4", "#EBB391", "#C9CDB3", "#E8D19D", "#C0BABA"]
 
 // Restrictions outline
 // ##########################################################################################
 // # Consider rewriting this to represent a neighbour number
 // ##########################################################################################
-const NUMBER_WITHIN = 1;
-const RENDER_GRID = false;
-const GRID_MODE = "SQUARE";
-const GRID_RESOLUTION = 32;
-const MAX_NUMBER_PER_GRID_CELL_DISTRIBUTION = {"50": 100};
-const MIN_NUMBER_PER_GRID_CELL_DISTRIBUTION = {"0": 100};
-const POINT_COLOURS = ["#5EB1BF", "#6C5EBF", "#9D5EBF", "#BF5EB1", "#BF5E80", "#BF6C5E", "#BF9D5E", "#81BF5E"];
-const MEAN_RESTRICTIONS = {"x": {"min": 0, "max": 1024}, "y": {"min": 0, "max": 1024}};
-const STDEV_RESTRICTIONS = {"x": {"min": 0, "max": Infinity}, "y": {"min": 0, "max": Infinity}};
-const PPMCC_RESTRICTIONS = {"min": -1, "max": 1};
-const NN_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
-const PCF_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
-const SC_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
-const JF_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
-const NEIGHBOURING_DISTANCE = 10;
-const MAXIMUM_NUMBER_OF_VERTICES = 5;
+// const NUMBER_WITHIN = 1;
+// const RENDER_GRID = false;
+// const GRID_MODE = "SQUARE";
+// const GRID_RESOLUTION = 32;
+// const MAX_NUMBER_PER_GRID_CELL_DISTRIBUTION = {"50": 100};
+// const MIN_NUMBER_PER_GRID_CELL_DISTRIBUTION = {"0": 100};
+// const MEAN_LIMITATIONS = {"x": {"min": 0, "max": 1024}, "y": {"min": 0, "max": 1024}};
+// const STDEV_LIMITATIONS = {"x": {"min": 0, "max": Infinity}, "y": {"min": 0, "max": Infinity}};
+// const PPMCC_LIMITATIONS = {"min": -1, "max": 1};
+// const NEAREST_NEIGHBOUR_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
+// const PCF_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
+// const SPHERICAL_CONTACT_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
+// const J_FUNCTION_LIMITATIONS = {"short": {"range": 32, "low": 0, "high": Infinity}, "medium": {"range": 128, "low": 0, "high": Infinity}, "long": {"range": 1450, "low": 0, "high": Infinity}};
+// const NEIGHBOURING_DISTANCE = 10;
+// const DEGREE_OF_VERTICES_LIMITATIONS = 5;
 
-// -------------------------------------
-// Which restrictions are active
-// -------------------------------------
-const GRAPH_CHECK_ACTIVE        = false;
-// Sub graph checks
-const INTERSECTING_EDGE_CHECK   = false;
-const NUMBER_OF_VERTICES_CHECK  = false;
-// -------------------------------------
-const GRID_CHECK_ACTIVE         = false;
-// -------------------------------------
-const STATISTIC_CHECK_ACTIVE    = false;
-// Sub statistic checks
-const MEAN_CHECK_ACTIVE         = false;
-const STDEV_CHECK_ACTIVE        = false;
-const PPMCC_CHECK_ACTIVE        = false;
-// -------------------------------------
-const MASK_CHECK_ACTIVE         = false;
-// -------------------------------------
-const FUNCTION_CHECK_ACTIVE     = false;
-// Sub function checks
-const NN_CHECK_ACTIVE           = false;
-const PCF_CHECK_ACTIVE          = false;
-const SC_CHECK_ACTIVE           = false; 
-const JF_CHECK_ACTIVE           = false;
-// -------------------------------------
+// // -------------------------------------
+// // Which restrictions are active
+// // -------------------------------------
+// const GRAPH_CHECK_ACTIVE        = false;
+// // Sub graph checks
+// const INTERSECTING_EDGE_CHECK_ACTIVE = false;
+// const DEGREE_OF_VERTICES_CHECK_ACTIVE = false;
+// // -------------------------------------
+// const GRID_CHECK_ACTIVE         = false;
+// // -------------------------------------
+// const STATISTICS_CHECK_ACTIVE    = false;
+// // Sub statistic checks
+// const MEAN_CHECK_ACTIVE         = false;
+// const STDEV_CHECK_ACTIVE        = false;
+// const PPMCC_CHECK_ACTIVE        = false;
+// // -------------------------------------
+// const MASK_CHECK_ACTIVE         = false;
+// // -------------------------------------
+// const FUNCTIONS_CHECK_ACTIVE     = false;
+// // Sub function checks
+// const NN_CHECK_ACTIVE           = false;
+// const PCF_CHECK_ACTIVE          = false;
+// const SC_CHECK_ACTIVE           = false; 
+// const JF_CHECK_ACTIVE           = false;
+// // -------------------------------------
 
 with (paper) {
     var game = {};
-    // Define basic properties
-    game.canvas = $("#game_canvas");
-    game.origin = new Point(0, 0);
-    game.canvas_size = new Size(1024, 1024);
     // Note this just increments when points are placed and doesn't decrement when points are removed
     game.number_of_points_placed = 0;
     game.total_number_of_points_placed = 0;
@@ -65,7 +68,7 @@ with (paper) {
     game.point_areas_list = {};
 
     // Define which mode the game's in
-    game.chaining = MAX_RADIUS > MIN_RADIUS;
+    game.chaining = MAXIMUM_RADIUS > MINIMUM_RADIUS;
 
     // Divide canvas into quadrants
     // 0 1 ... 8
@@ -83,15 +86,19 @@ with (paper) {
 
     game.init = function() {
         Logger.log(LoggingType.STATUS, "Initialising Canvas");
+        this.determineCanvasDimensions();
+        this.generateColourPalette();
+        this.setPanelPositions();
+        this.canvas = $("#game_canvas");
         setup(this.canvas[0]);
 
         this.base_layer               = new Layer();
         this.point_areas_layer        = new Layer();
         this.point_area_display_layer = new Layer();
-        this.point_area_display_layer.opacity = 0.25;
+        this.point_area_display_layer.opacity = 0.5;
         this.points_layer             = new Layer();
         this.graph_layer              = new Layer();
-        this.graph_layer.visible      = false;
+        this.graph_layer.opacity      = 0.2;
         this.grid_layer               = new Layer();
         this.grid_layer.opacity       = 0.2;
         this.mean_path_layer          = new Layer();
@@ -128,7 +135,7 @@ with (paper) {
                 }
                 var nearest_point = game.point_areas_list[nearest_point_id];
                 // Check that the location's within the points minimum radius
-                if (event.point.getDistance(nearest_point.position) < MIN_RADIUS) {
+                if (event.point.getDistance(nearest_point.position) < MINIMUM_RADIUS) {
                     // Check that it's valid to remove this point
                     if (game.restrictions.validatePointRemoval(nearest_point_id)) {
                         game.removePoint(nearest_point_id);
@@ -152,9 +159,52 @@ with (paper) {
             event.stopPropagation();
         }
 
-        this.restrictions.grid.initialiseGrid();
+        if (GRID_CHECK_ACTIVE) {
+            this.restrictions.grid.initialiseGrid();
+        }
         this.restrictions.colour.initialisePalette();
-        this.restrictions.functions.initialise();
+        if (FUNCTIONS_CHECK_ACTIVE) {
+            this.restrictions.functions.initialise();
+        }
+    }
+    game.resize = function() {
+        this.clear();
+        this.init();
+    }
+    game.determineCanvasDimensions = function() {
+        // Determine dimensions height
+        var large_viewport = window.innerWidth >= 992;
+        var screen_height = window.innerHeight;
+        var navbar_id = large_viewport ? "large-navbar" : "small-navbar";
+        var navbar_height = parseFloat(getComputedStyle(document.getElementById(navbar_id)).height);
+        var available_height = screen_height - navbar_height;
+        var canvas_dimension = available_height - 36;
+        this.canvas_size = new Size(canvas_dimension, canvas_dimension);
+        this.canvas_sections_size = Math.floor(canvas_dimension / 8);
+        var diagonal_length = canvas_dimension * Math.sqrt(2);
+        var generous_diagonal_length = Math.ceil(diagonal_length / 100) * 100;
+        this.canvas_diagonal_length = generous_diagonal_length;
+        var html = "<canvas id=\"game_canvas\" style=\"-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); margin-top: 18px; background: white;\" width=\""+canvas_dimension+"\" height=\""+canvas_dimension+"\">"
+        $("#canvas_container").html(html);
+    }
+    game.generateColourPalette = function() {
+        var html = "";
+        for (var i = 0; i < POINT_COLOURS.length; i++) {
+            html += "<div class=\"colour_select\" id=\"colour_select_"+i+"\"></div>";
+        }
+        $("#colour_palette").html(html);
+    }
+    game.setPanelPositions = function() {
+        var canvas_margin = ($("#game_container").width() - $("#game_canvas").width()) / 2;
+        var left_panel_width = $("#clear_button").width();
+        var desired_margin_from_canvas = 10;
+        var left_panel_margin_left = canvas_margin - left_panel_width - desired_margin_from_canvas;
+        $("#left_panel").css("margin-left", left_panel_margin_left);
+        var right_panel_width = $("#submit_button").width();
+        var right_panel_right = canvas_margin - right_panel_width - desired_margin_from_canvas;
+        $("#right_panel").css("right", right_panel_right);
+        $("#right_panel").width(right_panel_width);
+        $("#right_panel").height(game.canvas_size.height);
     }
     game.clear = function() {
         // Remove every single point from all tracking lists and render
@@ -174,8 +224,8 @@ with (paper) {
         return this.canvas_sections[section_number];
     }
     game.determineSectionAndSurroundings = function(point_location, radius = 1) {
-        var i = Math.floor((point_location.x / 1024) * 8);
-        var j = Math.floor((point_location.y / 1024) * 8);
+        var i = Math.floor(point_location.x / this.canvas_sections_size);
+        var j = Math.floor(point_location.y / this.canvas_sections_size);
         var section_id = this.determineSectionID(point_location);
         // Trying to optimise a bit by checking if we've already formed this array
         if (!this.last_used_section_requires_update && section_id == this.last_used_section_and_surroundings_id && radius == this.last_used_section_and_surroundings_radius) {
@@ -199,8 +249,8 @@ with (paper) {
         return surrounding_ids;
     }
     game.determineSectionID = function(point_location) {
-        var i = Math.floor((point_location.x / 1024) * 8);
-        var j = Math.floor((point_location.y / 1024) * 8);
+        var i = Math.floor(point_location.x / this.canvas_sections_size);
+        var j = Math.floor(point_location.y / this.canvas_sections_size);
         return 8*j + i;
     }
     game.formatPointData = function() {
@@ -222,7 +272,9 @@ with (paper) {
         // Remove the point from the graph tracking 
         this.restrictions.graph_model.removeNode(point_id);
         // Remove the point from the grid tracking
-        this.restrictions.grid.removePoint(point_path.position, point_id);
+        if (GRID_CHECK_ACTIVE) {
+            this.restrictions.grid.removePoint(point_path.position, point_id);
+        }
         // Remove from colour tracking
         delete this.restrictions.colour.tracking[point_id];
         // Determine the section we're dealing with
@@ -247,9 +299,13 @@ with (paper) {
         delete this.point_images_list[point_id];
 
         // Update mean and standard dev
-        this.restrictions.statistics.update();
+        if (STATISTICS_CHECK_ACTIVE) {
+            this.restrictions.statistics.update();
+        }
         // Update functions
-        this.restrictions.functions.removePoint(point_path.position, point_id);
+        if (FUNCTIONS_CHECK_ACTIVE) {
+            this.restrictions.functions.removePoint(point_path.position, point_id);
+        }
 
         // Decrease point tally
         this.number_of_points_placed--;
@@ -261,11 +317,15 @@ with (paper) {
         // Update the neighbours map
         this.restrictions.graph_model.addNode(point_location, this.total_number_of_points_placed);
         // Update the grid map
-        if (!this.restrictions.grid.addPoint(point_location, this.total_number_of_points_placed)) {
-            // If the grid add failed remove graph node
-            Logger.log(LoggingType.ERROR, ["Failed to render point", "Removing node from graph tracking"]);
-            this.restrictions.graph_model.removeNode(this.total_number_of_points_placed);
-            return;
+        if (GRID_CHECK_ACTIVE) {
+            if (!this.restrictions.grid.addPoint(point_location, this.total_number_of_points_placed)) {
+                // If the grid add failed remove graph node
+                Logger.log(LoggingType.ERROR, ["Failed to render point", "Removing node from graph tracking"]);
+                if (GRAPH_CHECK_ACTIVE) {
+                    this.restrictions.graph_model.removeNode(this.total_number_of_points_placed);
+                }
+                return;
+            }
         }
         // Update the points tracking
         this.restrictions.colour.tracking[this.total_number_of_points_placed] = this.restrictions.colour.current_index;
@@ -278,10 +338,10 @@ with (paper) {
         // Define the point's area appearance
         var point_area = new Path.Circle({
             center: point_location,
-            radius: MAX_RADIUS
+            radius: MAXIMUM_RADIUS
         });
         if (this.chaining) {
-            point_area = point_area.subtract(new Path.Circle({center: point_location, radius: MIN_RADIUS}));
+            point_area = point_area.subtract(new Path.Circle({center: point_location, radius: MINIMUM_RADIUS}));
         }
         // Push to own list to keep track of each point
         this.point_areas_list[this.total_number_of_points_placed] = point_area;
@@ -289,7 +349,7 @@ with (paper) {
         this.point_area_display_layer.activate();
         var point_area_display = new Path.Circle({
             center: point_location,
-            radius: MIN_RADIUS
+            radius: MINIMUM_RADIUS
         });
         point_area_display.fillColor = this.restrictions.colour.current;
         // Push to own list to keep track of
@@ -300,13 +360,16 @@ with (paper) {
             center: point_location,
             radius: 1
         });
-        point_image.fillColor = this.restrictions.colour.current;
         this.point_images_list[this.total_number_of_points_placed] = point_image;
 
         // Update mean and standard dev
-        this.restrictions.statistics.update();
+        if (STATISTICS_CHECK_ACTIVE) {
+            this.restrictions.statistics.update();
+        }
         // Update the function based restrictions
-        this.restrictions.functions.addPoint(point_location, this.total_number_of_points_placed);
+        if (FUNCTIONS_CHECK_ACTIVE) {
+            this.restrictions.functions.addPoint(point_location, this.total_number_of_points_placed);
+        }
 
         // Increase point tallies
         this.total_number_of_points_placed++;
@@ -344,15 +407,16 @@ with (paper) {
         Logger.log(LoggingType.NOTICE, "Submitting point pattern to server");
         var process = "submitPoints";
         var data = {};
-        data.expected_shape = EXPECTED_SHAPE_ID;
+        data.canvas_size = this.canvas_size.width;
         data.point_pattern = this.formatPointData();
+        data.expected_shape = EXPECTED_SHAPE;
         // Validate the number of points client side too
-        if (data.point_pattern.x.length < MIN_NUMBER) {
+        if (data.point_pattern.x.length < MINIMUM_NUMBER) {
             this.showSubmitError(true);
             Logger.log(LoggingType.NOTICE, "Too few points to be submitted");
             return;
         } 
-        if (data.point_pattern.x.length > MAX_NUMBER) {
+        if (data.point_pattern.x.length > MAXIMUM_NUMBER) {
             this.showSubmitError(false);
             Logger.log(LoggingType.NOTICE, "Too many points to be submitted");
             return;
@@ -363,10 +427,10 @@ with (paper) {
             return;
         }
         data.limitations = {};
-        data.limitations.maximum_radius = MAX_RADIUS;
-        data.limitations.minimum_radius = MIN_RADIUS;
-        data.limitations.maximum_number = MAX_NUMBER;
-        data.limitations.minimum_number = MIN_NUMBER;
+        data.limitations.maximum_radius = MAXIMUM_RADIUS;
+        data.limitations.minimum_radius = MINIMUM_RADIUS;
+        data.limitations.maximum_number = MAXIMUM_NUMBER;
+        data.limitations.minimum_number = MINIMUM_NUMBER;
         $.ajax({
             type:   "POST",
             url:    "api.php",
@@ -379,12 +443,9 @@ with (paper) {
                 var response = JSON.parse(data);
                 if (response.status === "success") {
                     Logger.log(LoggingType.STATUS, "Successfully submitted point pattern");
-                    // Update the current pattern id
-                    game.current_pattern_id = response.insert_id;
-                    // Bring up submission confirmation screen
-                    $("#confirmation_modal").modal("show");
+                    window.location.href = "review.php";
                 } else {
-                    Logger.log(LoggingType.ERROR, ["Error Code: "+response.error_code, "Message: "+respone.error_message]);
+                    Logger.log(LoggingType.ERROR, ["Error Code: "+response.error_code, "Message: "+response.error_message]);
                     // ###################################################################################################################
                     // # Explain to user what was wrong with their submission
                     // # Note this should be quite difficult to get to without malicious activity, so maybe just redirect is solution
@@ -396,33 +457,6 @@ with (paper) {
             }
         });
     }
-    game.confirmPointPattern = function() {
-        Logger.log(LoggingType.NOTICE, "Confirming point pattern with server");
-        var process = "confirmSubmission";
-        var data = {"confirm_id": game.current_pattern_id};
-        $.ajax({
-            type:   "POST",
-            url:    "api.php",
-            data: {
-                "ajax_token":   AJAX_TOKEN,
-                "process":      process,
-                "data":         JSON.stringify(data)
-            },
-            success: function(data) {
-                var response = JSON.parse(data);
-                if (response.status === "success") {
-                    Logger.log(LoggingType.STATUS, "Confirmed Point Pattern");
-                    // Redirect to review page
-                    window.location.href = "review.php";
-                } else {
-                    Logger.log(LoggingType.ERROR, ["Error Code: "+response.error_code, "Message: "+response.error_message]);
-                }
-            },
-            error: function() {
-                Logger.log(LoggingType.ERROR, ["Server error occured!"]);
-            }
-        });
-    }
     
     // Restrictions functionality
     game.restrictions = {}
@@ -431,7 +465,7 @@ with (paper) {
     // ------------------------------------------------------------------------------------------
     game.restrictions.checkPlacementValidity = function(point_location) {
         // Make sure point_location is valid
-        if (point_location.x < 0 || point_location.x > 1024 || point_location.y < 0 || point_location.y > 1024) {
+        if (point_location.x < 0 || point_location.x > game.canvas_size.width || point_location.y < 0 || point_location.y > game.canvas_size.height) {
             Logger.log(LoggingType.NOTICE, "Outside of canvas");
             return false;
         }
@@ -440,7 +474,7 @@ with (paper) {
             Logger.log(LoggingType.NOTICE, "Outside binary mask");
             return false;
         }
-        if (STATISTIC_CHECK_ACTIVE && !this.statistics.check(point_location)) {
+        if (STATISTICS_CHECK_ACTIVE && !this.statistics.check(point_location)) {
             Logger.log(LoggingType.NOTICE, "Outside of mean restrictions");
             return false;
         }
@@ -453,7 +487,7 @@ with (paper) {
             Logger.log(LoggingType.NOTICE, "Distance from other points invalid");
             return false;
         }
-        if (FUNCTION_CHECK_ACTIVE && !this.functions.check(point_location)) {
+        if (FUNCTIONS_CHECK_ACTIVE && !this.functions.check(point_location)) {
             Logger.log(LoggingType.NOTICE, "Statistics check invalid");
             return false;
         }
@@ -470,18 +504,18 @@ with (paper) {
             Logger.log(LoggingType.NOTICE, "Failed grid density check");
             return false;
         }
-        if (STATISTIC_CHECK_ACTIVE && !this.statistics.check(point_path.position, removal=true)) {
+        if (STATISTICS_CHECK_ACTIVE && !this.statistics.check(point_path.position, removal=true)) {
             Logger.log(LoggingType.NOTICE, "Failed statistical checks")
             return false;
         }
-        if (FUNCTION_CHECK_ACTIVE && !this.functions.check(point_path.position, point_id)) {
+        if (FUNCTIONS_CHECK_ACTIVE && !this.functions.check(point_path.position, point_id)) {
             Logger.log(LoggingType.NOTICE, "Failed functional checks");
             return false;
         }
         if (game.chaining) {
             var points_of_interest = game.determineSectionAndSurroundings(point_path.position);
-            if (MAX_RADIUS > 128) {
-                var search_radius = Math.floor(MAX_RADIUS / 128);
+            if (MAXIMUM_RADIUS > game.canvas_sections_size) {
+                var search_radius = Math.floor(MAXIMUM_RADIUS / game.canvas_sections_size);
                 points_of_interest = game.determineSectionAndSurroundings(point_path.position, search_radius);
             }
             var affected_points = [];
@@ -491,7 +525,7 @@ with (paper) {
                     continue;
                 }
                 var c_point = game.point_areas_list[id];
-                if (c_point.position.getDistance(point_path.position) < MAX_RADIUS) {
+                if (c_point.position.getDistance(point_path.position) < MAXIMUM_RADIUS) {
                     affected_points.push(id);
                 }
             }
@@ -521,8 +555,8 @@ with (paper) {
                     }
                     // Checks (b)
                     var points_within_max_distance = game.determineSectionAndSurroundings(point_position);
-                    if (MAX_RADIUS > 128) {
-                        var search_radius = Math.floor(MAX_RADIUS / 128);
+                    if (MAXIMUM_RADIUS > game.canvas_sections_size) {
+                        var search_radius = Math.floor(MAXIMUM_RADIUS / game.canvas_sections_size);
                         points_within_max_distance = game.determineSectionAndSurroundings(point_position, search_radius);
                     }
                     valid_number_of_connections = this.distance.checkMaxDistance(point_position, points_within_max_distance, true);
@@ -549,10 +583,10 @@ with (paper) {
 
         // Check which quadrant the mouse is in
         var points_of_interest = game.determineSectionAndSurroundings(point_location);
-        if (MAX_RADIUS > 128) {
+        if (MAXIMUM_RADIUS > game.canvas_sections_size) {
             // Need to determine a search radius, otherwise game.determineSectionAndSurroundings may 
             // miss points actually within max radius
-            var search_radius = Math.floor(MAX_RADIUS / 128);
+            var search_radius = Math.floor(MAXIMUM_RADIUS / game.canvas_sections_size);
             points_of_interest = game.determineSectionAndSurroundings(point_location, search_radius);
         }
 
@@ -586,13 +620,13 @@ with (paper) {
             if (game.point_areas_list[point_ids[i]].contains(point_location)) {
                 current_number_within_range++;
                 // Check if the point's within range of enough other points to be placed
-                if (current_number_within_range >= NUMBER_WITHIN) {
+                if (current_number_within_range >= NUMBER_OF_CLOSE_NEIGHBOURS) {
                     return true;
                 }
             }
         }
         // Check if there are less points than required, and in which case return whether all are within range
-        if (game.number_of_points_placed < NUMBER_WITHIN) {
+        if (game.number_of_points_placed < NUMBER_OF_CLOSE_NEIGHBOURS) {
             return current_number_within_range === game.number_of_points_placed;
         }
         return false;
@@ -603,10 +637,10 @@ with (paper) {
     game.restrictions.graph_model = {}
     // Initialise neighbour distance
     if (game.chaining) {
-        game.restrictions.graph_model.neighbour_distance = MAX_RADIUS;
+        game.restrictions.graph_model.neighbour_distance = MAXIMUM_RADIUS;
     } else {
         // Allows you not to set NEIGHBOURING_DISTANCE if there's a min+max radius
-        game.restrictions.graph_model.neighbour_distance = MIN_RADIUS + NEIGHBOURING_DISTANCE;
+        game.restrictions.graph_model.neighbour_distance = MINIMUM_RADIUS + NEIGHBOURING_DISTANCE;
     }
     // Initialise neigbouring map
     game.restrictions.graph_model.graph = {}
@@ -622,6 +656,9 @@ with (paper) {
             c_id = neighbouring_points[i];
             c_point = game.point_areas_list[c_id];
             c_edge = new Path.Line(point_location, c_point.position);
+            if (GRAPH_CHECK_ACTIVE && GRAPH_RENDER) {
+                c_edge.strokeColor = "black";
+            }
             adjacent_nodes.ids.push(c_id);
             adjacent_nodes.paths.push(c_edge);
             // Add the new point to the adjacent points list of neighbours too
@@ -658,11 +695,11 @@ with (paper) {
     game.restrictions.graph_model.check = function(point_location) {
         // Determine all neighbouring points
         var neighbouring_points = this.determineNeighbours(point_location);
-        if (INTERSECTING_EDGE_CHECK && this.checkIfPointWillCreateIntersects(point_location, neighbouring_points)) {
+        if (INTERSECTING_EDGE_CHECK_ACTIVE && this.checkIfPointWillCreateIntersects(point_location, neighbouring_points)) {
             Logger.log(LoggingType.NOTICE, "Placing a point here would create intersections in graph");
             return false;
         }
-        if (NUMBER_OF_VERTICES_CHECK && !this.checkVerticesAmountValid(neighbouring_points)){
+        if (DEGREE_OF_VERTICES_CHECK_ACTIVE && !this.checkVerticesAmountValid(neighbouring_points)){
             Logger.log(LoggingType.NOTICE, "Create a node with too many vertices");
             return false;
         }
@@ -712,7 +749,7 @@ with (paper) {
         return false;
     }
     // ##########################################################################################
-    // # Minor issue of neighbouring distance going greater than 128px
+    // # Minor issue of neighbouring distance going greater than canvas_dim / 8;
     // # However I really doubt that'll happen, worth noting as an exception though
     // ##########################################################################################
     game.restrictions.graph_model.determineNeighbours = function(point_location) {
@@ -777,13 +814,13 @@ with (paper) {
     }
     game.restrictions.graph_model.checkVerticesAmountValid = function(neighbouring_points) {
         // Determine if it has too many neighbouring points
-        if (neighbouring_points.length > MAXIMUM_NUMBER_OF_VERTICES) {
+        if (neighbouring_points.length > DEGREE_OF_VERTICES_LIMITATIONS) {
             return false;
         }
         var neighbour_id;
         for (var i = 0; i < neighbouring_points.length; i++) {
             neighbour_id = neighbouring_points[i];
-            if (this.graph[neighbour_id].ids.length >= MAXIMUM_NUMBER_OF_VERTICES) {
+            if (this.graph[neighbour_id].ids.length >= DEGREE_OF_VERTICES_LIMITATIONS) {
                 return false;
             }
         }
@@ -804,9 +841,8 @@ with (paper) {
     // ------------------------------------------------------------------------------------------
     game.restrictions.grid = {
         "density": {},
-        "mode": GRID_MODE,
-        "resolution": GRID_RESOLUTION,
         "tracking": {},
+        "cell_number": 0
     }
     game.restrictions.grid.addPoint = function(point_location, point_id) {
         Logger.log(LoggingType.NOTICE, "Adding point to grid tracking")
@@ -856,12 +892,14 @@ with (paper) {
                 occupation_space += limitations[density];
             }
         }
+        // Determine occupation amount in units of number of cells
         for (density in this.tracking) {
             if ((density >= changed_density && !removal) || (density <= changed_density && removal)) {
                 occupation_amount += this.tracking[density];
             }
         }
-        var occupation_percentage = Math.floor(occupation_amount / 1024 * 100);
+        // Determine occupation percentage in units of percentage of grid
+        var occupation_percentage = Math.floor(occupation_amount / game.restrictions.grid.cell_number * 100);
         return occupation_percentage < occupation_space;
     }
     game.restrictions.grid.determineGridUnitCell = function(point_location) {
@@ -930,6 +968,8 @@ with (paper) {
     // Created a raster because otherwise massive lag was suffered due to re-rendering the grid each time
     game.restrictions.grid.initialiseGrid = function() {
         // Determine density model to use
+        this.mode = GRID_MODE;
+        this.resolution = GRID_RESOLUTION;
         this.density.max = MAX_NUMBER_PER_GRID_CELL_DISTRIBUTION;
         this.density.min = MIN_NUMBER_PER_GRID_CELL_DISTRIBUTION;
         // Activate appropriate layer
@@ -1004,7 +1044,7 @@ with (paper) {
         this.density.tracking = {"0": this.cell_number}
         var grid_raster = this.render.rasterize();
         this.render.visible = false;
-        if (!RENDER_GRID) {
+        if (!GRID_RENDER) {
             grid_raster.visible = false;
         }
         view.draw();
@@ -1044,12 +1084,12 @@ with (paper) {
     // ------------------------------------------------------------------------------------------
     game.restrictions.colour = {};
     game.restrictions.colour.list = POINT_COLOURS;
-    game.restrictions.colour.current = "#5EB1BF";
     game.restrictions.colour.current_index = 0;
+    game.restrictions.colour.current = game.restrictions.colour.list[0];
     game.restrictions.colour.tracking = {};
     game.restrictions.colour.initialisePalette = function() {
         var selector;
-        for (var i = 0; i < 8; i++) {
+        for (var i = 0; i < this.list.length; i++) {
             selector = "#colour_select_"+i;
             $(selector).css("background-color", this.list[i]);
         }
@@ -1058,9 +1098,6 @@ with (paper) {
         $("#colour_select_2").click(() => {game.restrictions.colour.update(2)});
         $("#colour_select_3").click(() => {game.restrictions.colour.update(3)});
         $("#colour_select_4").click(() => {game.restrictions.colour.update(4)});
-        $("#colour_select_5").click(() => {game.restrictions.colour.update(5)});
-        $("#colour_select_6").click(() => {game.restrictions.colour.update(6)});
-        $("#colour_select_7").click(() => {game.restrictions.colour.update(7)});
         this.updatePalette();
     }
     game.restrictions.colour.update = function(new_index) {
@@ -1103,14 +1140,14 @@ with (paper) {
             return true;
         }
         var [new_x_mean, new_y_mean] = this.findModifiedMean(point_location, removal);
-        return (new_x_mean >= MEAN_RESTRICTIONS.x.min && new_x_mean <= MEAN_RESTRICTIONS.x.max && new_y_mean >= MEAN_RESTRICTIONS.y.min && new_y_mean <= MEAN_RESTRICTIONS.y.max);
+        return (new_x_mean >= MEAN_LIMITATIONS.x.min && new_x_mean <= MEAN_LIMITATIONS.x.max && new_y_mean >= MEAN_LIMITATIONS.y.min && new_y_mean <= MEAN_LIMITATIONS.y.max);
     }
     game.restrictions.statistics.checkStandardDeviation = function(point_location, removal) {
         var distribution = game.formatPointData();
         distribution = this.modifyDistribution(distribution, point_location, removal);
         var new_mean = this.findModifiedMean(point_location, removal);
         var [stdev_x, stdev_y] = this.findStandardDeviation(distribution, new_mean);
-        return (stdev_x >= STDEV_RESTRICTIONS.x.min && stdev_x <= STDEV_RESTRICTIONS.x.max && stdev_y >= STDEV_RESTRICTIONS.y.min && stdev_y <= STDEV_RESTRICTIONS.y.max);
+        return (stdev_x >= STDEV_LIMITATIONS.x.min && stdev_x <= STDEV_LIMITATIONS.x.max && stdev_y >= STDEV_LIMITATIONS.y.min && stdev_y <= STDEV_LIMITATIONS.y.max);
     }
     game.restrictions.statistics.checkPPMCC = function(point_location, removal) {
         var distribution = game.formatPointData();
@@ -1118,7 +1155,7 @@ with (paper) {
         var new_mean = this.findModifiedMean(point_location, removal);
         var new_s_dev = this.findStandardDeviation(distribution, new_mean);
         var new_ppmcc = this.findPPMCC(distribution, new_mean, new_s_dev);
-        return new_ppmcc >= PPMCC_RESTRICTIONS.min && new_ppmcc <= PPMCC_RESTRICTIONS.max;
+        return new_ppmcc >= PPMCC_LIMITATIONS.min && new_ppmcc <= PPMCC_LIMITATIONS.max;
     }
     game.restrictions.statistics.findModifiedMean = function(point_location, removal) {
         var new_amount = removal ? game.number_of_points_placed - 1 : game.number_of_points_placed + 1;
@@ -1194,32 +1231,35 @@ with (paper) {
     game.restrictions.functions = {
         "pcf": {},
         "nearest_neighbour": {},
-        "spherical_contact": {
-            "-1": {
-                "random_point": new Point(Math.floor(Math.random() * 1024), Math.floor(Math.random() * 1024)),
-                "distance": Infinity
-            }
-        },
+        "spherical_contact": {},
         "limitations": {
-            "nn": {
-                "values": NN_LIMITATIONS
-            },
-            "pcf": {
-                "values": PCF_LIMITATIONS
-            },
-            "sc": {
-                "values": SC_LIMITATIONS
-            },
-            "jf": {
-                "values": JF_LIMITATIONS
-            }
+            "nn": {},
+            "pcf": {},
+            "sc": {},
+            "jf": {}
         }
     };
     game.restrictions.functions.initialise = function() {
-        for (var i = 0; i <= 1450; i++) {
+        this.spherical_contact["-1"] = {
+            "random_point": new Point(Math.floor(Math.random() * game.canvas_size.width), Math.floor(Math.random() * game.canvas_size.height)),
+            "distance": Infinity
+        }
+        for (var i = 0; i <= game.canvas_diagonal_length; i++) {
             this.pcf[i] = 0;
         }
         // For each limitation implement tracking for surpassing averages
+        if (NEAREST_NEIGHBOUR_CHECK_ACTIVE) {
+            this.limitations["nn"].values = NEAREST_NEIGHBOUR_LIMITATIONS;
+        }
+        if (PCF_CHECK_ACTIVE) {
+            this.limitations["pcf"].values = PCF_LIMITATIONS;
+        }
+        if (SPHERICAL_CONTACT_CHECK_ACTIVE) {
+            this.limitations["sc"].values = SPHERICAL_CONTACT_LIMITATIONS;
+        }
+        if (J_FUNCTION_CHECK_ACTIVE) {
+            this.limitations["jf"].values = J_FUNCTION_LIMITATIONS;
+        }
         for (var distribution in this.limitations) {
             this.limitations[distribution].average_tracking = {};
             for (var range in this.limitations[distribution].values) {
@@ -1232,21 +1272,21 @@ with (paper) {
             Logger.log(LoggingType.NOTICE, "Failed PCF check");
             return false;
         }
-        if (NN_CHECK_ACTIVE) {
+        if (NEAREST_NEIGHBOUR_CHECK_ACTIVE) {
             var [result, nearest_neighbour_distribution] = this.checkNN(point_location, point_id);
             if (!result) {
                 Logger.log(LoggingType.NOTICE, "Failed Nearest Neighbour check");
                 return false;
             }
         }
-        if (SC_CHECK_ACTIVE) {
+        if (SPHERICAL_CONTACT_CHECK_ACTIVE) {
             var [result, spherical_contact_distribution] = this.checkSC(point_location, point_id);
             if (!result) {
                 Logger.log(LoggingType.NOTICE, "Failed Spherical Contact check");
                 return false;
             }
         }
-        if (NN_CHECK_ACTIVE && SC_CHECK_ACTIVE && JF_CHECK_ACTIVE && !this.checkJF(nearest_neighbour_distribution, spherical_contact_distribution, point_id)) {
+        if (NEAREST_NEIGHBOUR_CHECK_ACTIVE && SPHERICAL_CONTACT_CHECK_ACTIVE && J_FUNCTION_CHECK_ACTIVE && !this.checkJF(nearest_neighbour_distribution, spherical_contact_distribution, point_id)) {
             Logger.log(LoggingType.NOTICE, "Failed J-Function check");
             return false;
         }
@@ -1268,7 +1308,7 @@ with (paper) {
         this.pcf = fin_pcf;
         // Handle Spherical Contact distribution
         // First add new random point to distribution for checking
-        var random_point = new Point(Math.floor(Math.random() * 1024), Math.floor(Math.random() * 1024));
+        var random_point = new Point(Math.floor(Math.random() * game.canvas_size.width), Math.floor(Math.random() * game.canvas_size.height));
         this.spherical_contact[point_id] = this.spherical_contact["-1"];
         this.spherical_contact["-1"] = {};
         this.spherical_contact["-1"].random_point = random_point;
@@ -1302,25 +1342,33 @@ with (paper) {
     }
     game.restrictions.functions.updateAverageTracking = function() {
         // Check PCF first
-        var normalised_pcf = Object.assign({}, this.pcf);
-        normalised_pcf = this.normalisePCF(normalised_pcf, game.number_of_points_placed);
-        this.checkDistribution(normalised_pcf, "pcf", validation=true);
+        if (PCF_CHECK_ACTIVE) {
+            var normalised_pcf = Object.assign({}, this.pcf);
+            normalised_pcf = this.normalisePCF(normalised_pcf, game.number_of_points_placed);
+            this.checkDistribution(normalised_pcf, "pcf", validation=true);
+        }
         // Now check Nearest Neighbour
-        if (game.number_of_points_placed >= 2) {
-            // Format nearest neighbour distribution
-            var nearest_neighbour_distribution = Array(1451).fill(0);
-            for (var id in this.nearest_neighbour) {
-                nearest_neighbour_distribution[this.nearest_neighbour[id].distance]++;
+        if (NEAREST_NEIGHBOUR_CHECK_ACTIVE) {
+            if (game.number_of_points_placed >= 2) {
+                // Format nearest neighbour distribution
+                var nearest_neighbour_distribution = Array(game.generous_diagonal_length).fill(0);
+                for (var id in this.nearest_neighbour) {
+                    nearest_neighbour_distribution[this.nearest_neighbour[id].distance]++;
+                }
+                this.checkDistribution(nearest_neighbour_distribution, "nn", validation=true);
             }
-            this.checkDistribution(nearest_neighbour_distribution, "nn", validation=true);
         }
         // Finally check Spherical Contact
-        var spherical_contact_distribution = Array(1451).fill(0);
-        for (var id in this.spherical_contact) {
-            spherical_contact_distribution[this.spherical_contact[id].distance]++;
+        if (SPHERICAL_CONTACT_CHECK_ACTIVE) {
+            var spherical_contact_distribution = Array(game.generous_diagonal_length).fill(0);
+            for (var id in this.spherical_contact) {
+                spherical_contact_distribution[this.spherical_contact[id].distance]++;
+            }
+            this.checkDistribution(spherical_contact_distribution, "sc", validation=true);
         }
-        this.checkDistribution(spherical_contact_distribution, "sc", validation=true);
-        this.checkJF(nearest_neighbour_distribution, spherical_contact_distribution, point_id=-1, validation=true);
+        if (J_FUNCTION_CHECK_ACTIVE) {
+            this.checkJF(nearest_neighbour_distribution, spherical_contact_distribution, point_id=-1, validation=true);
+        }
     }
     game.restrictions.functions.findNearestPoints = function(point_location, point_id=-1, excluded_points = []) {
         // If point_id is set then should be able to find it through graph
@@ -1405,12 +1453,12 @@ with (paper) {
     }
     game.restrictions.functions.normalisePCF = function(pcf, number_of_points) {
         // Determine point/px^2
-        var point_density = number_of_points / Math.pow(1024, 2);
+        var point_density = number_of_points / (game.canvas_size.width * game.canvas_size.height);
         if (number_of_points == 0) { 
-            point_density = 1 / Math.pow(1024, 2);
+            point_density = 1 / (game.canvas_size.width * game.canvas_size.height);
         }
         var area, exp_points;
-        for (var i = 0; i <= 1450; i++) {
+        for (var i = 0; i <= game.canvas_diagonal_length; i++) {
             // Determine area of this annulus
             area = Math.PI * (Math.pow(i+1, 2) - Math.pow(i, 2));
             // Determine expected number of points
@@ -1427,11 +1475,11 @@ with (paper) {
         var removal = point_id != -1;
         // First change nn and sc to CDFs from count distributions
         var point_count = removal ? game.number_of_points_placed - 1 : game.number_of_points_placed + 1;
-        var jf = Array(1451).fill(0);
+        var jf = Array(game.generous_diagonal_length + 1).fill(0);
         spherical_running_total = spherical_contact_distribution[0]/point_count;
         nearest_running_total = nearest_neighbour_distribution[0]/point_count;
         jf[0] = (1 - nearest_running_total) / (1 - spherical_running_total);
-        for (var i = 1; i <= 1450; i++) {
+        for (var i = 1; i <= game.canvas_diagonal_length; i++) {
             spherical_running_total += spherical_contact_distribution[i] / point_count;
             nearest_running_total += nearest_neighbour_distribution[i] / point_count;
             // Javascript doesn't like dividing by 0
@@ -1444,7 +1492,7 @@ with (paper) {
             return [true, null];
         }
         var removal = point_id != -1;
-        var nearest_neighbour_distribution = Array(1451).fill(0);
+        var nearest_neighbour_distribution = Array(game.generous_diagonal_length + 1).fill(0);
         var distribution = {};
         distribution = Object.assign(distribution, this.nearest_neighbour);
         // Simulate point removal
@@ -1453,7 +1501,7 @@ with (paper) {
             delete distribution[point_id];
         }
         // Loop through all points in the nearest neighbours distribution
-        var c_point, c_distance, key, shortest_distance = 1450;
+        var c_point, c_distance, key, shortest_distance = game.canvas_diagonal_length;
         for (var id in distribution) {
             if (removal) {
                 c_distance = distribution[id].distance;
@@ -1487,7 +1535,7 @@ with (paper) {
     }
     game.restrictions.functions.checkSC = function(point_location, point_id) {
         var removal = point_id != -1;
-        var spherical_contact_distribution = Array(1451).fill(0);
+        var spherical_contact_distribution = Array(game.generous_diagonal_length + 1).fill(0);
         // Clone the initial distribution
         var distribution = {};
         distribution = Object.assign(distribution, this.spherical_contact);
@@ -1522,6 +1570,9 @@ with (paper) {
         return [this.checkDistribution(spherical_contact_distribution, "sc"), spherical_contact_distribution];
     }
     game.restrictions.functions.checkPCF = function(point_location, point_id) {
+        if (game.number_of_points_placed < 1) {
+            return true;
+        }
         var removal = point_id != -1;
         // Obtain initial pcf
         var pcf = {};
@@ -1537,23 +1588,31 @@ with (paper) {
     }
     game.restrictions.functions.checkDistribution = function(distribution, distribution_type, validation=false) {
         var limitations = this.limitations[distribution_type].values;
-        var sums = {"short": 0, "medium": 0, "long": 0};
-        var key;
-        for (var i = 0; i <= 1450; i++) {
-            key = "long";
-            if (i <= limitations.short.range) {
-                key = "short";
-            } else if (i <= limitations.medium.range) {
-                key = "medium";
-            }
-            sums[key] += distribution[i];
+        var sums = {};
+        for (var key in limitations) {
+            sums[key] = 0;
         }
+        // Start from the initial range
+        var range_index = 0;
         var keys = Object.keys(limitations);
+        var current_range = keys[range_index];
+        for (var i = 0; i <= game.canvas_diagonal_length; i++) {
+            if (current_range != "max") {
+                while (i > limitations[current_range].range) {
+                    range_index++;
+                    current_range = keys[range_index];
+                }
+            }
+            sums[current_range] += distribution[i];
+        }
         var average, range;
         for (var i = 0; i < keys.length; i++) {
-            range = limitations[keys[i]].range;
-            if (i > 0) {
+            if (keys[i] == "max") {
+                range = game.canvas_diagonal_length;
+            } else if (i > 0) {
                 range = limitations[keys[i]].range - limitations[keys[i-1]].range;
+            } else {
+                range = limitations[keys[i]].range;
             }
             average = sums[keys[i]] / range;
             var above_lower_bound = average >= limitations[keys[i]].low;
@@ -1590,5 +1649,31 @@ with (paper) {
 }
 
 window.onload = function() {
+    // Load information
+    $("#info_modal").modal("show");
+    $("#submit_button_text").hover(() => {
+        var target_size = "6rem";
+        var target_offset = "0px";
+        $("#submit_button").width(target_size);
+        $("#submit_button").height(target_size);
+        $("#submit_button").css({
+            "left": target_offset,
+            "bottom": target_offset
+        });
+    });
+    $("#submit_button").mouseout(() => {
+        var target_size = "0px";
+        var target_offset = "3rem";
+        $("#submit_button").width(target_size);
+        $("#submit_button").height(target_size);
+        $("#submit_button").css({
+            "left": target_offset,
+            "bottom": target_offset
+        });
+    });
+    // Initialise game
     game.init();
+}
+window.onresize = function() {
+    game.resize();
 }
