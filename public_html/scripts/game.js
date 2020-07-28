@@ -1585,23 +1585,31 @@ with (paper) {
     }
     game.restrictions.functions.checkDistribution = function(distribution, distribution_type, validation=false) {
         var limitations = this.limitations[distribution_type].values;
-        var sums = {"short": 0, "medium": 0, "long": 0};
-        var key;
-        for (var i = 0; i <= 1100; i++) {
-            key = "long";
-            if (i <= limitations.short.range) {
-                key = "short";
-            } else if (i <= limitations.medium.range) {
-                key = "medium";
-            }
-            sums[key] += distribution[i];
+        var sums = {};
+        for (var key in limitations) {
+            sums[key] = 0;
         }
+        // Start from the initial range
+        var range_index = 0;
         var keys = Object.keys(limitations);
+        var current_range = keys[range_index];
+        for (var i = 0; i <= game.canvas_diagonal_length; i++) {
+            if (current_range != "max") {
+                while (i > limitations[current_range].range) {
+                    range_index++;
+                    current_range = keys[range_index];
+                }
+            }
+            sums[current_range] += distribution[i];
+        }
         var average, range;
         for (var i = 0; i < keys.length; i++) {
-            range = limitations[keys[i]].range;
-            if (i > 0) {
+            if (keys[i] == "max") {
+                range = game.canvas_diagonal_length;
+            } else if (i > 0) {
                 range = limitations[keys[i]].range - limitations[keys[i-1]].range;
+            } else {
+                range = limitations[keys[i]].range;
             }
             average = sums[keys[i]] / range;
             var above_lower_bound = average >= limitations[keys[i]].low;

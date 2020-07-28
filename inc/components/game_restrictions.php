@@ -25,13 +25,14 @@
                 if ($sub_check_active) {
                     $distribution = array();
                     $range_count = $_POST[$sub_check."_range_count"];
-                    for ($i = 1; $i <= $range_count; $i++) {
+                    for ($i = 2; $i <= $range_count; $i++) {
                         $name = $_POST[$sub_check."_range_".$i."_name"];
                         $top = $_POST[$sub_check."_range_".$i."_top"];
                         $min = $_POST[$sub_check."_range_".$i."_min"];
                         $max = $_POST[$sub_check."_range_".$i."_max"];
                         $distribution[$name] = array("range" => $top, "low" => $min, "high" => $max);
                     }
+                    $distribution["max"] = array("low" => $_POST[$sub_check."_range_1_min"], "high" => $_POST[$sub_check."_range_1_max"]);
                     $values["functions_check"]["values"][$sub_check]["value"] = json_encode($distribution);
                 }
             }
