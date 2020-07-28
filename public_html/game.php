@@ -21,70 +21,57 @@
     <p class="grey-text">Please switch over to desktop to play the game and help our research!</p>
 </div>
 <div class="desktop_container container d-none d-lg-block">
-    <div id="start_message" class="container multi_collapse collapse show">
-        <h3 class="grey-text">Hi and welcome to our game!</h3>
-        <p class="grey-text">The basics premise of the game is you draw a named shape from placing a number of points</p>
-        <p class="grey-text">Each round may have different limitations and these will be specified at the beginning of the round</p>
-        <p class="grey-text">Following submission of the point distribution, you will be asked to determine the shapes others have submitted</p>
-        <p class="grey-text">And then you can go through all over again!</p>
-        <div class="container text-center">
-            <button class="btn btn-primary highlight-background highlight-border" type="button" data-toggle="collapse" data-target=".multi_collapse" aria-controls="start_message game_container">Get Playing!</button>
+    <div id="game_container" class="container">
+        <div id="left_panel" class="text-center">
+            <div class="mb-2" id="colour_palette"></div>
+            <div id="clear_button" type="button" data-toggle="modal" data-target="#clear_modal">
+                <h5>Clear</h5>
+            </div>
         </div>
-    </div>
-    <div id="game_container" class="container collapse multi_collapse">
-        <div class="row">
-            <div class="col-2 tool_container">
-                <p class="grey-text text-left">Please draw a <span class="highlight-text"><?php echo $_SESSION["Chosen_Shape"]; ?></span> with at least <span class="highlight-text" id="min_number_limit"><?php echo $values["minimum_number"]; ?></span> and no more than <span class="highlight-text" id="max_number_limit"><?php echo $values["maximum_number"]; ?></span> points.</p>
-                <div class="colour_palette">
-                    <div class="colour_select" id="colour_select_0"></div>
-                    <div class="colour_select" id="colour_select_1"></div>
-                    <div class="colour_select" id="colour_select_2"></div>
-                    <div class="colour_select" id="colour_select_3"></div>
-                    <div class="colour_select" id="colour_select_4"></div>
-                    <div class="colour_select" id="colour_select_5"></div>
-                    <div class="colour_select" id="colour_select_6"></div>
-                    <div class="colour_select" id="colour_select_7"></div>
-                    <button class="btn btn-primary highlight-background highlight-border submit_button" id="submit_point_pattern" type="button" data-toggle="modal" data-target="#confirmation_modal">
-                        <span>Submit!</span>
-                    </button>
-                    <button class="btn btn-primary highlight-background highlight-border clear_button" type="button" data-toggle="modal" data-target="#clear_modal">
-                        <i class="fas fa-trash"><span class="sr-only">Clear Canvas</span></i>
-                    </button>
-                </div>
+        <div id="canvas_container" class="text-center"></div>
+        <div id="right_panel" class="text-left">
+            <div class="info_button" type="button" data-toggle="modal" data-target="#info_modal">
+                <h5>Info</h5>
             </div>
-            <div class="col-10">
-                <div class="canvas-container" style="width: 750px; height: 750px;">
-                    <canvas id="game_canvas" width="750" height="750" style="-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></canvas>
-                </div>
-            </div>
+            <div id="submit_button" type="button" data-toggle="modal" data-target="#confirmation_modal"></div>
+            <h5 id="submit_button_text" type="button" data-toggle="modal" data-target="#confirmation_modal">Submit</h5>
         </div>
     </div>
     <script src="./tmp/mask.js" type="application/javascript"></script>
     <script src="./scripts/game.js" type="application/javascript"></script>
 </div>
-<div class="modal fade" id="confirmation_modal" tabindex="-1" role="dialog">
+<div class="modal fade" id="confirmation_modal" tabindex="-1" role="dialog" data-backdrop="false">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirm Submission?</h5>
-            </div>
-            <div class="modal-body">
-                <button class="btn btn-primary highlight-background highlight-border" type="button" onclick="game.submitPoints()">Yes</button>
-                <button class="btn btn-primary highlight-background highlight-border ml-2" type="button" data-dismiss="modal" aria-label="Close">No</button>
+        <div class="modal-content text-center m-auto">
+            <div class="modal-question-container">
+                <p class="modal-question">Confirm Submission?</p>
+                <div class="w-100 text-left">
+                    <h5 class="modal-answer modal-answer-left" onclick="game.submitPoints()">Yes</h5>
+                    <h5 class="modal-answer" type="button" data-dismiss="modal" aria-label="Close">No</h5>
+                </div>
             </div>
         </div>
     </div>
 </div>
-<div class="modal fade" id="clear_modal" tabindex="-1" role="dialog">
+<div class="modal fade" id="clear_modal" tabindex="-1" role="dialog" data-backdrop="false">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Are you sure you want to clear the canvas?</h5>
+        <div class="modal-content text-center m-auto">
+            <div class="modal-question-container">
+                <p class="modal-question">Are you sure you want to clear the canvas?</p>
+                <div class="w-100 text-left">
+                    <h5 class="modal-answer modal-answer-left" onclick="game.clear()" data-dismiss="modal">Yes</h5>
+                    <h5 class="modal-answer" data-dismiss="modal" aria-label="Close">No</h5>
+                </div>
             </div>
-            <div class="modal-body">
-                <button class="btn btn-primary highlight-background highlight-border" type="button" onclick="game.clear()" data-dismiss="modal">Yes</button>
-                <button class="btn btn-primary highlight-background highlight-border ml-2" type="button" data-dismiss="modal" aria-label="Close">No</button>
-            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="info_modal" tabindex="-1" role="dialog" data-backdrop="false">
+    <div class="modal-dialog">
+        <div class="modal-content text-center m-auto">
+            <h5 class="modal-title">Info</h5>
+            <p>Blah de blah what's up here's a brief description of the game</p>
+            <h5 class="modal-answer ml-auto mr-auto" data-dismiss="modal" aria-label="Close">Begin</h5>
         </div>
     </div>
 </div>

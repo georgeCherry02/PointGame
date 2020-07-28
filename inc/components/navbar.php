@@ -1,43 +1,28 @@
-<?php
-    $sr_current_span = "<span class=\"sr-only\">(Current)</span>";
-?>
-<div class="navbar navbar-expand-lg">
-    <div class="container">
-        <?php $home_active = $page_title === "Home"; ?>
-        <a class="navbar-brand highlight-text <?php if ($home_active) { echo "active"; } ?>" <?php if (!$home_active) { echo "href=\"default.php\""; } ?>>What's The Point?</a>
-        <button class="navbar-toggler grey-text" type="button" data-toggle="collapse" data-target="#navbar_content" aria-expanded="false" aria-label="Toggle Navigation">
+<div id="large-navbar" class="d-none d-lg-block text-center large-navbar">
+    <div class="row w-100 m-0">
+        <div class="col-4 text-left"><?php
+            if ($page_title == "Home") {
+                echo "<p class=\"navbar-title\">Spotting Patterns</p>";
+            } else {
+                echo "<a href=\"default.php\"><p class=\"navbar-title\">Spotting Patterns</p></a>";
+            }
+        ?></div>
+        <div class="col-4"></div>
+        <div class="col-2 text-right">
+            <a href="people.php"><p>About us</p></a>
+        </div>
+        <div class="col-2">
+            <a href="research.php"><p>Research</p></a>
+        </div>
+    </div>
+</div>
+<div id="small-navbar" class="d-lg-none text-center small-navbar">
+    <div class="row w-100 m-0">
+        <div class="col-11 text-left">
+            <p class="navbar-title">Spotting Patterns</p>
+        </div>
+        <div class="col-1">
             <i class="fas fa-bars"></i>
-        </button>
-        <div id="navbar_content" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav ml-auto">
-                <li class="nav-item">
-                    <?php $game_active = $page_title === "Game"; ?>
-                    <a class="nav-link login-signup grey-text<?php if ($game_active) { echo " active"; } ?>" href="game.php">
-                        Game
-                        <?php if ($game_active) { echo $sr_current_span; } ?>
-                    </a>
-                </li>
-                <li class="dropdown">
-                    <a class="nav-link dropdown-toggle grey-text" href="#" id="navbar_dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        About
-                        <span class="caret"></span>
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbar_dropdown">
-                        <?php
-                            $research_active = $page_title === "Research";
-                            $people_active = $page_title === "People";
-                        ?>
-                        <a href="research.php" class="dropdown_item grey-text ml-auto<?php if ($research_active) { echo " active"; } ?>">
-                            Research
-                            <?php if ($research_active) {echo $sr_current_span; } ?>
-                        </a><br/>
-                        <a href="people.php" class="dropdown_item grey-text ml-auto<?php if ($people_active) { echo " active"; } ?>">
-                            People
-                            <?php if ($people_active) {echo $sr_current_span; } ?>
-                        </a>
-                    </div>
-                </li>
-            </ul>
         </div>
     </div>
 </div>

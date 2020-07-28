@@ -7,7 +7,8 @@
 // Define external constants
 const accept_colour = new paper.Color(0.9, 1, 0.9, 1);
 const reject_colour = new paper.Color(1, 0.9, 0.9, 1);
-const POINT_COLOURS = ["#5EB1BF", "#6C5EBF", "#9D5EBF", "#BF5EB1", "#BF5E80", "#BF6C5E", "#BF9D5E", "#81BF5E"];
+// const POINT_COLOURS = ["#5EB1BF", "#6C5EBF", "#9D5EBF", "#BF5EB1", "#BF5E80", "#BF6C5E", "#BF9D5E", "#81BF5E"];
+const POINT_COLOURS = ["#BFD3E4", "#EBB391", "#C9CDB3", "#E8D19D", "#C0BABA"]
 
 // Restrictions outline
 // ##########################################################################################
@@ -57,10 +58,6 @@ const POINT_COLOURS = ["#5EB1BF", "#6C5EBF", "#9D5EBF", "#BF5EB1", "#BF5E80", "#
 
 with (paper) {
     var game = {};
-    // Define basic properties
-    game.canvas = $("#game_canvas");
-    game.origin = new Point(0, 0);
-    game.canvas_size = new Size(750, 750);
     // Note this just increments when points are placed and doesn't decrement when points are removed
     game.number_of_points_placed = 0;
     game.total_number_of_points_placed = 0;
@@ -81,7 +78,6 @@ with (paper) {
     for (var i = 0; i < 64; i++) {
         game.canvas_sections.push([]);
     }
-    game.canvas_sections_size = Math.floor(game.canvas_size.width / 8);
     // Define the variables required for caching sections
     game.last_used_section_requires_update = false;
     game.last_used_section_and_surroundings_id;
@@ -90,12 +86,16 @@ with (paper) {
 
     game.init = function() {
         Logger.log(LoggingType.STATUS, "Initialising Canvas");
+        this.determineCanvasDimensions();
+        this.generateColourPalette();
+        this.setPanelPositions();
+        this.canvas = $("#game_canvas");
         setup(this.canvas[0]);
 
         this.base_layer               = new Layer();
         this.point_areas_layer        = new Layer();
         this.point_area_display_layer = new Layer();
-        this.point_area_display_layer.opacity = 0.25;
+        this.point_area_display_layer.opacity = 0.5;
         this.points_layer             = new Layer();
         this.graph_layer              = new Layer();
         this.graph_layer.opacity      = 0.2;
@@ -166,6 +166,45 @@ with (paper) {
         if (FUNCTIONS_CHECK_ACTIVE) {
             this.restrictions.functions.initialise();
         }
+    }
+    game.resize = function() {
+        this.clear();
+        this.init();
+    }
+    game.determineCanvasDimensions = function() {
+        // Determine dimensions height
+        var large_viewport = window.innerWidth >= 992;
+        var screen_height = window.innerHeight;
+        var navbar_id = large_viewport ? "large-navbar" : "small-navbar";
+        var navbar_height = parseFloat(getComputedStyle(document.getElementById(navbar_id)).height);
+        var available_height = screen_height - navbar_height;
+        var canvas_dimension = available_height - 36;
+        this.canvas_size = new Size(canvas_dimension, canvas_dimension);
+        this.canvas_sections_size = Math.floor(canvas_dimension / 8);
+        var diagonal_length = canvas_dimension * Math.sqrt(2);
+        var generous_diagonal_length = Math.ceil(diagonal_length / 100) * 100;
+        this.canvas_diagonal_length = generous_diagonal_length;
+        var html = "<canvas id=\"game_canvas\" style=\"-webkit-user-drag: none; user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); margin-top: 18px; background: white;\" width=\""+canvas_dimension+"\" height=\""+canvas_dimension+"\">"
+        $("#canvas_container").html(html);
+    }
+    game.generateColourPalette = function() {
+        var html = "";
+        for (var i = 0; i < POINT_COLOURS.length; i++) {
+            html += "<div class=\"colour_select\" id=\"colour_select_"+i+"\"></div>";
+        }
+        $("#colour_palette").html(html);
+    }
+    game.setPanelPositions = function() {
+        var canvas_margin = ($("#game_container").width() - $("#game_canvas").width()) / 2;
+        var left_panel_width = $("#clear_button").width();
+        var desired_margin_from_canvas = 10;
+        var left_panel_margin_left = canvas_margin - left_panel_width - desired_margin_from_canvas;
+        $("#left_panel").css("margin-left", left_panel_margin_left);
+        var right_panel_width = $("#submit_button").width();
+        var right_panel_right = canvas_margin - right_panel_width - desired_margin_from_canvas;
+        $("#right_panel").css("right", right_panel_right);
+        $("#right_panel").width(right_panel_width);
+        $("#right_panel").height(game.canvas_size.height);
     }
     game.clear = function() {
         // Remove every single point from all tracking lists and render
@@ -321,7 +360,6 @@ with (paper) {
             center: point_location,
             radius: 1
         });
-        point_image.fillColor = this.restrictions.colour.current;
         this.point_images_list[this.total_number_of_points_placed] = point_image;
 
         // Update mean and standard dev
@@ -369,6 +407,7 @@ with (paper) {
         Logger.log(LoggingType.NOTICE, "Submitting point pattern to server");
         var process = "submitPoints";
         var data = {};
+        data.canvas_size = this.canvas_size.width;
         data.point_pattern = this.formatPointData();
         data.expected_shape = EXPECTED_SHAPE;
         // Validate the number of points client side too
@@ -1045,12 +1084,12 @@ with (paper) {
     // ------------------------------------------------------------------------------------------
     game.restrictions.colour = {};
     game.restrictions.colour.list = POINT_COLOURS;
-    game.restrictions.colour.current = "#5EB1BF";
     game.restrictions.colour.current_index = 0;
+    game.restrictions.colour.current = game.restrictions.colour.list[0];
     game.restrictions.colour.tracking = {};
     game.restrictions.colour.initialisePalette = function() {
         var selector;
-        for (var i = 0; i < 8; i++) {
+        for (var i = 0; i < this.list.length; i++) {
             selector = "#colour_select_"+i;
             $(selector).css("background-color", this.list[i]);
         }
@@ -1059,9 +1098,6 @@ with (paper) {
         $("#colour_select_2").click(() => {game.restrictions.colour.update(2)});
         $("#colour_select_3").click(() => {game.restrictions.colour.update(3)});
         $("#colour_select_4").click(() => {game.restrictions.colour.update(4)});
-        $("#colour_select_5").click(() => {game.restrictions.colour.update(5)});
-        $("#colour_select_6").click(() => {game.restrictions.colour.update(6)});
-        $("#colour_select_7").click(() => {game.restrictions.colour.update(7)});
         this.updatePalette();
     }
     game.restrictions.colour.update = function(new_index) {
@@ -1195,12 +1231,7 @@ with (paper) {
     game.restrictions.functions = {
         "pcf": {},
         "nearest_neighbour": {},
-        "spherical_contact": {
-            "-1": {
-                "random_point": new Point(Math.floor(Math.random() * game.canvas_size.width), Math.floor(Math.random() * game.canvas_size.height)),
-                "distance": Infinity
-            }
-        },
+        "spherical_contact": {},
         "limitations": {
             "nn": {},
             "pcf": {},
@@ -1209,7 +1240,11 @@ with (paper) {
         }
     };
     game.restrictions.functions.initialise = function() {
-        for (var i = 0; i <= 1100; i++) {
+        this.spherical_contact["-1"] = {
+            "random_point": new Point(Math.floor(Math.random() * game.canvas_size.width), Math.floor(Math.random() * game.canvas_size.height)),
+            "distance": Infinity
+        }
+        for (var i = 0; i <= game.canvas_diagonal_length; i++) {
             this.pcf[i] = 0;
         }
         // For each limitation implement tracking for surpassing averages
@@ -1316,7 +1351,7 @@ with (paper) {
         if (NEAREST_NEIGHBOUR_CHECK_ACTIVE) {
             if (game.number_of_points_placed >= 2) {
                 // Format nearest neighbour distribution
-                var nearest_neighbour_distribution = Array(1451).fill(0);
+                var nearest_neighbour_distribution = Array(game.generous_diagonal_length).fill(0);
                 for (var id in this.nearest_neighbour) {
                     nearest_neighbour_distribution[this.nearest_neighbour[id].distance]++;
                 }
@@ -1325,7 +1360,7 @@ with (paper) {
         }
         // Finally check Spherical Contact
         if (SPHERICAL_CONTACT_CHECK_ACTIVE) {
-            var spherical_contact_distribution = Array(1451).fill(0);
+            var spherical_contact_distribution = Array(game.generous_diagonal_length).fill(0);
             for (var id in this.spherical_contact) {
                 spherical_contact_distribution[this.spherical_contact[id].distance]++;
             }
@@ -1423,7 +1458,7 @@ with (paper) {
             point_density = 1 / (game.canvas_size.width * game.canvas_size.height);
         }
         var area, exp_points;
-        for (var i = 0; i <= 1100; i++) {
+        for (var i = 0; i <= game.canvas_diagonal_length; i++) {
             // Determine area of this annulus
             area = Math.PI * (Math.pow(i+1, 2) - Math.pow(i, 2));
             // Determine expected number of points
@@ -1440,11 +1475,11 @@ with (paper) {
         var removal = point_id != -1;
         // First change nn and sc to CDFs from count distributions
         var point_count = removal ? game.number_of_points_placed - 1 : game.number_of_points_placed + 1;
-        var jf = Array(1451).fill(0);
+        var jf = Array(game.generous_diagonal_length + 1).fill(0);
         spherical_running_total = spherical_contact_distribution[0]/point_count;
         nearest_running_total = nearest_neighbour_distribution[0]/point_count;
         jf[0] = (1 - nearest_running_total) / (1 - spherical_running_total);
-        for (var i = 1; i <= 1100; i++) {
+        for (var i = 1; i <= game.canvas_diagonal_length; i++) {
             spherical_running_total += spherical_contact_distribution[i] / point_count;
             nearest_running_total += nearest_neighbour_distribution[i] / point_count;
             // Javascript doesn't like dividing by 0
@@ -1457,7 +1492,7 @@ with (paper) {
             return [true, null];
         }
         var removal = point_id != -1;
-        var nearest_neighbour_distribution = Array(1451).fill(0);
+        var nearest_neighbour_distribution = Array(game.generous_diagonal_length + 1).fill(0);
         var distribution = {};
         distribution = Object.assign(distribution, this.nearest_neighbour);
         // Simulate point removal
@@ -1466,7 +1501,7 @@ with (paper) {
             delete distribution[point_id];
         }
         // Loop through all points in the nearest neighbours distribution
-        var c_point, c_distance, key, shortest_distance = 1100;
+        var c_point, c_distance, key, shortest_distance = game.canvas_diagonal_length;
         for (var id in distribution) {
             if (removal) {
                 c_distance = distribution[id].distance;
@@ -1500,7 +1535,7 @@ with (paper) {
     }
     game.restrictions.functions.checkSC = function(point_location, point_id) {
         var removal = point_id != -1;
-        var spherical_contact_distribution = Array(1451).fill(0);
+        var spherical_contact_distribution = Array(game.generous_diagonal_length + 1).fill(0);
         // Clone the initial distribution
         var distribution = {};
         distribution = Object.assign(distribution, this.spherical_contact);
@@ -1550,23 +1585,31 @@ with (paper) {
     }
     game.restrictions.functions.checkDistribution = function(distribution, distribution_type, validation=false) {
         var limitations = this.limitations[distribution_type].values;
-        var sums = {"short": 0, "medium": 0, "long": 0};
-        var key;
-        for (var i = 0; i <= 1100; i++) {
-            key = "long";
-            if (i <= limitations.short.range) {
-                key = "short";
-            } else if (i <= limitations.medium.range) {
-                key = "medium";
-            }
-            sums[key] += distribution[i];
+        var sums = {};
+        for (var key in limitations) {
+            sums[key] = 0;
         }
+        // Start from the initial range
+        var range_index = 0;
         var keys = Object.keys(limitations);
+        var current_range = keys[range_index];
+        for (var i = 0; i <= game.canvas_diagonal_length; i++) {
+            if (current_range != "max") {
+                while (i > limitations[current_range].range) {
+                    range_index++;
+                    current_range = keys[range_index];
+                }
+            }
+            sums[current_range] += distribution[i];
+        }
         var average, range;
         for (var i = 0; i < keys.length; i++) {
-            range = limitations[keys[i]].range;
-            if (i > 0) {
+            if (keys[i] == "max") {
+                range = game.canvas_diagonal_length;
+            } else if (i > 0) {
                 range = limitations[keys[i]].range - limitations[keys[i-1]].range;
+            } else {
+                range = limitations[keys[i]].range;
             }
             average = sums[keys[i]] / range;
             var above_lower_bound = average >= limitations[keys[i]].low;
@@ -1603,5 +1646,31 @@ with (paper) {
 }
 
 window.onload = function() {
+    // Load information
+    $("#info_modal").modal("show");
+    $("#submit_button_text").hover(() => {
+        var target_size = "6rem";
+        var target_offset = "0px";
+        $("#submit_button").width(target_size);
+        $("#submit_button").height(target_size);
+        $("#submit_button").css({
+            "left": target_offset,
+            "bottom": target_offset
+        });
+    });
+    $("#submit_button").mouseout(() => {
+        var target_size = "0px";
+        var target_offset = "3rem";
+        $("#submit_button").width(target_size);
+        $("#submit_button").height(target_size);
+        $("#submit_button").css({
+            "left": target_offset,
+            "bottom": target_offset
+        });
+    });
+    // Initialise game
     game.init();
+}
+window.onresize = function() {
+    game.resize();
 }

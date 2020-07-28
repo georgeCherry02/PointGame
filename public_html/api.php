@@ -62,8 +62,10 @@
                 // Fetch basic pattern data
                 $response[$rspns_key]["x"] = $current_pattern_data["x"];
                 $response[$rspns_key]["y"] = $current_pattern_data["y"];
+                $response[$rspns_key]["c"] = $current_pattern_data["c"];
                 // Fetch pattern ID
                 $response[$rspns_key]["ID"] = $current_pattern["ID"];
+                $response[$rspns_key]["canvas_size"] = $current_pattern["Canvas_Size"];
                 // Track pattern IDs being reviewed
                 array_push($_SESSION["reviewed_pattern_ids"], $current_pattern["ID"]);
                 // Fetch pattern shape
@@ -166,8 +168,8 @@
                 break;
             }
             if ($limitation_id) {
-                $point_pattern_sql = "INSERT INTO `point_patterns` (`Shape_Name`, `Limitations_ID`, `Point_Pattern`) VALUES (:shape, :lim_id, :pp)";
-                $point_pattern_sql_param = array(":shape" => $request_data["expected_shape"], ":lim_id" => $limitation_id, ":pp" => json_encode($request_data["point_pattern"]));
+                $point_pattern_sql = "INSERT INTO `point_patterns` (`Shape_Name`, `Limitations_ID`, `Point_Pattern`, `Canvas_Size`) VALUES (:shape, :lim_id, :pp, :canvas_size)";
+                $point_pattern_sql_param = array(":shape" => $request_data["expected_shape"], ":lim_id" => $limitation_id, ":pp" => json_encode($request_data["point_pattern"]), ":canvas_size" => $request_data["canvas_size"]);
                 try {
                     $insert_id = DB::query($point_pattern_sql, $point_pattern_sql_param);
                 } catch (PDOException $e) {
