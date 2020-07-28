@@ -1570,6 +1570,9 @@ with (paper) {
         return [this.checkDistribution(spherical_contact_distribution, "sc"), spherical_contact_distribution];
     }
     game.restrictions.functions.checkPCF = function(point_location, point_id) {
+        if (game.number_of_points_placed < 1) {
+            return true;
+        }
         var removal = point_id != -1;
         // Obtain initial pcf
         var pcf = {};
