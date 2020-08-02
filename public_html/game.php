@@ -38,6 +38,9 @@
         </div>
     </div>
     <!-- <script src="./tmp/mask.js" type="application/javascript"></script> -->
+    <script>
+        const BINARY_MASK = "QUICK FIX";
+    </script>
     <script src="./scripts/game.js" type="application/javascript"></script>
 </div>
 <div class="modal fade" id="confirmation_modal" tabindex="-1" role="dialog" data-backdrop="false">
