@@ -112,8 +112,8 @@ with (paper) {
             radius: 10
         });
         this.mouse_marker = new Path.Circle({
-            center: new Point(-1, -1),
-            radius: 1
+            center: new Point(-2, -2),
+            radius: 2
         });
     
         // Initialise game_tool
