@@ -409,7 +409,92 @@ with (paper) {
         var data = {};
         data.canvas_size = this.canvas_size.width;
         data.point_pattern = this.formatPointData();
-        data.expected_shape = EXPECTED_SHAPE;
+        data.restrictions = {
+            chosen_shape: EXPECTED_SHAPE,
+            minimum_radius: MINIMUM_RADIUS,
+            maximum_radius: MAXIMUM_RADIUS,
+            number_of_neighbours: NUMBER_OF_CLOSE_NEIGHBOURS,
+            minimum_number: MINIMUM_NUMBER,
+            maximum_number: MAXIMUM_NUMBER,
+            functions_check: {
+                active: FUNCTIONS_CHECK_ACTIVE
+            },
+            graph_check: {
+                active: GRAPH_CHECK_ACTIVE
+            },
+            grid_check: {
+                active: GRID_CHECK_ACTIVE
+            },
+            statistics_check: {
+                active: STATISTICS_CHECK_ACTIVE
+            }
+        }
+        if (FUNCTIONS_CHECK_ACTIVE) {
+            data.restrictions.functions_check.pcf = {
+                active: PCF_CHECK_ACTIVE
+            };
+            data.restrictions.functions_check.nearest_neighbour = {
+                active: NEAREST_NEIGHBOUR_CHECK_ACTIVE
+            };
+            data.restrictions.functions_check.spherical_contact = {
+                active: SPHERICAL_CONTACT_CHECK_ACTIVE
+            };
+            data.restrictions.functions_check.j_function = {
+                active: J_FUNCTION_CHECK_ACTIVE
+            }
+            if (PCF_CHECK_ACTIVE) {
+                data.restrictions.functions_check.pcf.value = PCF_LIMITATIONS;
+            }
+            if (NEAREST_NEIGHBOUR_CHECK_ACTIVE) {
+                data.restrictions.functions_check.nearest_neighbour.value = NEAREST_NEIGHBOUR_LIMITATIONS;
+            }
+            if (SPHERICAL_CONTACT_CHECK_ACTIVE) {
+                data.restrictions.functions_check.spherical_contact.value = SPHERICAL_CONTACT_LIMITATIONS;
+            }
+            if (J_FUNCTION_CHECK_ACTIVE) {
+                data.restrictions.functions_check.j_function.value = J_FUNCTION_LIMITATIONS;
+            }
+        }
+        if (GRAPH_CHECK_ACTIVE) {
+            data.restrictions.graph_check.render = GRAPH_RENDER;
+            data.restrictions.graph_check.intersecting_edges = !INTERSECTING_EDGE_CHECK_ACTIVE;
+            data.restrictions.graph_check.degree_of_vertices = {
+                active: DEGREE_OF_VERTICES_CHECK_ACTIVE
+            }
+            if (MAXIMUM_RADIUS <= MINIMUM_RADIUS) {
+                data.restrictions.graph_check.neighbour_distance = NEIGHBOURING_DISTANCE;
+            }
+            if (DEGREE_OF_VERTICES_CHECK_ACTIVE) {
+                data.restrictions.graph_check.degree_of_vertices.value = DEGREE_OF_VERTICES_LIMITATIONS;
+            }
+        }
+        if (GRID_CHECK_ACTIVE) {
+            data.restrictions.grid_check.render = GRID_RENDER;
+            data.restrictions.grid_check.mode = GRID_MODE;
+            data.restrictions.grid_check.resolution = GRID_RESOLUTION;
+            data.restrictions.grid_check.density_maximums = MAX_NUMBER_PER_GRID_CELL_DISTRIBUTION;
+            data.restrictions.grid_check.density_minimums = MIN_NUMBER_PER_GRID_CELL_DISTRIBUTION;
+        }
+        if (STATISTICS_CHECK_ACTIVE) {
+            data.restrictions.statistics_check.mean = {
+                active: MEAN_CHECK_ACTIVE
+            };
+            data.restrictions.statistics_check.stdev = {
+                active: STDEV_CHECK_ACTIVE
+            };
+            data.restrictions.statistics_check.ppmcc = {
+                active: PPMCC_CHECK_ACTIVE
+            };
+            if (MEAN_CHECK_ACTIVE) {
+                data.restrictions.statistics_check.mean.value = MEAN_LIMITATIONS;
+            }
+            if (STDEV_CHECK_ACTIVE) {
+                data.restrictions.statistics_check.stdev.value = STDEV_LIMITATIONS;
+            }
+            if (PPMCC_CHECK_ACTIVE) {
+                data.restrictions.statistics_check.ppmcc.value = PPMCC_LIMITATIONS;
+            }
+        }
         // Validate the number of points client side too
         if (data.point_pattern.x.length < MINIMUM_NUMBER) {
             this.showSubmitError(true);

@@ -114,6 +114,8 @@
         case "submitPoints":
             // Include relevant files
             include_once "../inc/enums/Shapes.php";
+            include_once "../inc/classes/Restrictions.php";
+            include_once "../inc/enums/CheckTypes.php";
             include_once "../inc/enums/RestrictionTypes.php";
             // Decode the data
             $request_data = json_decode($_POST["data"], $assoc=TRUE);
@@ -124,7 +126,7 @@
                 break;
             }
             // Check the shape matches the expected shape
-            if ($request_data["expected_shape"] != $_SESSION["Restrictions"]["shape_name"]) {
+            if ($request_data["restrictions"]["chosen_shape"] != $_SESSION["Restrictions"]["shape_name"]) {
                 $response["error_message"] = "Mismatching shape received";
                 $response["error_code"] = 2;
                 break;
@@ -145,15 +147,12 @@
                 $response["error_code"] = 5;
                 break;
             }
-            // Validate all restrictions
-            foreach (RestrictionTypes::ALL() as $restriction) {
-                if ($request_data["limitations"][$restriction->getFunctionalName()] != $_SESSION[$restriction->getFunctionalName()]) {
-                    $response["error_message"] = "Mismatch in restrictions expected and those provided by user";
-                    $response["extra_data"] = "req_data=".$request_data["limitations"][$restriction->getFunctionalName()]." | serv_data=".$_SESSION[$restriction->getFunctionalName()];
-                    $response["error_code"] = 6;
-                    echo json_encode($response);
-                    exit;
-                }
+            // Validate restrictions
+            $restrictions_valid = Restrictions::validateRestrictionSet($request_data["restrictions"]);
+            if (!$restrictions_valid) {
+                $response["error_message"] = "Invalid restrictions sent by Client";
+                $response["error_code"] = 6;
+                break;
             }
             // Insert into database
             // Form limitations insert

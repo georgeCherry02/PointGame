@@ -230,5 +230,82 @@
                 }
             }
         }
+
+        public static function validateRestrictionSet($restrictions_set) {
+            // Validate common resrtrictions
+            $shape_restrictions = $restrictions_set["chosen_shape"] == $_SESSION["Restrictions"]["shape_name"];
+            $radius_restrictions = $restrictions_set["minimum_radius"] == $_SESSION["Restrictions"]["minimum_radius"] && $restrictions_set["maximum_radius"] == $_SESSION["Restrictions"]["maximum_radius"];
+            $number_restrictions = $restrictions_set["minimum_number"] == $_SESSION["Restrictions"]["minimum_number"] && $restrictions_set["maximum_number"] == $_SESSION["Restrictions"]["maximum_number"];
+            $neighbours_restrictions = $restrictions_set["number_of_neighbours"] == $_SESSION["Restrictions"]["number_of_close_neighbours"];
+            $common_restrictions = $shape_restrictions && $radius_restrictions && $number_restrictions && $neighbours_restrictions;
+            // Reason for early function exit is because data's likely corrupted if this fails
+            if (!$common_restrictions) {
+                return false;
+            }
+            // Validate active check restrictions
+            $active_checks_valid = true;
+            foreach (CheckTypes::ALL() as $check_type) {
+                if ($check_type == CheckTypes::Mask()) {
+                    continue;
+                }
+                $active_checks_valid = $restrictions_set[$check_type->getKey()]["active"] == $_SESSION["Restrictions"][$check_type->getKey()]["active"];
+                if (!$active_checks_valid) {
+                    return false;
+                }
+            }
+            $active_function_checks_valid = true;
+            $function_checks_limitations_valid = true;
+            if ($restrictions_set["functions_check"]["active"]) {
+                foreach (CheckTypes::Functions()->getSubChecks() as $sub_check) {
+                    $active_function_checks_valid = $restrictions_set["functions_check"][$sub_check]["active"] == $_SESSION["Restrictions"]["functions_check"]["values"][$sub_check]["active"];
+                    if ($restrictions_set["functions_check"][$sub_check]["active"]) {
+                        $function_checks_limitations_valid = json_encode($restrictions_set["functions_check"][$sub_check]["value"]) == $_SESSION["Restrictions"]["functions_check"]["values"][$sub_check]["value"];
+                    }
+                    if (!$active_function_checks_valid || !$function_checks_limitations_valid) {
+                        return false;
+                    }
+                }
+            }
+            $graph_checks_valid = true;
+            if ($restrictions_set["graph_check"]["active"]) {
+                $basic_graph_checks = $restrictions_set["graph_check"]["render"] == $_SESSION["Restrictions"]["graph_check"]["values"]["graph_render"] && $restrictions_set["graph_check"]["intersecting_edges"] == $_SESSION["Restrictions"]["graph_check"]["values"]["intersecting_edge"];
+                $neighbour_distance_check = true;
+                if ($restrictions_set["maximum_radius"] <= $restrictions_set["minimum_radius"]) {
+                    $neighbour_distance_check = $restrictions_set["graph_check"]["neighbour_distance"] == $_SESSION["Restrictions"]["graph_check"]["values"]["neighbouring_distance"];
+                }
+                $active_degree_vertices_check = $restrictions_set["graph_check"]["degree_of_vertices"]["active"] == $_SESSION["Restrictions"]["graph_check"]["values"]["degree_of_vertices"]["active"];
+                $degree_vertices_valid_check = true;
+                if ($restrictions_set["graph_check"]["degree_of_vertices"]["active"]) {
+                    $degree_vertices_valid_check = $restrictions_set["graph_check"]["degree_of_vertices"]["value"] == $_SESSION["Restrictions"]["graph_check"]["values"]["degree_of_vertices"]["value"];
+                }
+                $graph_checks_valid = $basic_graph_checks && $neighbour_distance_check && $active_degree_vertices_check && $degree_vertices_valid_check;
+                if (!$graph_checks_valid) {
+                    return false;
+                }
+            }
+            $grid_check_valid = true;
+            if ($restrictions_set["grid_check"]["active"]) {
+                $basic_grid_checks = $restrictions_set["grid_check"]["render"] == $_SESSION["Restrictions"]["grid_check"]["values"]["grid_render"] && $restrictions_set["grid_check"]["mode"] == $_SESSION["Restrictions"]["grid_check"]["values"]["grid_mode"] && $restrictions_set["grid_check"]["resolution"] == $_SESSION["Restrictions"]["grid_check"]["values"]["grid_resolution"];
+                $grid_density_checks = json_encode($restrictions_set["grid_check"]["density_maximums"]) == $_SESSION["Restrictions"]["grid_check"]["values"]["max_grid_density"] && json_encode($restrictions_set["grid_check"]["density_minimums"]) == $_SESSION["Restrictions"]["grid_check"]["values"]["min_grid_density"];
+                $grid_check_valid = $basic_grid_checks && $grid_density_checks;
+                if (!$grid_check_valid) {
+                    return false;
+                }
+            }
+            $statistics_check_active_valid = true;
+            $statistics_check_limitations_valid = true;
+            if ($restrictions_set["statistics_check"]["active"]) {
+                foreach (CheckTypes::Statistics()->getSubChecks() as $sub_check) {
+                    $statistics_check_active_valid = $restrictions_set["statistics_check"][$sub_check]["active"] == $_SESSION["Restrictions"]["statistics_check"]["values"][$sub_check]["active"];
+                    if ($restrictions_set["statistics_check"][$sub_check]["active"]) {
+                        $statistics_check_limitations_valid = json_encode($restrictions_set["statistics_check"][$sub_check]["value"]) == $_SESSION["Restrictions"]["statistics_check"]["values"][$sub_check]["value"];
+                    }
+                    if (!$statistics_check_active_valid || !$statistics_check_limitations_valid) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
     }
 ?>
