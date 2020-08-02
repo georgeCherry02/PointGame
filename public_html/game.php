@@ -37,7 +37,10 @@
             <h5 id="submit_button_text" type="button" data-toggle="modal" data-target="#confirmation_modal">Submit</h5>
         </div>
     </div>
-    <script src="./tmp/mask.js" type="application/javascript"></script>
+    <!-- <script src="./tmp/mask.js" type="application/javascript"></script> -->
+    <script>
+        const BINARY_MASK = "QUICK FIX";
+    </script>
     <script src="./scripts/game.js" type="application/javascript"></script>
 </div>
 <div class="modal fade" id="confirmation_modal" tabindex="-1" role="dialog" data-backdrop="false">

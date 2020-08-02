@@ -6,6 +6,12 @@
     font-size: 84px;
     font-family: "Arial Black";
 }
+@media screen and (max-width: 768px) {
+    div.landing-page-jumbotron h1 {
+        font-size: 48px;
+        font-family: "Arial Black";
+    }
+}
 .landing-page-jumbotron h5 {
     font-weight: normal;
 }

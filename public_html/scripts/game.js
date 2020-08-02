@@ -112,8 +112,8 @@ with (paper) {
             radius: 10
         });
         this.mouse_marker = new Path.Circle({
-            center: new Point(-1, -1),
-            radius: 1
+            center: new Point(-2, -2),
+            radius: 2
         });
     
         // Initialise game_tool
@@ -1140,14 +1140,14 @@ with (paper) {
             return true;
         }
         var [new_x_mean, new_y_mean] = this.findModifiedMean(point_location, removal);
-        return (new_x_mean >= MEAN_LIMITATIONS.x.min && new_x_mean <= MEAN_LIMITATIONS.x.max && new_y_mean >= MEAN_LIMITATIONS.y.min && new_y_mean <= MEAN_LIMITATIONS.y.max);
+        return (new_x_mean >= MEAN_LIMITATIONS.x.min * game.canvas_size.width && new_x_mean <= MEAN_LIMITATIONS.x.max * game.canvas_size.width && new_y_mean >= MEAN_LIMITATIONS.y.min * game.canvas_size.height && new_y_mean <= MEAN_LIMITATIONS.y.max * game.canvas_size.height);
     }
     game.restrictions.statistics.checkStandardDeviation = function(point_location, removal) {
         var distribution = game.formatPointData();
         distribution = this.modifyDistribution(distribution, point_location, removal);
         var new_mean = this.findModifiedMean(point_location, removal);
         var [stdev_x, stdev_y] = this.findStandardDeviation(distribution, new_mean);
-        return (stdev_x >= STDEV_LIMITATIONS.x.min && stdev_x <= STDEV_LIMITATIONS.x.max && stdev_y >= STDEV_LIMITATIONS.y.min && stdev_y <= STDEV_LIMITATIONS.y.max);
+        return (stdev_x >= STDEV_LIMITATIONS.x.min * game.canvas_size.width && stdev_x <= STDEV_LIMITATIONS.x.max * game.canvas_size.width && stdev_y >= STDEV_LIMITATIONS.y.min * game.canvas_size.height && stdev_y <= STDEV_LIMITATIONS.y.max game.canvas_size.height);
     }
     game.restrictions.statistics.checkPPMCC = function(point_location, removal) {
         var distribution = game.formatPointData();
@@ -1219,12 +1219,12 @@ with (paper) {
     // ------------------------------------------------------------------------------------------
     // Implement binary mask restrictions
     // ------------------------------------------------------------------------------------------
-    game.restrictions.mask = {};
-    game.restrictions.mask.data = BINARY_MASK;
-    game.restrictions.mask.check = function(location) {
-        var x = Math.floor(location.x), y = Math.floor(location.y);
-        return this.data[y][x] == 1;
-    }
+    // game.restrictions.mask = {};
+    // game.restrictions.mask.data = BINARY_MASK;
+    // game.restrictions.mask.check = function(location) {
+    //     var x = Math.floor(location.x), y = Math.floor(location.y);
+    //     return this.data[y][x] == 1;
+    // }
     // ------------------------------------------------------------------------------------------
     // Implement function based restrictions
     // ------------------------------------------------------------------------------------------

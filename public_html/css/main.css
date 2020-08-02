@@ -10,6 +10,10 @@ body {
     background-size: 300%; 
     background-position: 50% -1%;
 }
+@font-face {
+    font-family: "Arial Black";
+    src: url("../resources/Arial\ Black.ttf");
+}
 .black-text {
     color: black;
 }

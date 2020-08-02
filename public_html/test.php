@@ -26,15 +26,15 @@
             ?>
         </select>
         <label for="minimum_radius"><h5>Minimum Radius:</h5></label>
-        <input type="number" class="form-control" name="minimum_radius" id="minimum_radius" min="0"/>
+        <input type="number" class="form-control" name="minimum_radius" id="minimum_radius" value="5" min="0"/>
         <label for="maximum_radius"><h5>Maximum Radius:</h5></label>
-        <input type="number" class="form-control" name="maximum_radius" id="maximum_radius" min="0"/>
+        <input type="number" class="form-control" name="maximum_radius" id="maximum_radius" value="50" min="0"/>
         <label for="number_of_close_neighbours"><h5>Number of close neighbours:</h5></label>
-        <input type="number" class="form-control" id="number_of_close_neighbours" name="number_of_close_neighbours" min="0"/>
+        <input type="number" class="form-control" id="number_of_close_neighbours" name="number_of_close_neighbours" value="1" min="0"/>
         <label for="minimum_number"><h5>Minimum number:</h5></label>
-        <input type="number" class="form-control" name="minimum_number" id="minimum_number" min="0"/>
+        <input type="number" class="form-control" name="minimum_number" id="minimum_number" value="5" min="0"/>
         <label for="maximum_number"><h5>Maximum number:</h5></label>
-        <input type="number" class="form-control" name="maximum_number" id="maximum_number" min="0"/>
+        <input type="number" class="form-control" name="maximum_number" id="maximum_number" value="500" min="0"/>
     </div>
     <hr/>
     <h4>Function Restrictions:</h4>
@@ -75,9 +75,9 @@
               .     "<div id=\"range_1_container\">"
               .         "<h5>Maximum amount for ".$type."</h5>"
               .         "<label for=\"".$type."_range_1_max\">Average maximum 1:</label>"
-              .         "<input type=\"number\" class=\"form-control\" name=\"".$type."_range_1_max\" id=\"".$type."_range_1_max\"/>"
+              .         "<input type=\"number\" class=\"form-control\" name=\"".$type."_range_1_max\" id=\"".$type."_range_1_max\" value=\"1000000000\"/>"
               .         "<label for=\"".$type."_range_1_min\">Average minimum 1:</label>"
-              .         "<input type=\"number\" class=\"form-control\" name=\"".$type."_range_1_min\" id=\"".$type."_range_1_min\"/>"
+              .         "<input type=\"number\" class=\"form-control\" name=\"".$type."_range_1_min\" id=\"".$type."_range_1_min\" value=\"0\"/>"
               .     "</div>"
               .     "<small>Don't use the name \"max\" that's reserved for the first input</small>"
               .     "<script>\n"
@@ -108,7 +108,7 @@
             </div>
             <div id="neighbouring_distance_container">
                 <label for="neighbouring_distance"><h5>Neighbouring Distance:</h5></label>
-                <input type="number" class="form-control" id="neighbouring_distance" name="neighbouring_distance" min="0"/>
+                <input type="number" class="form-control" id="neighbouring_distance" name="neighbouring_distance" value="20" min="0"/>
             </div>
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" value="" name="intersecting_edge" id="intersecting_edge"/>
@@ -124,7 +124,7 @@
             </div>
             <div id="degree_of_vertices_container">
                 <label for="degree_of_vertices"><h5>Maximum degree of vertices:</h5></label>
-                <input type="number" class="form-control" id="degree_of_vertices" name="degree_of_vertices" min="0"/>
+                <input type="number" class="form-control" id="degree_of_vertices" name="degree_of_vertices" value="5" min="0"/>
             </div>
         </div>
     </div>
@@ -154,7 +154,7 @@
                 ?>
             </select>
             <label for="grid_resolution"><h5>Grid Resolution:</h5></label>
-            <input type="number" class="form-control" id="grid_resolution" name="grid_resolution" min="0"/>
+            <input type="number" class="form-control" id="grid_resolution" name="grid_resolution" value="32" min="0"/>
             <small>Hexagon = "Radius" &vert; Square &amp; Triangle = Side length</small>
             <hr/>
             <label for="grid_density_max_container"><h5>Grid density maximums</h5></label>
@@ -175,10 +175,11 @@
                 </div>
                 <div class="grid_density_max_1">
                     <label for="grid_density_max_1_prop">Proportion 1:</label>
-                    <input type="number" class="form-control" id="grid_density_max_1_prop" name="grid_density_max_1_prop" min="0" max="100"/>
+                    <input type="number" class="form-control" id="grid_density_max_1_prop" name="grid_density_max_1_prop" value="100" min="0" max="100"/>
                     <label for="grid_density_max_1_value">Value 1:</label>
-                    <input type="number" class="form-control" id="grid_density_max_1_value" name="grid_density_max_1_value" min="0"/>
+                    <input type="number" class="form-control" id="grid_density_max_1_value" name="grid_density_max_1_value" value="5" min="0"/>
                 </div>
+                <small>Make sure all proportions add up to 100 and only use integers.</small>
             </div>
             <hr/>
             <label for="grid_density_min_container"><h5>Grid density minimums</h5></label>
@@ -199,10 +200,11 @@
                 </div>
                 <div class="grid_density_min_1">
                     <label for="grid_density_min_1_prop">Proportion 1:</label>
-                    <input type="number" class="form-control" id="grid_density_min_1_prop" name="grid_density_min_1_prop" min="0" max="100"/>
+                    <input type="number" class="form-control" id="grid_density_min_1_prop" name="grid_density_min_1_prop" value="100" min="0" max="100"/>
                     <label for="grid_density_min_1_value">Value 1:</label>
-                    <input type="number" class="form-control" id="grid_density_min_1_value" name="grid_density_min_1_value" min="0"/>
+                    <input type="number" class="form-control" id="grid_density_min_1_value" name="grid_density_min_1_value" value="1" min="0"/>
                 </div>
+                <small>Make sure all proportions add up to 100 and only use integers.</small>
             </div>
             <script>
                 form_counts["density_min"] = 1;
@@ -230,13 +232,15 @@
             </div>
             <div class="form-group" id="mean_description">
                 <label for="x_mean_min"><h5>Minimum X:</h5></label>
-                <input type="number" class="form-control" id="x_mean_min" name="x_mean_min" min="0" max="1024"/>
+                <input type="number" class="form-control" id="x_mean_min" name="x_mean_min" default="25" min="0" max="100"/>
                 <label for="x_mean_max"><h5>Maximum X:</h5></label>
-                <input type="number" class="form-control" id="x_mean_max" name="x_mean_max" min="0" max="1024"/>
+                <input type="number" class="form-control" id="x_mean_max" name="x_mean_max" default="75" min="0" max="100"/>
                 <label for="y_mean_min"><h5>Minimum Y:</h5></label>
-                <input type="number" class="form-control" id="y_mean_min" name="y_mean_min" min="0" may="1024"/>
-                <label for="y_mean_max"><h5>Mayimum Y:</h5></label>
-                <input type="number" class="form-control" id="y_mean_max" name="y_mean_max" min="0" may="1024"/>
+                <input type="number" class="form-control" id="y_mean_min" name="y_mean_min" default="25" min="0" may="100"/>
+                <label for="y_mean_max"><h5>Maximum Y:</h5></label>
+                <input type="number" class="form-control" id="y_mean_max" name="y_mean_max" default="75" min="0" may="100"/>
+                <small>This is put as a proportion of the canvas size</small>
+                <small>I.e. 20 min to 50 max</small>
             </div>
             <h5 class="mt-2">Standard Deviation:</h5>
             <div class="form-check">
@@ -247,13 +251,14 @@
             </div>
             <div class="form-group" id="stdev_description">
                 <label for="x_stdev_min"><h5>Minimum X:</h5></label>
-                <input type="number" class="form-control" id="x_stdev_min" name="x_stdev_min" min="0" max="1024"/>
+                <input type="number" class="form-control" id="x_stdev_min" name="x_stdev_min" default="0" min="0" max="100"/>
                 <label for="x_stdev_max"><h5>Maximum X:</h5></label>
-                <input type="number" class="form-control" id="x_stdev_max" name="x_stdev_max" min="0" max="1024"/>
+                <input type="number" class="form-control" id="x_stdev_max" name="x_stdev_max" default="100" min="0" max="100"/>
                 <label for="y_stdev_min"><h5>Minimum Y:</h5></label>
-                <input type="number" class="form-control" id="y_stdev_min" name="y_stdev_min" min="0" may="1024"/>
+                <input type="number" class="form-control" id="y_stdev_min" name="y_stdev_min" default="0" min="0" may="100"/>
                 <label for="y_stdev_max"><h5>Mayimum Y:</h5></label>
-                <input type="number" class="form-control" id="y_stdev_max" name="y_stdev_max" min="0" may="1024"/>
+                <input type="number" class="form-control" id="y_stdev_max" name="y_stdev_max" default="100" min="0" may="100"/>
+                <small>This is again put as a proportion of canvas size</small>
             </div>
             <h5 class="mt-2">PPMCC:</h5>
             <div class="form-check">
