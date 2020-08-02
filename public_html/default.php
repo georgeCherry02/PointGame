@@ -17,6 +17,9 @@
         <a href="game.php">Play Game</a>
     </div>
 </div>
+<div class="fb-share-button" data-href="https://spottingpatterns.co.uk" data-layout="button" data-size="small">
+    <a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fspottingpatterns.co.uk%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Share</a>
+</div>
 <?php
     include_once "../inc/components/footer.php";
 ?>
