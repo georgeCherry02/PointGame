@@ -124,18 +124,18 @@
                 break;
             }
             // Check the shape matches the expected shape
-            if ($request_data["expected_shape"] != $_SESSION["Chosen_Shape"]) {
+            if ($request_data["expected_shape"] != $_SESSION["Restrictions"]["shape_name"]) {
                 $response["error_message"] = "Mismatching shape received";
                 $response["error_code"] = 2;
                 break;
             }
             // Check their are the correct number of points
-            if (sizeof($request_data["point_pattern"]["x"]) < $_SESSION["minimum_number"]) {
+            if (sizeof($request_data["point_pattern"]["x"]) < $_SESSION["Restrictions"]["minimum_number"]) {
                 $response["error_message"] = "Too few points";
                 $response["error_code"] = 3;
                 break;
             }
-            if (sizeof($request_data["point_pattern"]["x"]) > $_SESSION["maximum_number"]) {
+            if (sizeof($request_data["point_pattern"]["x"]) > $_SESSION["Restrictions"]["maximum_number"]) {
                 $response["error_message"] = "Too many points";
                 $response["error_code"] = 4;
                 break;
