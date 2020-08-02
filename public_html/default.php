@@ -12,7 +12,7 @@
         <h5 class="mt-4">A citizen science initiative</h5>
     </div>
 </div>
-<div class="play_button">
+<div class="play_button d-none d-lg-block">
     <div class="link_container">
         <a href="game.php">Play Game</a>
     </div>
