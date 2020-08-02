@@ -1147,7 +1147,7 @@ with (paper) {
         distribution = this.modifyDistribution(distribution, point_location, removal);
         var new_mean = this.findModifiedMean(point_location, removal);
         var [stdev_x, stdev_y] = this.findStandardDeviation(distribution, new_mean);
-        return (stdev_x >= STDEV_LIMITATIONS.x.min * game.canvas_size.width && stdev_x <= STDEV_LIMITATIONS.x.max * game.canvas_size.width && stdev_y >= STDEV_LIMITATIONS.y.min * game.canvas_size.height && stdev_y <= STDEV_LIMITATIONS.y.max game.canvas_size.height);
+        return (stdev_x >= STDEV_LIMITATIONS.x.min * game.canvas_size.width && stdev_x <= STDEV_LIMITATIONS.x.max * game.canvas_size.width && stdev_y >= STDEV_LIMITATIONS.y.min * game.canvas_size.height && stdev_y <= STDEV_LIMITATIONS.y.max * game.canvas_size.height);
     }
     game.restrictions.statistics.checkPPMCC = function(point_location, removal) {
         var distribution = game.formatPointData();
