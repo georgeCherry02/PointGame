@@ -1,0 +1,6 @@
+@media screen and (max-width: 768px) {
+    div.landing-page-jumbotron h1 {
+        font-size: 48px;
+        font-family: "Arial Black";
+    }
+}
