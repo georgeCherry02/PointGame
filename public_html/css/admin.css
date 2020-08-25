@@ -11,3 +11,6 @@
 .restrictions_set_button:hover {
     transform: translate(0.5px, 0.5px)
 }
+input {
+    cursor: pointer;
+}
