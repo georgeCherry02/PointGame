@@ -63,7 +63,6 @@ with (paper) {
     game.total_number_of_points_placed = 0;
     
     // Define list of points
-    game.point_images_list = {};
     game.point_area_display_list = {};
     game.point_areas_list = {};
 
@@ -71,9 +70,12 @@ with (paper) {
     game.chaining = MAXIMUM_RADIUS > MINIMUM_RADIUS;
 
     // Divide canvas into quadrants
-    // 0 1 ... 8
-    // 9 ...
-    // 17 ...
+    // 0 1 ... 7
+    // 8 ...
+    // 16 ...
+    // .
+    // .
+    // 56 ... 63
     game.canvas_sections = [];
     for (var i = 0; i < 64; i++) {
         game.canvas_sections.push([]);
@@ -96,13 +98,10 @@ with (paper) {
         this.point_areas_layer        = new Layer();
         this.point_area_display_layer = new Layer();
         this.point_area_display_layer.opacity = 0.5;
-        this.points_layer             = new Layer();
         this.graph_layer              = new Layer();
         this.graph_layer.opacity      = 0.2;
         this.grid_layer               = new Layer();
         this.grid_layer.opacity       = 0.2;
-        this.mean_path_layer          = new Layer();
-        this.mean_path_layer.opacity  = 0.2;
         this.mouse_track_layer        = new Layer();
     
         // Initialise custom mouse
@@ -121,8 +120,6 @@ with (paper) {
         this.point_tool.onMouseDown = function(event) {
             game.last_used_section_requires_update = true;
             if (game.restrictions.checkPlacementValidity(event.point)) {
-                // Activate appropriate layer
-                game.points_layer.activate();
                 // Draw point onto canvas
                 game.renderPoint(event.point);
             } else {
@@ -257,8 +254,8 @@ with (paper) {
         Logger.log(LoggingType.NOTICE, "Formatting point data");
         var result = {"x": [], "y": [], "c": []};
         var c_point, c_object;
-        for (var id in this.point_images_list) {
-            c_point = this.point_images_list[id];
+        for (var id in this.point_areas_list) {
+            c_point = this.point_areas_list[id];
             result.x.push(Math.floor(c_point.position.x));
             result.y.push(Math.floor(c_point.position.y));
             result.c.push(Math.floor(this.restrictions.colour.tracking[id]));
@@ -292,11 +289,6 @@ with (paper) {
         var point_area_display = this.point_area_display_list[point_id];
         point_area_display.remove();
         delete this.point_area_display_list[point_id];
-        // Remove point_image from tracking list and rendering
-        game.points_layer.activate();
-        var point_image = this.point_images_list[point_id];
-        point_image.remove();
-        delete this.point_images_list[point_id];
 
         // Update mean and standard dev
         if (STATISTICS_CHECK_ACTIVE) {
@@ -354,13 +346,6 @@ with (paper) {
         point_area_display.fillColor = this.restrictions.colour.current;
         // Push to own list to keep track of
         this.point_area_display_list[this.total_number_of_points_placed] = point_area_display;
-        // Do same again for actual point
-        this.points_layer.activate();
-        var point_image = new Path.Circle({
-            center: point_location,
-            radius: 1
-        });
-        this.point_images_list[this.total_number_of_points_placed] = point_image;
 
         // Update mean and standard dev
         if (STATISTICS_CHECK_ACTIVE) {
@@ -1526,11 +1511,11 @@ with (paper) {
     game.restrictions.functions.modifyPCF = function(point_location, point_id, removal, pcf) {
         var shift = removal ? -1 : 1;
         var c_point, c_distance;
-        for (var id in game.point_images_list) {
+        for (var id in game.point_areas_list) {
             if (id == point_id) {
                 continue;
             }
-            c_point = game.point_images_list[id].position;
+            c_point = game.point_areas_list[id].position;
             c_distance = Math.floor(c_point.getDistance(point_location));
             pcf[c_distance] += shift;
         }
