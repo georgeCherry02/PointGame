@@ -63,7 +63,6 @@ with (paper) {
     game.total_number_of_points_placed = 0;
     
     // Define list of points
-    game.point_images_list = {};
     game.point_area_display_list = {};
     game.point_areas_list = {};
 
@@ -71,9 +70,12 @@ with (paper) {
     game.chaining = MAXIMUM_RADIUS > MINIMUM_RADIUS;
 
     // Divide canvas into quadrants
-    // 0 1 ... 8
-    // 9 ...
-    // 17 ...
+    // 0 1 ... 7
+    // 8 ...
+    // 16 ...
+    // .
+    // .
+    // 56 ... 63
     game.canvas_sections = [];
     for (var i = 0; i < 64; i++) {
         game.canvas_sections.push([]);
@@ -96,13 +98,10 @@ with (paper) {
         this.point_areas_layer        = new Layer();
         this.point_area_display_layer = new Layer();
         this.point_area_display_layer.opacity = 0.5;
-        this.points_layer             = new Layer();
         this.graph_layer              = new Layer();
         this.graph_layer.opacity      = 0.2;
         this.grid_layer               = new Layer();
         this.grid_layer.opacity       = 0.2;
-        this.mean_path_layer          = new Layer();
-        this.mean_path_layer.opacity  = 0.2;
         this.mouse_track_layer        = new Layer();
     
         // Initialise custom mouse
@@ -121,8 +120,6 @@ with (paper) {
         this.point_tool.onMouseDown = function(event) {
             game.last_used_section_requires_update = true;
             if (game.restrictions.checkPlacementValidity(event.point)) {
-                // Activate appropriate layer
-                game.points_layer.activate();
                 // Draw point onto canvas
                 game.renderPoint(event.point);
             } else {
@@ -257,8 +254,8 @@ with (paper) {
         Logger.log(LoggingType.NOTICE, "Formatting point data");
         var result = {"x": [], "y": [], "c": []};
         var c_point, c_object;
-        for (var id in this.point_images_list) {
-            c_point = this.point_images_list[id];
+        for (var id in this.point_areas_list) {
+            c_point = this.point_areas_list[id];
             result.x.push(Math.floor(c_point.position.x));
             result.y.push(Math.floor(c_point.position.y));
             result.c.push(Math.floor(this.restrictions.colour.tracking[id]));
@@ -292,11 +289,6 @@ with (paper) {
         var point_area_display = this.point_area_display_list[point_id];
         point_area_display.remove();
         delete this.point_area_display_list[point_id];
-        // Remove point_image from tracking list and rendering
-        game.points_layer.activate();
-        var point_image = this.point_images_list[point_id];
-        point_image.remove();
-        delete this.point_images_list[point_id];
 
         // Update mean and standard dev
         if (STATISTICS_CHECK_ACTIVE) {
@@ -354,13 +346,6 @@ with (paper) {
         point_area_display.fillColor = this.restrictions.colour.current;
         // Push to own list to keep track of
         this.point_area_display_list[this.total_number_of_points_placed] = point_area_display;
-        // Do same again for actual point
-        this.points_layer.activate();
-        var point_image = new Path.Circle({
-            center: point_location,
-            radius: 1
-        });
-        this.point_images_list[this.total_number_of_points_placed] = point_image;
 
         // Update mean and standard dev
         if (STATISTICS_CHECK_ACTIVE) {
@@ -409,7 +394,92 @@ with (paper) {
         var data = {};
         data.canvas_size = this.canvas_size.width;
         data.point_pattern = this.formatPointData();
-        data.expected_shape = EXPECTED_SHAPE;
+        data.restrictions = {
+            chosen_shape: EXPECTED_SHAPE,
+            minimum_radius: MINIMUM_RADIUS,
+            maximum_radius: MAXIMUM_RADIUS,
+            number_of_neighbours: NUMBER_OF_CLOSE_NEIGHBOURS,
+            minimum_number: MINIMUM_NUMBER,
+            maximum_number: MAXIMUM_NUMBER,
+            functions_check: {
+                active: FUNCTIONS_CHECK_ACTIVE
+            },
+            graph_check: {
+                active: GRAPH_CHECK_ACTIVE
+            },
+            grid_check: {
+                active: GRID_CHECK_ACTIVE
+            },
+            statistics_check: {
+                active: STATISTICS_CHECK_ACTIVE
+            }
+        }
+        if (FUNCTIONS_CHECK_ACTIVE) {
+            data.restrictions.functions_check.pcf = {
+                active: PCF_CHECK_ACTIVE
+            };
+            data.restrictions.functions_check.nearest_neighbour = {
+                active: NEAREST_NEIGHBOUR_CHECK_ACTIVE
+            };
+            data.restrictions.functions_check.spherical_contact = {
+                active: SPHERICAL_CONTACT_CHECK_ACTIVE
+            };
+            data.restrictions.functions_check.j_function = {
+                active: J_FUNCTION_CHECK_ACTIVE
+            }
+            if (PCF_CHECK_ACTIVE) {
+                data.restrictions.functions_check.pcf.value = PCF_LIMITATIONS;
+            }
+            if (NEAREST_NEIGHBOUR_CHECK_ACTIVE) {
+                data.restrictions.functions_check.nearest_neighbour.value = NEAREST_NEIGHBOUR_LIMITATIONS;
+            }
+            if (SPHERICAL_CONTACT_CHECK_ACTIVE) {
+                data.restrictions.functions_check.spherical_contact.value = SPHERICAL_CONTACT_LIMITATIONS;
+            }
+            if (J_FUNCTION_CHECK_ACTIVE) {
+                data.restrictions.functions_check.j_function.value = J_FUNCTION_LIMITATIONS;
+            }
+        }
+        if (GRAPH_CHECK_ACTIVE) {
+            data.restrictions.graph_check.render = GRAPH_RENDER;
+            data.restrictions.graph_check.intersecting_edges = !INTERSECTING_EDGE_CHECK_ACTIVE;
+            data.restrictions.graph_check.degree_of_vertices = {
+                active: DEGREE_OF_VERTICES_CHECK_ACTIVE
+            }
+            if (MAXIMUM_RADIUS <= MINIMUM_RADIUS) {
+                data.restrictions.graph_check.neighbour_distance = NEIGHBOURING_DISTANCE;
+            }
+            if (DEGREE_OF_VERTICES_CHECK_ACTIVE) {
+                data.restrictions.graph_check.degree_of_vertices.value = DEGREE_OF_VERTICES_LIMITATIONS;
+            }
+        }
+        if (GRID_CHECK_ACTIVE) {
+            data.restrictions.grid_check.render = GRID_RENDER;
+            data.restrictions.grid_check.mode = GRID_MODE;
+            data.restrictions.grid_check.resolution = GRID_RESOLUTION;
+            data.restrictions.grid_check.density_maximums = MAX_NUMBER_PER_GRID_CELL_DISTRIBUTION;
+            data.restrictions.grid_check.density_minimums = MIN_NUMBER_PER_GRID_CELL_DISTRIBUTION;
+        }
+        if (STATISTICS_CHECK_ACTIVE) {
+            data.restrictions.statistics_check.mean = {
+                active: MEAN_CHECK_ACTIVE
+            };
+            data.restrictions.statistics_check.stdev = {
+                active: STDEV_CHECK_ACTIVE
+            };
+            data.restrictions.statistics_check.ppmcc = {
+                active: PPMCC_CHECK_ACTIVE
+            };
+            if (MEAN_CHECK_ACTIVE) {
+                data.restrictions.statistics_check.mean.value = MEAN_LIMITATIONS;
+            }
+            if (STDEV_CHECK_ACTIVE) {
+                data.restrictions.statistics_check.stdev.value = STDEV_LIMITATIONS;
+            }
+            if (PPMCC_CHECK_ACTIVE) {
+                data.restrictions.statistics_check.ppmcc.value = PPMCC_LIMITATIONS;
+            }
+        }
         // Validate the number of points client side too
         if (data.point_pattern.x.length < MINIMUM_NUMBER) {
             this.showSubmitError(true);
@@ -1140,14 +1210,14 @@ with (paper) {
             return true;
         }
         var [new_x_mean, new_y_mean] = this.findModifiedMean(point_location, removal);
-        return (new_x_mean >= MEAN_LIMITATIONS.x.min * game.canvas_size.width && new_x_mean <= MEAN_LIMITATIONS.x.max * game.canvas_size.width && new_y_mean >= MEAN_LIMITATIONS.y.min * game.canvas_size.height && new_y_mean <= MEAN_LIMITATIONS.y.max * game.canvas_size.height);
+        return (new_x_mean >= MEAN_LIMITATIONS.x.min / 100 * game.canvas_size.width && new_x_mean <= MEAN_LIMITATIONS.x.max / 100 * game.canvas_size.width && new_y_mean >= MEAN_LIMITATIONS.y.min / 100 * game.canvas_size.height && new_y_mean <= MEAN_LIMITATIONS.y.max / 100 * game.canvas_size.height);
     }
     game.restrictions.statistics.checkStandardDeviation = function(point_location, removal) {
         var distribution = game.formatPointData();
         distribution = this.modifyDistribution(distribution, point_location, removal);
         var new_mean = this.findModifiedMean(point_location, removal);
         var [stdev_x, stdev_y] = this.findStandardDeviation(distribution, new_mean);
-        return (stdev_x >= STDEV_LIMITATIONS.x.min * game.canvas_size.width && stdev_x <= STDEV_LIMITATIONS.x.max * game.canvas_size.width && stdev_y >= STDEV_LIMITATIONS.y.min * game.canvas_size.height && stdev_y <= STDEV_LIMITATIONS.y.max game.canvas_size.height);
+        return (stdev_x >= STDEV_LIMITATIONS.x.min / 100 * game.canvas_size.width && stdev_x <= STDEV_LIMITATIONS.x.max / 100 * game.canvas_size.width && stdev_y >= STDEV_LIMITATIONS.y.min / 100 * game.canvas_size.height && stdev_y <= STDEV_LIMITATIONS.y.max / 100 * game.canvas_size.height);
     }
     game.restrictions.statistics.checkPPMCC = function(point_location, removal) {
         var distribution = game.formatPointData();
@@ -1441,11 +1511,11 @@ with (paper) {
     game.restrictions.functions.modifyPCF = function(point_location, point_id, removal, pcf) {
         var shift = removal ? -1 : 1;
         var c_point, c_distance;
-        for (var id in game.point_images_list) {
+        for (var id in game.point_areas_list) {
             if (id == point_id) {
                 continue;
             }
-            c_point = game.point_images_list[id].position;
+            c_point = game.point_areas_list[id].position;
             c_distance = Math.floor(c_point.getDistance(point_location));
             pcf[c_distance] += shift;
         }

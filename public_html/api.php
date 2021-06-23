@@ -79,20 +79,8 @@
                     break;
                 }
                 // Fetch pattern min_radius
-                $limitations_id = $current_pattern["Limitations_ID"];
-                $fetch_min_radius_sql = "SELECT `Minimum_Radius` FROM `Limitations` WHERE `ID`=:lim_id";
-                $fetch_min_radius_sql_variables = array(":lim_id" => $limitations_id);
-                try {
-                    $min_radius = DB::query($fetch_min_radius_sql, $fetch_min_radius_sql_variables)[0]["Minimum_Radius"];
-                } catch (PDOException $e) {
-                    $server_error = TRUE;
-                    break;
-                }
-                if (!$min_radius) {
-                    $server_error = TRUE;
-                    break;
-                }
-                $response[$rspns_key]["Minimum_Radius"] = $min_radius;
+                $current_restrictions = json_decode($current_pattern["Restriction_Summary"], $assoc=TRUE);
+                $response[$rspns_key]["Minimum_Radius"] = $current_restrictions["minimum_radius"];
             }
             // Catch if an invalid shape has been thrown
             if ($invalid_shape_provided) {
@@ -114,6 +102,8 @@
         case "submitPoints":
             // Include relevant files
             include_once "../inc/enums/Shapes.php";
+            include_once "../inc/classes/Restrictions.php";
+            include_once "../inc/enums/CheckTypes.php";
             include_once "../inc/enums/RestrictionTypes.php";
             // Decode the data
             $request_data = json_decode($_POST["data"], $assoc=TRUE);
@@ -124,18 +114,18 @@
                 break;
             }
             // Check the shape matches the expected shape
-            if ($request_data["expected_shape"] != $_SESSION["Chosen_Shape"]) {
+            if ($request_data["restrictions"]["chosen_shape"] != $_SESSION["Restrictions"]["shape_name"]) {
                 $response["error_message"] = "Mismatching shape received";
                 $response["error_code"] = 2;
                 break;
             }
             // Check their are the correct number of points
-            if (sizeof($request_data["point_pattern"]["x"]) < $_SESSION["minimum_number"]) {
+            if (sizeof($request_data["point_pattern"]["x"]) < $_SESSION["Restrictions"]["minimum_number"]) {
                 $response["error_message"] = "Too few points";
                 $response["error_code"] = 3;
                 break;
             }
-            if (sizeof($request_data["point_pattern"]["x"]) > $_SESSION["maximum_number"]) {
+            if (sizeof($request_data["point_pattern"]["x"]) > $_SESSION["Restrictions"]["maximum_number"]) {
                 $response["error_message"] = "Too many points";
                 $response["error_code"] = 4;
                 break;
@@ -145,52 +135,20 @@
                 $response["error_code"] = 5;
                 break;
             }
-            // Validate all restrictions
-            foreach (RestrictionTypes::ALL() as $restriction) {
-                if ($request_data["limitations"][$restriction->getFunctionalName()] != $_SESSION[$restriction->getFunctionalName()]) {
-                    $response["error_message"] = "Mismatch in restrictions expected and those provided by user";
-                    $response["extra_data"] = "req_data=".$request_data["limitations"][$restriction->getFunctionalName()]." | serv_data=".$_SESSION[$restriction->getFunctionalName()];
-                    $response["error_code"] = 6;
-                    echo json_encode($response);
-                    exit;
-                }
-            }
-            // Insert into database
-            // Form limitations insert
-            $limitations_sql = "INSERT INTO `Limitations` (`Minimum_radius`, `Maximum_radius`, `Minimum_number`, `Maximum_number`) VALUES (:min_rad, :max_rad, :min_num, :max_num)";
-            $limitations_sql_param = array(":min_rad" => $request_data["limitations"]["minimum_radius"], ":max_rad" => $request_data["limitations"]["maximum_radius"], ":min_num" => $request_data["limitations"]["minimum_number"], ":max_num" => $request_data["limitations"]["maximum_number"]);
-            try {
-                $limitation_id = DB::query($limitations_sql, $limitations_sql_param);
-            } catch (PDOException $e) {
-                Logger::log(LoggingType::WARNING(), array("PDOException", "Failed to insert restriction information when attempting to insert new point pattern"));
-                $response["error_message"] = "Server Error";
-                $response["error_code"] = 0;
+            // Validate restrictions
+            $restrictions_valid = Restrictions::validateRestrictionSet($request_data["restrictions"]);
+            if (!$restrictions_valid) {
+                $response["error_message"] = "Invalid restrictions sent by Client";
+                $response["error_code"] = 6;
                 break;
             }
-            if ($limitation_id) {
-                $point_pattern_sql = "INSERT INTO `point_patterns` (`Shape_Name`, `Limitations_ID`, `Point_Pattern`, `Canvas_Size`) VALUES (:shape, :lim_id, :pp, :canvas_size)";
-                $point_pattern_sql_param = array(":shape" => $request_data["expected_shape"], ":lim_id" => $limitation_id, ":pp" => json_encode($request_data["point_pattern"]), ":canvas_size" => $request_data["canvas_size"]);
-                try {
-                    $insert_id = DB::query($point_pattern_sql, $point_pattern_sql_param);
-                } catch (PDOException $e) {
-                    // Remove restriction set if the final insert fails
-                    Logger::log(LoggingType::ERROR(), array("PDOException", "Failed to insert new point pattern", "Attempting to remove limitation information from database", "Limitation ID: ".$limitation_id));
-                    $remove_restriction_sql = "DELETE FROM `Limitations` WHERE `ID`=:id";
-                    $remove_restriction_variables = array(":id" => $limitation_id);
-                    try {
-                        DB::query($remove_restriction_sql, $remove_restriction_variables);
-                    } catch (PDOException $e) {
-                        Logger::log(LoggingType::ERROR(), array("PDOException", "Failed to remove limitations after failed point pattern insert", "Limitation ID: ".$limitation_id));
-                        // ##########################################################################################
-                        // # Not sure whether to keep this in... will decide once hosting's sorted
-                        // ##########################################################################################
-                        // # error_log("Failed to delete limitation of failed pattern insert, needs to be resolved, limitation id: ".$limitation_id, 1, ADMIN_EMAIL);
-                        // ##########################################################################################
-                    }
-                    $response["error_message"] = "Server Error";
-                    $response["error_code"] = 0;
-                }
-            } else {
+            $point_pattern_sql = "INSERT INTO `Point_Patterns` (`Shape_Name`, `Point_Pattern`, `Canvas_Size`, `Restriction_Summary`, `Submission_Date`) VALUES (:shape, :pp, :canvas_size, :res_sum, '".date("yy/m/d")."')";
+            $point_pattern_sql_param = array(":shape" => $request_data["restrictions"]["chosen_shape"], ":pp" => json_encode($request_data["point_pattern"]), ":canvas_size" => $request_data["canvas_size"], ":res_sum" => json_encode($request_data["restrictions"]));
+            try {
+                $insert_id = DB::query($point_pattern_sql, $point_pattern_sql_param);
+            } catch (PDOException $e) {
+                // Remove restriction set if the final insert fails
+                Logger::log(LoggingType::ERROR(), array("PDOException", "Failed to insert new point pattern"));
                 $response["error_message"] = "Server Error";
                 $response["error_code"] = 0;
                 break;

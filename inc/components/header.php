@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>What's The Point? | <?php echo $page_title; ?></title>
+        <title>Spotting Patterns? | <?php echo $page_title; ?></title>
         <!-- Include Bootstrap -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -9,6 +9,18 @@
             if (isset($page_description)) {
         ?>
         <meta name="description" content="<?php echo $page_description; ?>">
+        <?php
+            }
+        ?>
+        <?php
+            if ($page_title === "Home") {
+        ?>
+        <meta property="og:locale"      content="en_UK"/>
+        <meta property="og:url"         content="https://spottingpatterns.co.uk"/>
+        <meta property="og:type"        content="website"/>
+        <meta property="og:title"       content="Spotting Patterns"/>
+        <meta property="og:description" content="A citizen science initiative"/>
+        <meta property="og:image"       content="https://spottingpatterns.co.uk/resources/fb-share-image.jpg"/>
         <?php
             }
         ?>
@@ -29,15 +41,9 @@
         <link rel="stylesheet" href="<?php echo $root_dir; ?>css/<?php echo $page_title; ?>.css" type="text/css"/>
         <!-- Include Logger script -->
         <script src="<?php echo $root_dir; ?>scripts/logging.js" type="application/javascript"></script>
+        <!-- Include script for menus -->
+        <script src="<?php echo $root_dir; ?>scripts/menus.js"></script>
 <?php
-    if ($page_title === "Home") {
-?>
-        <div id="fb-root"></div>
-        <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v7.0" nonce="wfNN7EZB"></script>
-        <link rel="stylesheet" href="<?php echo $root_dir; ?>css/fb-share-button.css" type="text/css"/>
-        <link rel="stylesheet" href="<?php echo $root_dir; ?>css/Home-font-size-correction.css" type="text/css"/>
-<?php
-    }
     if ($page_title === "Game" || $page_title === "Review") {
 ?>
         <script src="https://unpkg.com/paper@0.11.5/dist/paper-full.min.js"></script>
