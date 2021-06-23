@@ -100,7 +100,7 @@ body {
     padding: 0.25rem;
     font-size: 18px;
 }
-.large-navbar a {
+.large-navbar a, .small-navbar a {
     text-decoration: none;
     color: black;
 }
@@ -113,4 +113,19 @@ body {
 }
 .small-navbar div.col-1 {
     line-height: 3rem;
+}
+.small-navbar i {
+    cursor: pointer;
+}
+div#mobile_dropdown {
+    position: absolute;
+    right: 0;
+    top: 3.5rem;
+    height: 0;
+    transition: all 1s ease-in-out;
+    overflow: hidden;
+    width: 8rem;
+    background: white;
+    border-top: 1px solid #eee;
+    border-color: rgba(0,0,0,0);
 }

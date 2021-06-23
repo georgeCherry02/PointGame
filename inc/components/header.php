@@ -41,6 +41,8 @@
         <link rel="stylesheet" href="<?php echo $root_dir; ?>css/<?php echo $page_title; ?>.css" type="text/css"/>
         <!-- Include Logger script -->
         <script src="<?php echo $root_dir; ?>scripts/logging.js" type="application/javascript"></script>
+        <!-- Include script for menus -->
+        <script src="<?php echo $root_dir; ?>scripts/menus.js"></script>
 <?php
     if ($page_title === "Game" || $page_title === "Review") {
 ?>
