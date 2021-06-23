@@ -12,6 +12,18 @@
         <?php
             }
         ?>
+        <?php
+            if ($page_title === "Home") {
+        ?>
+        <meta property="og:locale"      content="en_UK"/>
+        <meta property="og:url"         content="https://spottingpatterns.co.uk"/>
+        <meta property="og:type"        content="website"/>
+        <meta property="og:title"       content="Spotting Patterns"/>
+        <meta property="og:description" content="A citizen science initiative"/>
+        <meta property="og:image"       content="https://spottingpatterns.co.uk/resources/fb-share-image.jpg"/>
+        <?php
+            }
+        ?>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"/>
         <!-- Include Basic JQuery for Bootstrap and some code -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -30,14 +42,6 @@
         <!-- Include Logger script -->
         <script src="<?php echo $root_dir; ?>scripts/logging.js" type="application/javascript"></script>
 <?php
-    if ($page_title === "Home") {
-?>
-        <div id="fb-root"></div>
-        <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v7.0" nonce="wfNN7EZB"></script>
-        <link rel="stylesheet" href="<?php echo $root_dir; ?>css/fb-share-button.css" type="text/css"/>
-        <link rel="stylesheet" href="<?php echo $root_dir; ?>css/Home-font-size-correction.css" type="text/css"/>
-<?php
-    }
     if ($page_title === "Game" || $page_title === "Review") {
 ?>
         <script src="https://unpkg.com/paper@0.11.5/dist/paper-full.min.js"></script>
