@@ -142,7 +142,7 @@
                 $response["error_code"] = 6;
                 break;
             }
-            $point_pattern_sql = "INSERT INTO `point_patterns` (`Shape_Name`, `Point_Pattern`, `Canvas_Size`, `Restriction_Summary`, `Submission_Date`) VALUES (:shape, :pp, :canvas_size, :res_sum, '".date("yy/m/d")."')";
+            $point_pattern_sql = "INSERT INTO `Point_Patterns` (`Shape_Name`, `Point_Pattern`, `Canvas_Size`, `Restriction_Summary`, `Submission_Date`) VALUES (:shape, :pp, :canvas_size, :res_sum, '".date("yy/m/d")."')";
             $point_pattern_sql_param = array(":shape" => $request_data["restrictions"]["chosen_shape"], ":pp" => json_encode($request_data["point_pattern"]), ":canvas_size" => $request_data["canvas_size"], ":res_sum" => json_encode($request_data["restrictions"]));
             try {
                 $insert_id = DB::query($point_pattern_sql, $point_pattern_sql_param);
