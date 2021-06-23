@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>What's The Point? | <?php echo $page_title; ?></title>
+        <title>Spotting Patterns? | <?php echo $page_title; ?></title>
         <!-- Include Bootstrap -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
