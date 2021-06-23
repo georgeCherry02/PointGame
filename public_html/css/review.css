@@ -42,3 +42,6 @@
 .options_container a.btn {
     width: 80%;
 }
+i.fa-chevron-left, i.fa-chevron-right {
+    cursor: pointer;
+}
