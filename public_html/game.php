@@ -41,7 +41,7 @@
     <script>
         const BINARY_MASK = "QUICK FIX";
     </script>
-    <script src="./scripts/game.js" type="application/javascript"></script>
+    <script src="./scripts/game-v1.0.0.js" type="application/javascript"></script>
 </div>
 <div class="modal fade" id="confirmation_modal" tabindex="-1" role="dialog" data-backdrop="false">
     <div class="modal-dialog">
