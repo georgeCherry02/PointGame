@@ -130,6 +130,17 @@
         <div id="data_content" class="collapse" aria-labelledby="data_heading" data-parent="#admin_action_accordion">
             <div class="card-body">
                 <h6 class="mb-0">Here you can manage the data collected</h6>
+                <form action="./request_data.php" method="POST">
+                    <p>Select when you want point patterns from...</p>
+                    <input type="date" class="form-control mb-3" name="backdate"/>
+                    <p>Select the average score you want the point patterns to be above or equal to (0->100)</p>
+                    <input type="number" class="form-control mb-3" name="score"/>
+                    <p>Select the number of reviews that you want the point patterns to have gone through</p>
+                    <input type="number" class="form-control mb-3" name="review_number"/>
+                    <p>Select the maximum number of patterns you want written to file</p>
+                    <input type="number" class="form-control mb-3" name="pattern_number"/>
+                    <input type="submit" class="btn btn-primary" value="Download"/>
+                </form>
             </div>
         </div>
     </div>

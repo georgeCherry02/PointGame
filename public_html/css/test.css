@@ -1,0 +1,17 @@
+h5 {
+    margin-bottom: 0;
+}
+input, select {
+    margin-bottom: 0.5rem;
+}
+input {
+    cursor: text;
+}
+input[type="checkbox"] {
+    cursor: pointer;
+}
+form {
+    padding: 2rem;
+    border-radius: 2rem;
+    background: #fdfdff;
+}

@@ -1,19 +1,24 @@
-.navbar {
-    box-shadow: 0px 3px 5px #ccc;
-}
-.navbar a.active, .navbar a:hover, .navbar a.navbar-brand {
-    color: #5eb1bf;
-}
-.navbar a.active {
+* {
     cursor: default;
-    pointer-events: none;
 }
-.navbar a.dropdown_item {
-    text-decoration: none;
+html, body {
+    height: 100%;
+    padding: 0 !important;
 }
-.navbar div.dropdown-menu {
-    min-width: 6rem;
-    padding-left: 0.25rem;
+body {
+    background-image: url("../resources/pattern\ repeat.png"); 
+    background-size: 300%; 
+    background-position: 50% -1%;
+}
+@font-face {
+    font-family: "Arial Black";
+    src: url("../resources/Arial\ Black.ttf");
+}
+div.fb-share-button {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    float: none;
 }
 .black-text {
     color: black;
@@ -78,4 +83,49 @@
 }
 .carousel-indicators li.highlight-background {
     background-color: #5eb1bf;
+}
+
+/* Navbar CSS */
+.large-navbar, .small-navbar {
+    background: white;
+    height: 3.5rem;
+}
+.large-navbar p, .small-navbar p {
+    height: 2rem;
+    line-height: 2rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+.large-navbar {
+    padding: 0.25rem;
+    font-size: 18px;
+}
+.large-navbar a, .small-navbar a {
+    text-decoration: none;
+    color: black;
+}
+.large-navbar a p:hover, .small-navbar a p:hover {
+    cursor: pointer;
+}
+.navbar-title {
+    font-family: "Arial Black";
+    font-size: 28px;
+}
+.small-navbar div.col-1 {
+    line-height: 3rem;
+}
+.small-navbar i {
+    cursor: pointer;
+}
+div#mobile_dropdown {
+    position: absolute;
+    right: 0;
+    top: 3.5rem;
+    height: 0;
+    transition: all 1s ease-in-out;
+    overflow: hidden;
+    width: 8rem;
+    background: white;
+    border-top: 1px solid #eee;
+    border-color: rgba(0,0,0,0);
 }

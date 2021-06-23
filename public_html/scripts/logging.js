@@ -2,7 +2,7 @@ const allowed_logs = {
     error:  true,
     warn:   true,
     status: true,
-    notice: true
+    notice: false
 }
 
 const logging_divider = "##################################################";

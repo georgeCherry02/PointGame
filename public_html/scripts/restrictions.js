@@ -74,7 +74,7 @@ restriction.remove_set = function(id) {
         success: function(raw_response) {
             var response = JSON.parse(raw_response);
             if (response.status === "success") {
-                location.reload();
+                window.location.reload();
             } else {
                 // Check if it's because it's the last one and explain
                 if (response.error_code === 3) {
@@ -117,7 +117,7 @@ restriction.set_active = function(id) {
             } else {
                 // Fatal error, reload page
                 Logger.log(LoggingType.ERROR, [response.error_message]);
-                location.reload();
+                window.location.reload();
             }
         },
         error: function() {
