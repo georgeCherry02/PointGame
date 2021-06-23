@@ -5,7 +5,7 @@
         private static $_total_pattern_amount = 30;
         public static function fetchReviewablePatterns() {
             // Fetch a subset of patterns that are not fully reviewed yet and are complete
-            $fetch_sql = "SELECT `ID`, `Shape_Name`, `Point_Pattern`, `Canvas_Size`, `Restriction_Summary` FROM `Point_Patterns` WHERE `Review_Amount` < :rev_amount LIMIT ".self::$_total_pattern_amount;
+            $fetch_sql = "SELECT `ID`, `Shape_Name`, `Point_Pattern`, `Canvas_Size`, `Freeplay`, `Restriction_Summary`, `Nickname` FROM `Point_Patterns` WHERE `Review_Amount` < :rev_amount LIMIT ".self::$_total_pattern_amount;
             $fetch_sql_variables = array(":rev_amount" => self::$_valid_review_amount);
             try {
                 $reviewable_patterns = DB::query($fetch_sql, $fetch_sql_variables);
@@ -29,6 +29,17 @@
             }
             // Return said array
             return $patterns_to_be_reviewed;
+        }
+        public static function transformPatternData($pattern) {
+            $result = ["x" => [], "y" => [], "c" => []];
+            foreach ($pattern as $colour => $coord_info) {
+                for ($i = 0; $i < count($coord_info["x"]); $i++) {
+                    array_push($result["c"], $colour);
+                    array_push($result["x"], $coord_info["x"][$i]);
+                    array_push($result["y"], $coord_info["y"][$i]);
+                }
+            }
+            return $result;
         }
         public static function removeInvalidPattern($pattern_id) {
             Logger::log(LoggingType::ERROR(), array("Attempting to delete an invalid shape", "ID: ".$pattern_id));

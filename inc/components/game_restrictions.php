@@ -1,8 +1,9 @@
 <?php
     // Choose a shape at random
+    $values = array();
     if (isset($_POST["test"])) {
         // Parse the POST
-        $values = array();
+        $values["freeplay"] = FALSE;
         $values["shape_name"] = $_POST["shape_name"];
         $values["minimum_radius"] = $_POST["minimum_radius"];
         $values["maximum_radius"] = $_POST["maximum_radius"];
@@ -164,21 +165,25 @@
         //     )
         // );
     } else {
-        header("Location: default.php");
-        exit;
+        $values["freeplay"] = TRUE;
+        $values["minimum_radius"] = 5;
+        $values["shape_name"] = "Square";
     } 
     $_SESSION["Restrictions"] = $values;
     echo "<script>";
+    echo "const FREEPLAY = ".$values["freeplay"].";\n";
     echo "const MINIMUM_RADIUS = ".$values["minimum_radius"].";\n";
-    echo "const MAXIMUM_RADIUS = ".$values["maximum_radius"].";\n";
-    echo "const MINIMUM_NUMBER = ".$values["minimum_number"].";\n";
-    echo "const MAXIMUM_NUMBER = ".$values["maximum_number"].";\n";
-    echo "const NUMBER_OF_CLOSE_NEIGHBOURS = ".$values["number_of_close_neighbours"].";\n";
     echo "const EXPECTED_SHAPE = \"".$values["shape_name"]."\";\n";
-    foreach (CheckTypes::ALL() as $check_type) {
-        $check_type->determineCheckActive($values[$check_type->getKey()]["active"]);
-        if ($values[$check_type->getKey()]["active"]) {
-            Restrictions::manageCheckType($check_type, $values[$check_type->getKey()]["values"]);
+    if (!$values["freeplay"]) {
+        echo "const MAXIMUM_RADIUS = ".$values["maximum_radius"].";\n";
+        echo "const MINIMUM_NUMBER = ".$values["minimum_number"].";\n";
+        echo "const MAXIMUM_NUMBER = ".$values["maximum_number"].";\n";
+        echo "const NUMBER_OF_CLOSE_NEIGHBOURS = ".$values["number_of_close_neighbours"].";\n";
+        foreach (CheckTypes::ALL() as $check_type) {
+            $check_type->determineCheckActive($values[$check_type->getKey()]["active"]);
+            if ($values[$check_type->getKey()]["active"]) {
+                Restrictions::manageCheckType($check_type, $values[$check_type->getKey()]["values"]);
+            }
         }
     }
     echo "</script>";

@@ -24,6 +24,12 @@
     <div id="game_container" class="container">
         <div id="left_panel" class="text-center">
             <div class="mb-2" id="colour_palette"></div>
+            <div class="mb-2">
+                <label for="shape_input">Shape:</label><br/>
+                <input type="text" id="shape_input"/><br/>
+                <label for="name_input">Nickname:</label><br/>
+                <input type="text" id="name_input"/><br/>
+            </div>
             <div id="clear_button" type="button" data-toggle="modal" data-target="#clear_modal">
                 <h5>Clear</h5>
             </div>
@@ -41,7 +47,17 @@
     <script>
         const BINARY_MASK = "QUICK FIX";
     </script>
-    <script src="./scripts/game-v1.0.0.js" type="application/javascript"></script>
+    <?php
+        if ($values["freeplay"]) {
+    ?>
+        <script src="./scripts/game-freeplay.js" type="application/javascript"></script>
+    <?php
+        } else {
+    ?>
+        <script src="./scripts/game-v1.0.0.js" type="application/javascript"></script>
+    <?php
+        }
+    ?>
 </div>
 <div class="modal fade" id="confirmation_modal" tabindex="-1" role="dialog" data-backdrop="false">
     <div class="modal-dialog">
@@ -74,7 +90,13 @@
         <div class="modal-content text-center m-auto">
             <h5 class="modal-title">Info</h5>
             <p>Blah de blah what's up here's a brief description of the game</p>
-            <h5 class="modal-answer ml-auto mr-auto" data-dismiss="modal" aria-label="Close">Begin</h5>
+            <div>
+                <p class="modal-question">Now are you feeling inspired?</p>
+                <div class="w-100 text-left">
+                    <h5 class="modal-answer modal-answer-left" onclick="game.shapeFreeField()">Yes, I have an idea!</h5>
+                    <h5 class="modal-answer" onclick="game.shapeProvided()">No, Inspire me!</h5>
+                </div>
+            </div>
         </div>
     </div>
 </div>
