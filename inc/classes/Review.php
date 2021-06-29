@@ -5,7 +5,7 @@
         private static $_total_pattern_amount = 30;
         public static function fetchReviewablePatterns() {
             // Fetch a subset of patterns that are not fully reviewed yet and are complete
-            $fetch_sql = "SELECT `ID`, `Shape_Name`, `Point_Pattern`, `Canvas_Size`, `Freeplay`, `Restriction_Summary`, `Nickname` FROM `Point_Patterns` WHERE `Review_Amount` < :rev_amount LIMIT ".self::$_total_pattern_amount;
+            $fetch_sql = "SELECT `ID`, `Shape_Name`, `Point_Pattern`, `Canvas_Size`, `Freeplay`, `Restriction_Summary`, `Nickname` FROM `Point_Patterns` LIMIT ".self::$_total_pattern_amount;
             $fetch_sql_variables = array(":rev_amount" => self::$_valid_review_amount);
             try {
                 $reviewable_patterns = DB::query($fetch_sql, $fetch_sql_variables);
@@ -73,9 +73,9 @@
             }
             Logger::log(LoggingType::STATUS(), array("Removed invalid point pattern", "ID: ".$pattern_id));
         }
-        public static function updatePatternReviews($reviews) {
+        public static function updateAuthPatternReviews($reviews) {
             // Fetch initial reviews scores and number of reviews for patterns being reviewed
-            $fetch_initial_review_sql = "SELECT `ID`, `Review_Score`, `Review_Amount` FROM `Point_Patterns` WHERE `ID`=:id_1 OR `ID`=:id_2 OR `ID`=:id_3";
+            $fetch_initial_review_sql = "SELECT `ID`, `Auth_Review_Scores`, `Auth_Review_Amount`, `Auth_Review_Average` FROM `Point_Patterns` WHERE `ID`=:id_1 OR `ID`=:id_2 OR `ID`=:id_3";
             $fetch_initial_review_sql_variables = array();
             $i = 1;
             foreach ($reviews as $review_id => $review_score) {
@@ -92,16 +92,19 @@
             for ($i = 0; $i < sizeof($initial_review_info); $i++) {
                 // Fetch current point pattern
                 $cpp = $initial_review_info[$i];
-                // Initialise final summary object for cpp
-                // Fetch initial information
-                $init_score = $cpp["Review_Score"];
-                $init_amount = $cpp["Review_Amount"];
-                // Determine final properties
-                $final_amount = $init_amount + 1;
-                $final_score = floor((($init_score * $init_amount) + $reviews[$cpp["ID"]]) / ($final_amount));
+                $score = intval($reviews[$cpp["ID"]]);
+                // Decode initial score array
+                $init_scores = json_decode($cpp["Auth_Review_Scores"]);
+                $init_amount = intval($cpp["Auth_Review_Amount"]);
+                $init_average = intval($cpp["Auth_Review_Average"]);
+                $fin_amount = $init_amount + 1;
+                $fin_average = ($init_average * $init_amount + $score) / $fin_amount;
+                // Push new score to array
+                array_push($init_scores, $score);
+                $fin_scores = json_encode($init_scores);
                 // Update the database with this information
-                $update_review_sql = "UPDATE `Point_Patterns` SET `Review_Score`=:rev_score, `Review_Amount`=:rev_amount WHERE `ID`=:id";
-                $update_review_variables = array(":rev_score" => $final_score, ":rev_amount" => $final_amount, ":id" => $cpp["ID"]);
+                $update_review_sql = "UPDATE `Point_Patterns` SET `Auth_Review_Scores`=:rev_scores, `Auth_Review_Amount`=:auth_amount, `Auth_Review_Average`=:auth_avg WHERE `ID`=:id";
+                $update_review_variables = array(":id" => $cpp["ID"], ":rev_scores" => $fin_scores, ":auth_amount" => $fin_amount, ":auth_avg" => $fin_average);
                 try {
                     DB::query($update_review_sql, $update_review_variables);
                 } catch (PDOException $e) {

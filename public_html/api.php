@@ -133,7 +133,7 @@
                 $response["error_code"] = 6;
                 break;
             }
-            $point_pattern_sql = "INSERT INTO `Point_Patterns` (`Shape_Name`, `Point_Pattern`, `Canvas_Size`, `Restriction_Summary`, `Submission_Date`, `Nickname`) VALUES (:shape, :pp, :canvas_size, :res_sum, '".date("yy/m/d")."', :nn)";
+            $point_pattern_sql = "INSERT INTO `Point_Patterns` (`Shape_Name`, `Point_Pattern`, `Auth_Review_Scores`, `Canvas_Size`, `Restriction_Summary`, `Submission_Date`, `Nickname`, `Public_Review_Scores`) VALUES (:shape, :pp, '[]', :canvas_size, :res_sum, '".date("yy/m/d")."', :nn, '[]')";
             $point_pattern_sql_param = array(":shape" => $request_data["restrictions"]["chosen_shape"], ":pp" => json_encode($request_data["point_pattern"]), ":canvas_size" => $request_data["canvas_size"], ":res_sum" => json_encode($request_data["restrictions"]), ":nn" => $request_data["nickname"]);
             try {
                 $insert_id = DB::query($point_pattern_sql, $point_pattern_sql_param);
@@ -184,7 +184,7 @@
                 break;
             }
             // Update the current review scores
-            $outcome = Review::updatePatternReviews($request_data["reviews"]);
+            $outcome = Review::updateAuthPatternReviews($request_data["reviews"]);
             if (!$outcome) {
                 $response["error_message"] = "Server Error";
                 $response["error_code"] = 0;
