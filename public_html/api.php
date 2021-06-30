@@ -29,6 +29,47 @@
     // Validate provided process
     // Error codes documented at bottom of API
     switch($_POST["process"]) {
+        case "confirmPatternScore":
+            include_once "../inc/classes/Review.php";
+            $request_data = json_decode($_POST["data"], $assoc=TRUE);
+            if (sizeof($request_data) === 0) {
+                $response["error_message"] = "Malformed Data";
+                $response["error_code"] = 1;
+                break;
+            }
+            $new_score = Review::submitPublicRating($request_data["id"], $request_data["score"]);
+            if (!$new_score) {
+                $response["error_message"] = "Server Error";
+                $response["error_code"] = 0;
+                break;
+            }
+            $response["new_score"] = $new_score;
+            $response["status"] = "success";
+            break;
+        case "fetchGalleryPatterns":
+            include_once "../inc/classes/Review.php";
+            $request_data = json_decode($_POST["data"], $assoc=TRUE);
+            if (sizeof($request_data) === 0) {
+                $response["error_message"] = "Malformed Data";
+                $response["error_code"] = 1;
+                break;
+            }
+            $page = intval($request_data["page"]);
+            $gallery_items = Review::fetchGalleryPatterns($request_data["mode"], $page);
+            $last_page = false;
+            if (sizeof($gallery_items) < 9) {
+                $last_page = true;
+                $gallery_items = Review::fetchGalleryPatterns(($request_data["mode"]), $page-1);
+            }
+            if (!$gallery_items) {
+                $response["error_message"] = "Server Error";
+                $response["error_code"] = 0;
+                break;
+            }
+            $response["last_page"] = $last_page;
+            $response["point_patterns"] = $gallery_items;
+            $response["status"] = "success";
+            break;
         case "fetchReviewPatterns":
             // No data required
             include_once "../inc/classes/Review.php";
