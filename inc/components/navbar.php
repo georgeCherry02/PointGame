@@ -10,10 +10,10 @@
             echo $home_button_html;
         ?></div>
         <div class="col-4"></div>
-        <div class="col-2 text-right">
+        <div class="col-2 text-right navbutton">
             <a href="people.php"><p>About us</p></a>
         </div>
-        <div class="col-2">
+        <div class="col-2 navbutton">
             <a href="research.php"><p>Research</p></a>
         </div>
     </div>

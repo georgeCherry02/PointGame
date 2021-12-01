@@ -29,7 +29,6 @@ p.navbar-title:hover {
 .play_button {
     position: absolute;
     top: 65%;
-    left: 50%;
     transform: translate(-50%, 0);
 
     width: 10rem;
@@ -45,6 +44,12 @@ p.navbar-title:hover {
 .play_button:hover {
     transform: translate(calc(-50% + 1px), 1px);
     background: #DADEC4;
+}
+.play_button_restricted {
+    left: 40%;
+}
+.play_button_free {
+    left: 60%;
 }
 .play_button .link_container {
     margin-top: 50%;

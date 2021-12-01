@@ -13,9 +13,14 @@
         <h5 class="mt-4">A citizen science initiative</h5>
     </div>
 </div>
-<div class="play_button d-none d-lg-block">
+<div class="play_button d-none d-lg-block play_button_restricted">
     <div class="link_container">
-        <a href="game.php">Play Game</a>
+        <a href="game.php?f=0">Play Game</a>
+    </div>
+</div>
+<div class="play_button d-none d-lg-block play_button_free">
+    <div class="link_container">
+        <a href="game.php?f=1">Play Without Restrictions</a>
     </div>
 </div>
 <div class="fb-share-button" data-href="https://spottingpatterns.co.uk" data-layout="button"></div>

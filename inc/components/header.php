@@ -44,7 +44,7 @@
         <!-- Include script for menus -->
         <script src="<?php echo $root_dir; ?>scripts/menus.js"></script>
 <?php
-    if ($page_title === "Game" || $page_title === "Review") {
+    if ($page_title === "Game" || $page_title === "Review" || $page_title === "Gallery") {
 ?>
         <script src="https://unpkg.com/paper@0.11.5/dist/paper-full.min.js"></script>
 <?php

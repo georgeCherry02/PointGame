@@ -1,0 +1,68 @@
+.filters_container, .page_control_container {
+    height: 3rem;
+}
+#gallery_container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 3.5rem - 3rem - 3rem); /* 3.5 = nav 2 = control containers*/
+    margin: 0 3rem;
+}
+.gallery_row {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+}
+.gallery_object {
+    position: relative;
+    flex: 1;
+    text-align: center;
+    margin: 0.5rem;
+}
+.gallery_object canvas {
+    box-shadow: 3px 3px 2px #ccc;
+}
+.gallery_object p {
+    display: inline-block;
+    margin: 0;
+    position: absolute;
+    top: -1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.gallery_object input {
+    position: absolute;
+    right: 1rem;
+    transform: translateX(50%) rotate(-90deg);
+    top: 50%;
+}
+.gallery_object .confirm-score {
+    position: absolute;
+    top: 0;
+    right: 0.5rem;
+    font-size: 1rem;
+    transition: all 0.25s ease-in-out;
+}
+.gallery_object .confirm-score:hover {
+    font-size: 1.05rem;
+    translate: transform(-5%, 5%);
+}
+.disabled {
+    color: grey;
+    cursor: default;
+}
+.gallery_object .confirm-score.disabled:hover {
+    font-size: 1rem;
+    translate: transform(0, 0);
+}
+.filters_container {
+    text-align: center;
+}
+.prev-page, .next-page {
+    font-size: 1.25rem;
+}
+.prev-page, .next-page, div.filter-input-container { 
+    display: inline-block;
+}
+div.filter-input-container {
+    padding: 0.25rem;
+}
