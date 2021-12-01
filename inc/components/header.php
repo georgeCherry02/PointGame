@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Spotting Patterns? | <?php echo $page_title; ?></title>
+        <title>Spotting Patterns | <?php echo $page_title; ?></title>
+        <link rel="shortcut icon" type="image/jpg" href="./favicon.ico"/>
         <!-- Include Bootstrap -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -44,7 +45,7 @@
         <!-- Include script for menus -->
         <script src="<?php echo $root_dir; ?>scripts/menus.js"></script>
 <?php
-    if ($page_title === "Game" || $page_title === "Review") {
+    if ($page_title === "Game" || $page_title === "Review" || $page_title === "Gallery") {
 ?>
         <script src="https://unpkg.com/paper@0.11.5/dist/paper-full.min.js"></script>
 <?php

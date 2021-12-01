@@ -101,6 +101,17 @@ h5#submit_button_text {
     border: none;
     background: #E8D19D;
 }
+#restriction_modal .modal-content {
+    border: none;
+    background: #BFD3E4;
+}
+#restriction_summary_container p {
+    margin: 0;
+    width: auto;
+}
+#restriction_modal .modal-answer {
+    margin-top: 0.5rem;
+}
 #confirmation_modal .modal-content {
     border: none;
     background: #C9CDB3;

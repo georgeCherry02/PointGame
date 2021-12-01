@@ -94,10 +94,12 @@ review.updateCanvases = function() {
     Logger.log(LoggingType.STATUS, "Setting up canvases");
     for (var i = 1; i <= this.review_amount; i++) {
         // (current point pattern)
-        var cpp = this.point_patterns[i-1];
-        var scaling_factor = 512 / cpp["canvas_size"];
+        let cpp = this.point_patterns[i-1];
+        let nickname = cpp["nickname"];
+        document.getElementById("review_author_"+i).innerHTML = nickname;
+        let scaling_factor = 512 / cpp["canvas_size"];
         // Update question for canvas
-        $("#review_question_"+i).html(cpp["Shape_Name"]);
+        $("#review_question_"+i).html(cpp["title"]);
         // Populate the ID input
         $("#review_pattern_id_"+i).val(cpp["ID"]);
         // Begin to update canvas
@@ -117,7 +119,7 @@ review.updateCanvases = function() {
                 center: new paper.Point(cpp.x[j] * scaling_factor, cpp.y[j] * scaling_factor),
                 radius: cpp["Minimum_Radius"] * scaling_factor
             });
-            point_area.fillColor = POINT_COLOURS[cpp.c[j]];
+            point_area.fillColor = cpp.c[j];
             paper.view.draw();
         }
     }
