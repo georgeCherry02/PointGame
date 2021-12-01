@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Spotting Patterns? | <?php echo $page_title; ?></title>
+        <title>Spotting Patterns | <?php echo $page_title; ?></title>
+        <link rel="shortcut icon" type="image/jpg" href="./favicon.ico"/>
         <!-- Include Bootstrap -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
