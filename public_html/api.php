@@ -73,7 +73,6 @@
         case "fetchReviewPatterns":
             // No data required
             include_once "../inc/classes/Review.php";
-            include_once "../inc/enums/Shapes.php";
             // Fetch the patterns for review
             $review_patterns = Review::fetchReviewablePatterns();
             if (!$review_patterns) {
@@ -120,16 +119,13 @@
             $response["status"] = "success";
             break;
         case "fetchShape":
-            include_once "../inc/enums/Shapes.php";
-            $shapes = Shapes::ALL();
-            $shape_amount = count(Shapes::ALL());
+            $shape_amount = sizeof(SHAPES);
             $index = rand(0, $shape_amount-1);
-            $response["shape"] = $shapes[$index]->getName();
+            $response["shape"] = SHAPES[$index];
             $response["status"] = "success";
             break;
         case "submitPoints":
             // Include relevant files
-            include_once "../inc/enums/Shapes.php";
             include_once "../inc/classes/Restrictions.php";
             include_once "../inc/enums/CheckTypes.php";
             include_once "../inc/enums/RestrictionTypes.php";
@@ -142,38 +138,7 @@
                 break;
             }
             $free = $request_data["freeplay"];
-            // Check the shape matches the expected shape
-            if (!$free && $request_data["restrictions"]["chosen_shape"] != $_SESSION["Restrictions"]["shape_name"]) {
-                $response["error_message"] = "Mismatching shape received";
-                $response["error_code"] = 2;
-                break;
-            }
-            // Check their are the correct number of points
-            if (!$free && sizeof($request_data["point_pattern"]["x"]) < $_SESSION["Restrictions"]["minimum_number"]) {
-                $response["error_message"] = "Too few points";
-                $response["error_code"] = 3;
-                break;
-            }
-            if (!$free && sizeof($request_data["point_pattern"]["x"]) > $_SESSION["Restrictions"]["maximum_number"]) {
-                $response["error_message"] = "Too many points";
-                $response["error_code"] = 4;
-                break;
-            }
-            if (!$free && sizeof($request_data["point_pattern"]["x"]) !== sizeof($request_data["point_pattern"]["y"])) {
-                $response["error_message"] = "Difference in number of points for each coordinate axis";
-                $response["error_code"] = 5;
-                break;
-            }
             // Validate restrictions
-            $restrictions_valid = TRUE;
-            if (!$free) {
-                $restrictions_valid = Restrictions::validateRestrictionSet($request_data["restrictions"]);
-            }
-            if (!$restrictions_valid) {
-                $response["error_message"] = "Invalid restrictions sent by Client";
-                $response["error_code"] = 6;
-                break;
-            }
             $point_pattern_sql = "INSERT INTO `Point_Patterns` (`Shape_Name`, `Point_Pattern`, `Auth_Review_Scores`, `Canvas_Size`, `Restriction_Summary`, `Submission_Date`, `Nickname`, `Public_Review_Scores`) VALUES (:shape, :pp, '[]', :canvas_size, :res_sum, '".date("yy/m/d")."', :nn, '[]')";
             $point_pattern_sql_param = array(":shape" => $request_data["restrictions"]["chosen_shape"], ":pp" => json_encode($request_data["point_pattern"]), ":canvas_size" => $request_data["canvas_size"], ":res_sum" => json_encode($request_data["restrictions"]), ":nn" => $request_data["nickname"]);
             try {

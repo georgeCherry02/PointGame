@@ -15,7 +15,7 @@
 </div>
 <div class="play_button d-none d-lg-block">
     <div class="link_container">
-        <a href="game.php">Play Game</a>
+        <a href="game.php?f=0">Play Game</a>
     </div>
 </div>
 <div class="fb-share-button" data-href="https://spottingpatterns.co.uk" data-layout="button"></div>

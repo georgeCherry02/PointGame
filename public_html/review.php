@@ -2,8 +2,6 @@
     include_once "../inc/base.php";
     include_once "../inc/classes/Database.php";
 
-    include_once "../inc/enums/Shapes.php";
-
     $page_title = "Review";
     include_once "../inc/components/header.php";
     include_once "../inc/components/navbar.php";

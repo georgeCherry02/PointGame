@@ -121,7 +121,7 @@ with (paper) {
         data.point_pattern = this.formatPointData();
         let shape = document.getElementById("shape_input").value;
         let name = document.getElementById("name_input").value;
-        let name_pattern = /^[a-zA-Z]{1,20}$/
+        let name_pattern = /^[a-zA-Z 0-9!]{1,30}$/
         if (!name_pattern.test(name)) {
             alert("Invalid nickname");
             return;

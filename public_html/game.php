@@ -2,7 +2,6 @@
     include_once "../inc/base.php";
     include_once "../inc/classes/Database.php";
 
-    include_once "../inc/enums/Shapes.php";
     include_once "../inc/enums/CheckTypes.php";
     include_once "../inc/enums/RestrictionTypes.php";
 
@@ -38,8 +37,13 @@
         <div id="right_panel" class="text-left">
             <div class="info_button" type="button" data-toggle="modal" data-target="#info_modal">
                 <h5>Info</h5>
-            </div>
-            <div id="submit_button" type="button" data-toggle="modal" data-target="#confirmation_modal"></div>
+            </div><?php
+    if (!$freeplay) {
+            ?><div class="info_button" type="button" data-toggle="modal" data-target="#restriction_modal">
+                <h5>Restrictions</h5>
+            </div><?php
+    }
+            ?><div id="submit_button" type="button" data-toggle="modal" data-target="#confirmation_modal"></div>
             <h5 id="submit_button_text" type="button" data-toggle="modal" data-target="#confirmation_modal">Submit</h5>
         </div>
     </div>
@@ -48,13 +52,13 @@
         const BINARY_MASK = "QUICK FIX";
     </script>
     <?php
-        if ($values["freeplay"]) {
+        if ($freeplay) {
     ?>
         <script src="./scripts/game-freeplay.js" type="application/javascript"></script>
     <?php
         } else {
     ?>
-        <script src="./scripts/game-v1.0.0.js" type="application/javascript"></script>
+        <script src="./scripts/game-graph-restricted.js" type="application/javascript"></script>
     <?php
         }
     ?>
@@ -96,6 +100,17 @@
                     <h5 class="modal-answer modal-answer-left" onclick="game.shapeFreeField()">Yes, I have an idea!</h5>
                     <h5 class="modal-answer" onclick="game.shapeProvided()">No, Inspire me!</h5>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="restriction_modal" tabindex="-1" role="dialog" data-backdrop="false">
+    <div class="modal-dialog">
+        <div class="modal-content text-center m-auto">
+            <h5 class="modal-title">Restrictions Summary</h5>
+            <div class="w-100 text-center" id="restriction_summary_container"></div>
+            <div class="w-100 text-center">
+                <h5 class="modal-answer" data-dismiss="modal" aria-label="Close">Okay!</h5>
             </div>
         </div>
     </div>
